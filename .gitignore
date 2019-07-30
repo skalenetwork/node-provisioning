@@ -1,0 +1,8 @@
+.env
+data.json
+
+# terraform files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
