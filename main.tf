@@ -33,6 +33,9 @@ variable "cli_space" {
 variable "github_token" {
 }
 
+variable "git_branch" {
+}
+
 variable "docker_username" {
 }
 
@@ -99,6 +102,7 @@ resource "digitalocean_droplet" "node" {
       "export CLI_SPACE=${var.cli_space}",
 
       "export TOKEN=${var.github_token}",
+      "export BRANCH=${var.git_branch}",
       "export DOCKER_USERNAME=${var.docker_username}",
       "export DOCKER_PASSWORD=${var.docker_password}",
       "export DISK_MOUNTPOINT=${var.disk_mountpoint}",

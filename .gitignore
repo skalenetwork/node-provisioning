@@ -9,3 +9,6 @@ data.json
 
 
 wallets/*
+
+.idea/
+.vscode/
