@@ -21,7 +21,7 @@ import os
 import logging
 import json
 
-from skale import Skale, BlockchainEnv
+from skale import Skale
 from skale.utils.helper import private_key_to_address, init_default_logger
 from skale.utils.account_tools import init_wallet, generate_accounts
 
@@ -36,10 +36,9 @@ eth_amount = os.environ['ETH_AMOUNT']
 
 init_default_logger()
 
-RPC_IP = os.environ['RPC_IP']
-RPC_PORT = int(os.environ['RPC_PORT'])
+ENDPOINT = os.environ['ENDPOINT']
 
-skale = Skale(BlockchainEnv.CUSTOM, RPC_IP, RPC_PORT, ABI_FILEPATH)
+skale = Skale(ENDPOINT, ABI_FILEPATH)
 base_wallet = init_wallet()
 
 accounts = generate_accounts(skale, base_wallet, n_wallets, skale_amount, eth_amount, True)

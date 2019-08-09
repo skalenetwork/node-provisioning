@@ -24,6 +24,9 @@ variable "COUNT" {
   default = "2"
 }
 
+variable "stream" {
+}
+
 variable "cli_version" {
 }
 
@@ -101,6 +104,7 @@ resource "digitalocean_droplet" "node" {
       "export VERSION_NUM=${var.cli_version}",
       "export CLI_SPACE=${var.cli_space}",
 
+      "export STREAM=${var.stream}",
       "export TOKEN=${var.github_token}",
       "export BRANCH=${var.git_branch}",
       "export DOCKER_USERNAME=${var.docker_username}",

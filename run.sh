@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export $(cat .env | xargs)
+
 export N_WALLETS=$NODES
 SKALE_AMOUNT=200 ETH_AMOUNT=20 python prepare_wallets.py
 
