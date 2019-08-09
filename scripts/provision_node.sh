@@ -6,7 +6,7 @@ TOKEN_FILE=$NODE_DATA_DIR/tokens.json
 sudo -E bash -c "curl -L https://skale-cli.sfo2.cdn.digitaloceanspaces.com/$CLI_SPACE/skale-$VERSION_NUM-`uname -s`-`uname -m` >  /usr/local/bin/skale"
 sudo chmod +x /usr/local/bin/skale
 
-skale node init --github-token $TOKEN --git-branch $BRANCH --docker-username $DOCKER_USERNAME --docker-password $DOCKER_PASSWORD --db-password $DB_PASSWORD --disk-mountpoint $DISK_MOUNTPOINT --stream $STREAM --install-deps
+skale node init --github-token $TOKEN --docker-username $DOCKER_USERNAME --docker-password $DOCKER_PASSWORD --db-password $DB_PASSWORD --disk-mountpoint $DISK_MOUNTPOINT --stream $STREAM --install-deps
 
 
 while ! [ -f $TOKEN_FILE ];
