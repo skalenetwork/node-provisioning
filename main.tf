@@ -82,7 +82,7 @@ resource "digitalocean_droplet" "node" {
     type = "ssh"
     user = "root"
     host = self.ipv4_address
-    private_key = "${file("~/.ssh/id_rsa_gex")}"
+    private_key = "${file("~/.ssh/id_rsa")}"
   }
 
   volume_ids = [digitalocean_volume.datavolume[count.index].id]
