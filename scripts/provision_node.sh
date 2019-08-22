@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# core dump logs
+mkdir -p /skale_node_data/dump
+echo '/skale_node_data/dump/core.%t.%e.%p' | sudo tee /proc/sys/kernel/core_pattern
+ulimit -Sc unlimited
+
 NODE_DATA_DIR="/skale_node_data"
 TOKEN_FILE=$NODE_DATA_DIR/tokens.json
 

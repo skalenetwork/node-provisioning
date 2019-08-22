@@ -12,3 +12,6 @@ wallets/*
 
 .idea/
 .vscode/
+
+venv/
+.idea/
