@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 
 export $(cat .env | xargs)
-
-export N_WALLETS=$NODES
-SKALE_AMOUNT=200 ETH_AMOUNT=20 python prepare_wallets.py
+python prepare_wallets.py
 
 case $PROVIDER in
     do)
-          TF_VAR_COUNT=$NODES
+          export TF_VAR_COUNT=$N_WALLETS
           terraform apply
           terraform output -json instance_ips > result.json
           ;;
      aws)
           cd aws_tf
-          TF_VAR_COUNT=$NODES bash run.sh
+          TF_VAR_COUNT=$N_WALLETS bash run.sh
           ;;
      *)
           echo 'Provide valid PROVIDER option: do/aws'

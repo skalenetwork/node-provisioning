@@ -21,7 +21,6 @@ variable "ssh_fingerprints" {
 }
 
 variable "COUNT" {
-  default = "2"
 }
 
 variable "stream" {
