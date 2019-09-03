@@ -107,7 +107,7 @@ resource "digitalocean_droplet" "node" {
       "export DOCKER_PASSWORD=${var.docker_password}",
       "export DISK_MOUNTPOINT=${var.disk_mountpoint}",
       "export DB_PASSWORD=${var.db_password}",
-      "export USERNAME=${var.username}",
+      "export SKALE_USERNAME=${var.username}",
       "export PASSWORD=${var.password}",
       "export NODE_IP=${self.ipv4_address}",
       "export NODE_PORT=${var.node_port}",

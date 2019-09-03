@@ -21,7 +21,7 @@ do
 done
 
 USER_REGISTRATION_TOKEN=$(skale user token --short)
-skale user register -u $USERNAME -p $PASSWORD -t $USER_REGISTRATION_TOKEN
+skale user register -u $SKALE_USERNAME -p $PASSWORD -t $USER_REGISTRATION_TOKEN
 
 skale wallet set --private-key $ETH_PRIVATE_KEY
 skale node register --name $NODE_NAME --ip $NODE_IP --port $NODE_PORT
