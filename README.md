@@ -14,5 +14,5 @@
 #### Run Skale nodes in the cloud 
 
 ```bash
-export $(cat .env | xargs) && bash run.sh
+bash run.sh
 ```

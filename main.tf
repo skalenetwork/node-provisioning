@@ -1,79 +1,20 @@
-variable "do_token" {
-}
-
-variable "instance_size" {
-}
-
-variable "prefix" {
-}
-
-variable "region" {
-}
-
-variable "volume_region" {
-}
-
-variable "volume_size" {
-}
-
-variable "ssh_fingerprints" {
-  type = list(string)
-}
-
-variable "COUNT" {
-}
-
-variable "stream" {
-}
-
-variable "cli_version" {
-}
-
-variable "cli_space" {
-}
-
-variable "github_token" {
-}
-
-
-variable "docker_username" {
-}
-
-variable "docker_password" {
-}
-
-variable "db_password" {
-}
-
-variable "disk_mountpoint" {
-}
-
-variable "username" {
-}
-
-variable "password" {
-}
-
-variable "node_port" {
-}
-
 provider "digitalocean" {
   token = var.do_token
 }
 
 resource "digitalocean_volume" "datavolume" {
-  count  = var.COUNT
-  name   = "${var.prefix}-${count.index}"
+  count = var.COUNT
+  name = "${var.prefix}-${count.index}"
   region = var.volume_region
-  size   = var.volume_size
+  size = var.volume_size
 }
 
 resource "digitalocean_droplet" "node" {
-  count  = var.COUNT
-  image  = "ubuntu-18-04-x64"
-  name   = "${var.prefix}-${count.index}"
+  count = var.COUNT
+  image = "ubuntu-18-04-x64"
+  name = "${var.prefix}-${count.index}"
   region = var.region
-  size   = var.instance_size
+  size = var.instance_size
 
   ssh_keys = var.ssh_fingerprints
 
@@ -84,15 +25,16 @@ resource "digitalocean_droplet" "node" {
     private_key = "${file("~/.ssh/id_rsa")}"
   }
 
-  volume_ids = [digitalocean_volume.datavolume[count.index].id]
+  volume_ids = [
+    digitalocean_volume.datavolume[count.index].id]
 
   provisioner "file" {
-    source      = "./scripts/provision_node.sh"
+    source = "./scripts/provision_node.sh"
     destination = "/tmp/provision_node.sh"
   }
 
   provisioner "file" {
-    source      = "./wallets/wallet-${count.index}.txt"
+    source = "./wallets/wallet-${count.index}.txt"
     destination = "/tmp/wallet.txt"
   }
 
@@ -113,25 +55,25 @@ resource "digitalocean_droplet" "node" {
       "export NODE_PORT=${var.node_port}",
       "export NODE_NAME=${var.prefix}-${count.index}",
       "export ETH_PRIVATE_KEY=$(cat /tmp/wallet.txt)",
+
+      "export ENDPOINT=${var.endpoint}",
+      "export IMA_ENDPOINT=${var.ima_endpoint}",
+
+      "export MANAGER_URL=${var.manager_url}",
+      "export IMA_URL=${var.ima_url}",
+      "export DKG_URL=${var.dkg_url}",
+
       "chmod +x /tmp/provision_node.sh",
       "sudo -E bash /tmp/provision_node.sh",
     ]
   }
 }
 
-//resource "digitalocean_volume_attachment" "foobar" {
-//  count = "${var.COUNT}"
-//
-//  name = "${var.prefix}-${count.index}"
-//  droplet_id = "${digitalocean_droplet.node.id}"
-//  volume_id = "${digitalocean_volume.datavolume.id}"
-//}
-
 output "public_ips" {
   description = "map output of the hostname and public ip for each instance"
   value = zipmap(
-    digitalocean_droplet.node.*.name,
-    digitalocean_droplet.node.*.ipv4_address,
+  digitalocean_droplet.node.*.name,
+  digitalocean_droplet.node.*.ipv4_address,
   )
 }
 
