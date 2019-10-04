@@ -62,6 +62,7 @@ resource "digitalocean_droplet" "node" {
       "export MANAGER_URL=${var.manager_url}",
       "export IMA_URL=${var.ima_url}",
       "export DKG_URL=${var.dkg_url}",
+      "export FILEBEAT_URL=${var.filebeat_url}",
 
       "chmod +x /tmp/provision_node.sh",
       "sudo -E bash /tmp/provision_node.sh",

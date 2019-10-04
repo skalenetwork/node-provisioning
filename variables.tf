@@ -42,3 +42,5 @@ variable "dkg_url" {}
 
 variable "endpoint" {}
 variable "ima_endpoint" {}
+
+variable "filebeat_url" {}
