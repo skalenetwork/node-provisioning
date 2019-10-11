@@ -38,7 +38,6 @@ variable "node_port" {}
 
 variable "manager_url" {}
 variable "ima_url" {}
-variable "dkg_url" {}
 
 variable "endpoint" {}
 variable "ima_endpoint" {}

@@ -16,7 +16,7 @@ sudo chmod +x /usr/local/bin/skale
 skale node init --github-token $TOKEN --docker-username $DOCKER_USERNAME \
     --docker-password $DOCKER_PASSWORD --db-password $DB_PASSWORD --disk-mountpoint $DISK_MOUNTPOINT \
     --stream $STREAM --endpoint $ENDPOINT --ima-endpoint $IMA_ENDPOINT --manager-url $MANAGER_URL \
-     --ima-url $IMA_URL --dkg-url $DKG_URL --filebeat-url $FILEBEAT_URL --install-deps
+     --ima-url $IMA_URL --filebeat-url $FILEBEAT_URL --install-deps
 
 while ! [ -f $TOKEN_FILE ];
 do
