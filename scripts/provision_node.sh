@@ -7,7 +7,8 @@ ulimit -Sc unlimited
 
 printf "root hard core unlimited\nroot soft core unlimited\n"  >> /etc/security/limits.conf
 
-NODE_DATA_DIR="/skale_node_data"
+export SKALE_DIR=~/.skale
+export NODE_DATA_DIR=$SKALE_DIR/node_data
 TOKEN_FILE=$NODE_DATA_DIR/tokens.json
 
 sudo -E bash -c "curl -L https://skale-cli.sfo2.cdn.digitaloceanspaces.com/$CLI_SPACE/skale-$VERSION_NUM-`uname -s`-`uname -m` >  /usr/local/bin/skale"
