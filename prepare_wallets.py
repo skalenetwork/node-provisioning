@@ -1,6 +1,6 @@
 #   -*- coding: utf-8 -*-
 #
-#   This file is part of node-automation
+#   This file is part of node-provisoning
 #
 #   Copyright (C) 2019 SKALE Labs
 #

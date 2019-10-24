@@ -1,4 +1,4 @@
-# SKALE Node automation
+# SKALE Node provisoning
 
 #### Requirements
 
@@ -11,7 +11,7 @@
 - DigitalOcean
 - AWS
 
-#### Run SKALE nodes in the cloud 
+#### Provision SKALE nodes in the cloud 
 
 ```bash
 bash run.sh

@@ -10,6 +10,6 @@ data.json
 
 wallets/*
 
-.idea/
+.idea
 .vscode/
 venv/
