@@ -1,17 +1,17 @@
-# Skale automation
+# SKALE Node Provisoning
 
-#### Requirements
+## Requirements
 
 - terraform
 - python 3.6+
 - bash
 
-##### Supported provides
+## Supported providers
 
 - DigitalOcean
 - AWS
 
-#### Run Skale nodes in the cloud 
+## Provision SKALE nodes in the cloud 
 
 ```bash
 bash run.sh

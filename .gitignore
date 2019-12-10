@@ -10,8 +10,6 @@ manager.json
 
 wallets/*
 
-.idea/
+.idea
 .vscode/
-
 venv/
-.idea/

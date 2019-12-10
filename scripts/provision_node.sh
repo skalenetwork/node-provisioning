@@ -8,6 +8,7 @@ pip3 install -r $CURRENT_DIR/requirements.txt
 
 sleep 60s
 
+
 python3 $CURRENT_DIR/transfer_funds.py
 
 skale node register --name $NODE_NAME --ip $NODE_IP --port $NODE_PORT
