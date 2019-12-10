@@ -28,9 +28,15 @@ resource "digitalocean_droplet" "node" {
   volume_ids = [
     digitalocean_volume.datavolume[count.index].id]
 
+  
   provisioner "file" {
-    source = "./scripts/provision_node.sh"
-    destination = "/tmp/provision_node.sh"
+    source = "./scripts"
+    destination = "/tmp/scripts"
+  }
+
+  provisioner "file" {
+    source = "./requirements.txt"
+    destination = "/tmp/scripts/requirements.txt"
   }
 
   provisioner "file" {
@@ -43,8 +49,8 @@ resource "digitalocean_droplet" "node" {
       "export VERSION_NUM=${var.cli_version}",
       "export CLI_SPACE=${var.cli_space}",
 
-      "export STREAM=${var.stream}",
-      "export TOKEN=${var.github_token}",
+      "export GIT_BRANCH=${var.stream}",
+      "export GITHUB_TOKEN=${var.github_token}",
       "export DOCKER_USERNAME=${var.docker_username}",
       "export DOCKER_PASSWORD=${var.docker_password}",
       "export DISK_MOUNTPOINT=${var.disk_mountpoint}",
@@ -59,13 +65,16 @@ resource "digitalocean_droplet" "node" {
       "export ENDPOINT=${var.endpoint}",
       "export IMA_ENDPOINT=${var.ima_endpoint}",
 
-      "export MANAGER_URL=${var.manager_url}",
-      "export IMA_URL=${var.ima_url}",
-      "export DKG_URL=${var.dkg_url}",
-      "export FILEBEAT_URL=${var.filebeat_url}",
+      "export MANAGER_CONTRACTS_INFO_URL=${var.manager_url}",
+      "export IMA_CONTRACTS_INFO_URL=${var.ima_url}",
+      "export FILEBEAT_HOST=${var.filebeat_url}",
+      "export SGX_URL=${var.sgx_url}",
 
-      "chmod +x /tmp/provision_node.sh",
-      "sudo -E bash /tmp/provision_node.sh",
+      "chmod +x /tmp/scripts/provision_host.sh",
+      "sudo -E bash /tmp/scripts/provision_host.sh",
+
+      "chmod +x /tmp/scripts/provision_node.sh",
+      "sudo -E bash /tmp/scripts/provision_node.sh"
     ]
   }
 }
