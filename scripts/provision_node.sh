@@ -1,32 +1,14 @@
 #!/usr/bin/env bash
 
-# core dump logs
-mkdir -p /skale_node_data/dump
-echo '/skale_node_data/dump/core.%t.%e.%p' | sudo tee /proc/sys/kernel/core_pattern
-ulimit -Sc unlimited
+CURRENT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-printf "root hard core unlimited\nroot soft core unlimited\n"  >> /etc/security/limits.conf
+sudo apt install -y python3-pip
 
-export SKALE_DIR=~/.skale
-export NODE_DATA_DIR=$SKALE_DIR/node_data
-TOKEN_FILE=$NODE_DATA_DIR/tokens.json
+pip3 install -r $CURRENT_DIR/requirements.txt
 
-sudo -E bash -c "curl -L https://skale-cli.sfo2.cdn.digitaloceanspaces.com/$CLI_SPACE/skale-$VERSION_NUM-`uname -s`-`uname -m` >  /usr/local/bin/skale"
-sudo chmod +x /usr/local/bin/skale
+sleep 60s
 
-skale node init --github-token $TOKEN --docker-username $DOCKER_USERNAME \
-    --docker-password $DOCKER_PASSWORD --db-password $DB_PASSWORD --disk-mountpoint $DISK_MOUNTPOINT \
-    --stream $STREAM --endpoint $ENDPOINT --ima-endpoint $IMA_ENDPOINT --manager-url $MANAGER_URL \
-     --ima-url $IMA_URL --filebeat-url $FILEBEAT_URL --install-deps
 
-while ! [ -f $TOKEN_FILE ];
-do
-  echo "Waiting for tokens.json file..."
-  sleep 2
-done
+python3 $CURRENT_DIR/transfer_funds.py
 
-USER_REGISTRATION_TOKEN=$(skale user token --short)
-skale user register -u $SKALE_USERNAME -p $PASSWORD -t $USER_REGISTRATION_TOKEN
-
-skale wallet set --private-key $ETH_PRIVATE_KEY
 skale node register --name $NODE_NAME --ip $NODE_IP --port $NODE_PORT

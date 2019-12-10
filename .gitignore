@@ -1,5 +1,5 @@
 .env
-data.json
+manager.json
 
 # terraform files
 **/.terraform/*

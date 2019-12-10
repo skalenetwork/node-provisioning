@@ -1,2 +1,2 @@
-skale-py==0.82.0
+skale-py==2.0b0
 PyYAML==5.1.2

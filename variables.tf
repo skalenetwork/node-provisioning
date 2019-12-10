@@ -43,3 +43,4 @@ variable "endpoint" {}
 variable "ima_endpoint" {}
 
 variable "filebeat_url" {}
+variable "sgx_url" {}
