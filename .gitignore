@@ -1,17 +1,17 @@
-.env
-manager.json
-
 # terraform files
 **/.terraform/*
 *.tfstate
 *.tfstate.*
 *.tfvars
 
-
+# node wallets
 wallets/*
 
+# editors
 .idea/
 .vscode/
 
+# other
 venv/
-.idea/
+.env
+manager.json
