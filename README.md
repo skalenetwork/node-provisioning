@@ -2,7 +2,9 @@
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
-This repo will help you to deploy and register multiple SKALE nodes in the cloud automatically.
+This repo will help deploy and register multiple SKALE nodes in the cloud automatically.
+
+NOTE: This is for QA and testing purposes only.
 
 ## Host requirements
 
