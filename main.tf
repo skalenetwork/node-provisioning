@@ -65,6 +65,7 @@ resource "digitalocean_droplet" "node" {
       "export ENDPOINT=${var.endpoint}",
       "export IMA_ENDPOINT=${var.ima_endpoint}",
 
+
       "export MANAGER_CONTRACTS_INFO_URL=${var.manager_url}",
       "export IMA_CONTRACTS_INFO_URL=${var.ima_url}",
       "export FILEBEAT_HOST=${var.filebeat_url}",
@@ -72,6 +73,7 @@ resource "digitalocean_droplet" "node" {
 
       "chmod +x /tmp/scripts/provision_host.sh",
       "sudo -E bash /tmp/scripts/provision_host.sh",
+
 
       "chmod +x /tmp/scripts/provision_node.sh",
       "sudo -E bash /tmp/scripts/provision_node.sh"

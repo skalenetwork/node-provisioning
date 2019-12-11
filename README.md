@@ -1,4 +1,4 @@
-# Skale automation
+# SKALE Node Provisoning
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
@@ -9,7 +9,7 @@ This repo will help you to deploy and register multiple SKALE nodes in the cloud
 - Terraform >= 0.12
 - Python >= 3.6
 
-## Supported provides
+## Supported providers
 
 - DigitalOcean
 - A̶W̶S̶ (deprecated and should be updated)
@@ -30,7 +30,7 @@ ETH_AMOUNT- Amount of ETH to transfer
 ETH_PRIVATE_KEY - Base ETH private key to send funds
 ```
 
-### Run provision script
+### Provision SKALE nodes in the cloud
 
 ```bash
 bash run.sh
