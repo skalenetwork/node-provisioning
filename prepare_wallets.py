@@ -34,7 +34,7 @@ ENDPOINT = os.environ['ENDPOINT']
 ABI_FILEPATH = os.path.join(CURRENT_DIR, 'manager.json')
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
 
-N_WALLETS = os.environ['N_WALLETS']
+NODES = os.environ['NODES']
 SKALE_AMOUNT = os.environ['SKALE_AMOUNT']
 ETH_AMOUNT = os.environ['ETH_AMOUNT']
 
@@ -52,7 +52,7 @@ def save_wallet_info(i, account):
 
 
 def prepare_wallets():
-    accounts = generate_accounts(skale, skale.wallet, N_WALLETS, SKALE_AMOUNT, ETH_AMOUNT, True)
+    accounts = generate_accounts(skale, skale.wallet, NODES, SKALE_AMOUNT, ETH_AMOUNT, True)
     for i, account in enumerate(accounts):
         save_wallet_info(i, account)
 

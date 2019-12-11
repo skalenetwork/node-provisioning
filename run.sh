@@ -5,13 +5,13 @@ python prepare_wallets.py
 
 case $PROVIDER in
     do)
-          export TF_VAR_COUNT=$N_WALLETS
+          export TF_VAR_COUNT=$NODES
           terraform apply
           terraform output -json instance_ips > result.json
           ;;
      aws)
           cd aws_tf
-          TF_VAR_COUNT=$N_WALLETS bash run.sh
+          TF_VAR_COUNT=$NODES bash run.sh
           ;;
      *)
           echo 'Provide valid PROVIDER option: do/aws'

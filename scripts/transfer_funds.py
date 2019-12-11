@@ -87,8 +87,13 @@ def get_transfer_amount(skale):
     return float(ether_balance) * GAS_COMMISSION_FACTOR, skale_balance
 
 
+def _run_tm_manager(skale):
+    send_ether(skale.web3, skale.wallet, skale.wallet.address, 0)
+
+
 if __name__ == "__main__":
     skale = init_web3_skale()
+    _run_tm_manager(skale) # todo: temporary measure, remove later
     address = get_node_wallet_address()
     eth_amount, skale_amount = get_transfer_amount(skale)
     send_funds(skale, address, skale_amount, eth_amount)

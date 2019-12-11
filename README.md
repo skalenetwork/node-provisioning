@@ -1,17 +1,38 @@
 # SKALE Node Provisoning
 
-## Requirements
+[![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
-- terraform
-- python 3.6+
-- bash
+This repo will help deploy and register multiple SKALE nodes in the cloud automatically.
+
+NOTE: This is for QA and testing purposes only.
+
+## Host requirements
+
+- Terraform >= 0.12
+- Python >= 3.6
 
 ## Supported providers
 
 - DigitalOcean
-- AWS
+- A̶W̶S̶ (deprecated and should be updated)
 
-## Provision SKALE nodes in the cloud 
+## Usage
+
+### Secrets preparation
+
+1) Copy contents of the `terraform.tfvars.template` to the `terraform.tfvars` and fill all variables
+2) Set following variables to the environment:
+
+```
+PROVIDER - Cloud provider: `do` or `aws`
+ENDPOINT - Endpoint of the ETH network with manager contract
+NODES - Number of nodes to be created
+SKALE_AMOUNT - Amount of SKALE tokens to transfer
+ETH_AMOUNT- Amount of ETH to transfer
+ETH_PRIVATE_KEY - Base ETH private key to send funds
+```
+
+### Provision SKALE nodes in the cloud
 
 ```bash
 bash run.sh
