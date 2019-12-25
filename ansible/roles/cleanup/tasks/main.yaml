@@ -1,0 +1,38 @@
+- name: Get all container ids
+  command: "docker ps -aq"
+  register: containers_output
+  tags: 
+    - cleanup
+
+- name: Split containers ids output 
+  set_fact:
+    containers_ids: "{{ containers_output.stdout.split('\n') }}"
+  tags: 
+    - cleanup
+
+- name: Destroy all containers
+  docker_container: 
+    name: "{{ item }}"
+    state: absent
+    force_kill: yes
+  with_items: "{{ containers_ids | default([]) }}"
+  tags: 
+    - cleanup
+
+- name: Remove .skale directory
+  file:
+    path: "{{ base_path }}/.skale"
+    state: absent
+  tags:
+    - cleanup
+
+- name: Cleanup contracts
+  script: cleanup_contracts.py
+  run_once: yes
+  environment:
+    BASE_DIR: "{{ base_path }}"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+  args:
+    executable: python3
+  tags: cleanup_contracts

@@ -1,0 +1,162 @@
+version: '3.3'
+
+services:
+  base: &skale_base
+    image: kubernetes/pause
+    restart: unless-stopped
+    labels:
+      com.skale.prefix: "node"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+  transaction-manager:
+    <<: *skale_base
+    container_name: skale_transaction-manager
+    image: "transaction-manager:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/transaction-manager"
+      dockerfile: Dockerfile
+    environment:
+      SGX_SERVER_URL: ${SGX_SERVER_URL} 
+      ENDPOINT: ${ENDPOINT}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY} # todo: use different flask secret key!
+      FLASK_APP_PORT: 3008
+      FLASK_APP_HOST: "0.0.0.0" # todo: change to localhost
+      FLASK_DEBUG_MODE: "False"
+      SKALE_DIR_HOST: ${SKALE_DIR}
+    volumes:
+      - ${SKALE_DIR}:/skale_vol
+      - ${SKALE_DIR}/node_data:/skale_node_data
+    restart: unless-stopped
+  admin:
+    <<: *skale_base
+    container_name: skale_admin
+    image: "skale-admin:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/skale-admin"
+      dockerfile: Dockerfile
+    tty: true
+    environment:
+      TM_URL: http://transaction-manager:3008
+      SGX_SERVER_URL: ${SGX_SERVER_URL}
+      ENDPOINT: ${ENDPOINT}
+      IMA_ENDPOINT: ${IMA_ENDPOINT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_PORT: ${DB_PORT}
+      DOCKER_USERNAME: ${DOCKER_USERNAME}
+      DOCKER_PASSWORD: ${DOCKER_PASSWORD}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+      FLASK_APP_PORT: 3007
+      FLASK_APP_HOST: "0.0.0.0"
+      FLASK_DEBUG_MODE: "False"
+      SKALE_DIR_HOST: ${SKALE_DIR}
+    ports:
+      - 3007:3007
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SKALE_DIR}:/skale_vol
+      - ${SKALE_DIR}/node_data:/skale_node_data
+    depends_on:
+      - mysql
+    links:
+      - mysql:mysql
+      - transaction-manager:transaction-manager
+    restart: unless-stopped
+  mysql:
+    <<: *skale_base
+    container_name: skale_mysql
+    image: mysql/mysql-server:5.7
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ~/.skale/node_data/mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: "db_skale"
+    ports:
+      - ${DB_PORT}:3306
+
+#  sla:
+#    <<: *skale_base
+#    container_name: skale_sla
+#    image: skalelabshub/sla-agent:0.4.0-beta.0
+#    environment:
+#      TM_URL: http://transaction-manager:3008
+#      ENDPOINT: ${ENDPOINT}
+#      DB_USER: ${DB_USER}
+#      DB_PASSWORD: ${DB_PASSWORD}
+#      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+#      DB_PORT: ${DB_PORT}
+#    volumes:
+#      - ${SKALE_DIR}:/skale_vol
+#      - ${SKALE_DIR}/node_data:/skale_node_data
+#    depends_on:
+#      - mysql
+#    links:
+#      - mysql:mysql
+#
+#  bounty:
+#    <<: *skale_base
+#    container_name: skale_bounty
+#    image: skalelabshub/bounty-agent:0.4.0-beta.0
+#    environment:
+#      TM_URL: http://transaction-manager:3008
+#      ENDPOINT: ${ENDPOINT}
+#      DB_USER: ${DB_USER}
+#      DB_PASSWORD: ${DB_PASSWORD}
+#      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+#      DB_PORT: ${DB_PORT}
+#    volumes:
+#      - ${SKALE_DIR}:/skale_vol
+#      - ${SKALE_DIR}/node_data:/skale_node_data
+#    depends_on:
+#      - mysql
+#    links:
+#      - mysql:mysql
+#
+#
+#  advisor:
+#    <<: *skale_base
+#    container_name: monitor_cadvisor
+#    image: google/cadvisor:latest
+#    volumes:
+#      - /:/rootfs:ro
+#      - /var/run:/var/run:ro
+#      - /sys:/sys:ro
+#      - /var/lib/docker/:/var/lib/docker:ro
+#      - /dev/disk/:/dev/disk:ro
+#    ports:
+#      - "8080:8080"
+#
+#  node-exporter:
+#    <<: *skale_base
+#    container_name: monitor_node_exporter
+#    image: quay.io/prometheus/node-exporter
+#    restart: unless-stopped
+#    volumes:
+#      - /proc:/host/proc:ro
+#      - /sys:/host/sys:ro
+#      - /:/rootfs:ro
+#    command:
+#      - '--path.procfs=/host/proc'
+#      - '--path.rootfs=/rootfs'
+#      - '--path.sysfs=/host/sys'
+#      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+#    network_mode: host
+
+  filebeat:
+    <<: *skale_base
+    container_name: monitor_filebeat
+    user: root
+    image: docker.elastic.co/beats/filebeat:7.3.1
+    environment:
+      FILEBEAT_HOST: ${FILEBEAT_HOST}
+    volumes:
+      - ${SKALE_DIR}/node_data/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock

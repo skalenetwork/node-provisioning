@@ -1,0 +1,15 @@
+- name: Setup skale node
+  hosts: nodes
+  roles:
+    - role: sources
+      tags: 
+        - sync
+        - source
+
+    - role: skale-cli
+      tags: cli
+
+    - role: node
+      tags: 
+        - node
+        - sync

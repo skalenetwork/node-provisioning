@@ -1,0 +1,26 @@
+- name: Set soft ulimits
+  pam_limits:
+    domain: root
+    limit_type: soft
+    limit_item: core
+    value: "1000000000"
+  tags: ulimits
+
+- name: Set hard ulimits
+  pam_limits:
+    domain: root
+    limit_type: hard
+    limit_item: core
+    value: "1000000000"
+  tags: ulimits
+
+- name: Install aptitude
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- name: Install packages
+  apt: name={{ item }} update_cache=yes state=latest 
+  loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'python3-dev']
+
+- import_tasks: docker.yaml
+  tags:
+    docker

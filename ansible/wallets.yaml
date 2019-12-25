@@ -1,0 +1,26 @@
+- name: Register 
+  hosts: nodes
+  serial: 1
+  tasks:
+    - name: Install skale.py
+      pip:
+          name: skale.py==2.1dev0
+
+    - name: Download contracts from digitalocean
+      get_url:
+          url: "{{ manager_contracts }}" 
+          dest: "{{ base_path }}/manager.json"
+          mode: 0644
+
+    - name: Execute prepare_base_wallet script
+      script: prepare_base_wallet.py
+      throttle: 1
+      environment:
+        BASE_DIR: "{{ base_path }}"
+        SKALE_AMOUNT: "1000"
+        ETH_AMOUNT: "1"
+        ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+        ENDPOINT: "{{ endpoint }}"
+      args:
+        executable: python3
+      tags: base_wallet 

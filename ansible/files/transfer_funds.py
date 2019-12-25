@@ -21,9 +21,8 @@ import os
 import logging
 import ast
 import subprocess
-from time import sleep
+from threading import Lock
 from subprocess import PIPE
-from pathlib import Path
 
 from skale import Skale
 from skale.wallets import Web3Wallet
@@ -33,10 +32,9 @@ from skale.utils.account_tools import (send_ether, send_tokens, check_ether_bala
                                        check_skale_balance)
 
 
-HOME_DIR = str(Path.home())
-CONTRACTS_DIR = os.path.join(HOME_DIR, '.skale', 'contracts_info')
-ENDPOINT = os.environ['ENDPOINT']
-ABI_FILEPATH = os.path.join(CONTRACTS_DIR, 'manager.json')
+BASE_DIR = os.getenv('BASE_DIR')
+ENDPOINT = os.getenv('ENDPOINT')
+ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
 
 GAS_COMMISSION_FACTOR = 0.9
@@ -92,10 +90,13 @@ def _run_tm_manager(skale):
     send_ether(skale.web3, skale.wallet, skale.wallet.address, 0)
 
 
-if __name__ == "__main__":
+def main():
     skale = init_web3_skale()
-    _run_tm_manager(skale) # todo: temporary measure, remove later
-    sleep(60)
+    _run_tm_manager(skale)  # todo: temporary measure, remove later
     address = get_node_wallet_address()
     eth_amount, skale_amount = get_transfer_amount(skale)
     send_funds(skale, address, skale_amount, eth_amount)
+
+
+if __name__ == "__main__":
+    main()
