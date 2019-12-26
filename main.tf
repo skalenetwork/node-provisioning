@@ -28,7 +28,7 @@ resource "digitalocean_droplet" "node" {
   volume_ids = [
     digitalocean_volume.datavolume[count.index].id]
 
-  
+
   provisioner "file" {
     source = "./scripts"
     destination = "/tmp/scripts"
@@ -86,6 +86,14 @@ output "public_ips" {
   value = zipmap(
   digitalocean_droplet.node.*.name,
   digitalocean_droplet.node.*.ipv4_address,
+  )
+}
+
+output "ids_of_droplets" {
+  description = "map output of the hostname and ID for each instance"
+  value = zipmap(
+  digitalocean_droplet.node.*.name,
+  digitalocean_droplet.node.*.id,
   )
 }
 
