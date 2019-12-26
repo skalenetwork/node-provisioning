@@ -15,6 +15,7 @@ SKALE_DIR="$HOME"/.skale
 NODE_DATA_DIR=$SKALE_DIR/node_data
 TOKEN_FILE=$NODE_DATA_DIR/tokens.json
 
+printenv > /root/init-env
 sudo -E bash -c "curl -L https://skale-cli.sfo2.cdn.digitaloceanspaces.com/$CLI_SPACE/skale-$VERSION_NUM-`uname -s`-`uname -m` >  /usr/local/bin/skale"
 sudo chmod +x /usr/local/bin/skale
 
