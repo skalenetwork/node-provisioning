@@ -1,0 +1,3 @@
+- import_playbook: base.yaml
+- import_playbook: wallets.yaml
+- import_playbook: setup.yaml

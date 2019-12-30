@@ -11,6 +11,9 @@ wallets/*
 .idea/
 .vscode/
 
+# ansible
+ansible/my-inventory
+
 # other
 venv/
 .env

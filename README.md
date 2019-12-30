@@ -37,3 +37,36 @@ ETH_PRIVATE_KEY - Base ETH private key to send funds
 ```bash
 bash run.sh
 ```
+
+## Setup on existent nodes from sources
+
+Ansible directory contains ansible provision for setuping skale node system.
+
+Steps to run provision
+1. Firstly you should create two nodes and attach external volume to it.
+2. Install ansible on your machine.
+3. Then you should copy inventory template from inventory/dev and fill it with absent fields.
+4. Also you should add information about host that you cerated before
+5. Run ```ansible-playbook -i path-to-your-inventory main.yaml```
+
+### Other options
+
+```
+# reloads accounts from which sgx key will be configured
+ansible-playbook -i path-to-your-inventory wallet.yaml
+```
+```
+# uploads sources
+# reinstalls skale-cli, 
+# runs skale node init
+# registers node on manager
+ansible-playbook -i path-to-your-inventory setup.yaml
+```
+```
+# installs needed dependecies and setups os configs
+ansible-playbook -i path-to-your-inventory base.yaml 
+```
+```
+# destroy all containers, cleanup .skale and reruns setup.yaml steps
+ansible-playbook -i path-to-your-inventory resets.yaml 
+```
