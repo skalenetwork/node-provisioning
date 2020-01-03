@@ -6,7 +6,7 @@ python prepare_wallets.py
 case $PROVIDER in
     do)
           export TF_VAR_COUNT=$NODES
-          terraform apply
+          terraform apply 2>&1 | tee terraform.log
           terraform output -json instance_ips > result.json
           ;;
      aws)

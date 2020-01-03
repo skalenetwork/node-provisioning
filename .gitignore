@@ -18,3 +18,5 @@ ansible/my-inventory
 venv/
 .env
 manager.json
+
+*.log
