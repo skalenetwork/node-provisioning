@@ -1,0 +1,6 @@
+- name: Restart node
+  hosts: nodes
+  roles:
+    - role: cleanup
+    - role: sources
+    - role: node

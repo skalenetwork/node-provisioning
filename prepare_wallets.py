@@ -52,7 +52,8 @@ def save_wallet_info(i, account):
 
 
 def prepare_wallets():
-    accounts = generate_accounts(skale, skale.wallet, NODES, SKALE_AMOUNT, ETH_AMOUNT, True)
+    accounts = generate_accounts(skale, skale.wallet, NODES,
+                                 SKALE_AMOUNT, ETH_AMOUNT, True)
     for i, account in enumerate(accounts):
         save_wallet_info(i, account)
 

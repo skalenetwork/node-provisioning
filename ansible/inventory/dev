@@ -3,7 +3,7 @@ dev1 ansible_host=127.0.0.1
 
 [nodes:vars]
 ansible_ssh_user='root'
-
+env=dev
 skale_admin_path=
 transaction_manager_path=
 skale_node_path=
@@ -26,4 +26,3 @@ github_token=
 filebeat_host=
 manager_contracts=""
 ima_contracts=""
-dkg_contracts=""
