@@ -1,11 +1,21 @@
 - name: Run init skale-node init
   command: 
     chdir: "{{ base_path }}/skale-node-cli"
-    cmd: "skale node init --disk-mountpoint {{ block_device }} --sgx-url {{ sgx_url }} --install-deps --env-file {{ base_path }}/skale-node-cli/.env" 
+    cmd: "skale node init  --install-deps --disk-mountpoint {{ block_device }} --sgx-url {{ sgx_url }} --env-file {{ base_path }}/skale-node-cli/.env"
   environment:
     SKALE_NODE_SOURCE: "{{ base_path }}/skale-node"
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
+  when: env is defined and env == "dev"
+
+- name: Run init skale-node init
+  command:
+    chdir: "{{ base_path }}/skale-node-cli"
+    cmd: "skale node init  --install-deps --env-file {{ base_path }}/skale-node-cli/.env"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8
+  when: env is defined and env != "dev"
 
 - name: Pause to make sure skale-admin genereate user token
   pause:
@@ -21,6 +31,11 @@
   set_fact: 
     user_token: "{{ item.value }}"
   with_dict: "{{ token_output.stdout | from_json }}"
+  tags:
+    user_register
+
+- name: Debug
+  debug: msg="{{ user_token }}"
   tags:
     user_register
 

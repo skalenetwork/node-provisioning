@@ -51,22 +51,37 @@ Steps to run provision
 
 ### Other options
 
+Recreates accounts from which sgx key will be configured.
 ```
-# reloads accounts from which sgx key will be configured
 ansible-playbook -i path-to-your-inventory wallet.yaml
 ```
+
+Setups node on remove server:
+1. Uploads sources.
+2. Reinstalls skale-cli.
+3. Runs skale node init.
+4. Registers node on manager.
+
 ```
-# uploads sources
-# reinstalls skale-cli, 
-# runs skale node init
-# registers node on manager
 ansible-playbook -i path-to-your-inventory setup.yaml
 ```
+
+Installs needed dependecies and setups os configs.
 ```
-# installs needed dependecies and setups os configs
-ansible-playbook -i path-to-your-inventory base.yaml 
+ansible-playbook -i path-to-your-inventory base.yaml
 ```
+
+Destroys all containers, removes .skale, reruns setup.yaml steps.
 ```
-# destroy all containers, cleanup .skale and reruns setup.yaml steps
-ansible-playbook -i path-to-your-inventory resets.yaml 
+ansible-playbook -i path-to-your-inventory restart.yaml 
+```
+
+Destroys all containers, removes .skale, reruns setup.yaml steps.
+```
+ansible-playbook -i path-to-your-inventory restart.yaml 
+```
+
+Recreates accounts and runs restart.yaml steps.
+```
+ansible-playbook -i path-to-your-inventory restart.yaml 
 ```
