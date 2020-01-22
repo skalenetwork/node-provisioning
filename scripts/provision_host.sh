@@ -19,7 +19,7 @@ printenv > /root/init-env
 sudo -E bash -c "curl -L https://skale-cli.sfo2.cdn.digitaloceanspaces.com/$CLI_SPACE/skale-$VERSION_NUM-`uname -s`-`uname -m` >  /usr/local/bin/skale"
 sudo chmod +x /usr/local/bin/skale
 
-skale node init --sgx-url $SGX_URL --disk-mountpoint $DISK_MOUNTPOINT --install-deps --env-file /root/init-env
+skale node init --sgx-url $SGX_SERVER_URL --disk-mountpoint $DISK_MOUNTPOINT --install-deps --env-file /root/init-env
 
 while ! [ -f $TOKEN_FILE ];
 do
