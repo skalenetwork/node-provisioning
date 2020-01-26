@@ -69,7 +69,7 @@ resource "digitalocean_droplet" "node" {
       "export MANAGER_CONTRACTS_INFO_URL=${var.manager_url}",
       "export IMA_CONTRACTS_INFO_URL=${var.ima_url}",
       "export FILEBEAT_HOST=${var.filebeat_url}",
-      "export SGX_URL=${var.sgx_url}",
+      "export SGX_SERVER_URL=${var.sgx_url}",
 
       "chmod +x /tmp/scripts/provision_host.sh",
       "sudo -E bash /tmp/scripts/provision_host.sh",
