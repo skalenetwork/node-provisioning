@@ -17,7 +17,7 @@
       throttle: 1
       environment:
         BASE_DIR: "{{ base_path }}"
-        SKALE_AMOUNT: "1000"
+        SKALE_AMOUNT: "100"
         ETH_AMOUNT: "1"
         ETH_PRIVATE_KEY: "{{ eth_private_key }}"
         ENDPOINT: "{{ endpoint }}"
