@@ -4,7 +4,7 @@
   tasks:
     - name: Install skale.py
       pip:
-          name: skale.py==2.1dev0
+          name: skale.py==2.1dev14
 
     - name: Download contracts from digitalocean
       get_url:
@@ -18,7 +18,7 @@
       environment:
         BASE_DIR: "{{ base_path }}"
         SKALE_AMOUNT: "100"
-        ETH_AMOUNT: "1"
+        ETH_AMOUNT: "5"
         ETH_PRIVATE_KEY: "{{ eth_private_key }}"
         ENDPOINT: "{{ endpoint }}"
       args:
