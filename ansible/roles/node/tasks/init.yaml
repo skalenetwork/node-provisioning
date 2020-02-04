@@ -16,7 +16,7 @@
     LC_ALL: en_US.utf-8
   when: env is defined and env != "dev"
 
-- name: Pause to make sure skale-admin genereate user token
+- name: Pause to make sure skale-admin exchange certs with sgx server
   pause:
     seconds: 60
 

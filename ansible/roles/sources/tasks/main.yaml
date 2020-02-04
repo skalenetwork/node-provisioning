@@ -48,7 +48,7 @@
     - { name: FILEBEAT_HOST, value: "{{ filebeat_host }}"}
     - { name: MANAGER_CONTRACTS_ABI_URL, value: "{{ manager_contracts }}"}
     - { name: IMA_CONTRACTS_ABI_URL, value: "{{ ima_contracts }}"}
-    - { name: CONTAINER_CONFIGS_DIR, value: "{{ conainer_configs_dir}}"}
+    - { name: CONTAINER_CONFIGS_DIR, value: "{{ container_configs_dir }}"}
     - { name: DOCKER_LVMPY_STREAM, value: "{{ docker_lvmpy_stream }}"}
     #    - { name: DKG_CONTRACTS_INFO_URL, value: "{{ dkg_contracts }}"}
     - { name: DISK_MOUNTPOINT, value: "{{ block_device }}"}
