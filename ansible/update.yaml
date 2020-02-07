@@ -1,0 +1,10 @@
+- name: Update skale node
+  hosts: nodes
+  roles:
+    - role: sources
+      tags: 
+        - sync
+        - source
+
+    - role: update
+      tags: update
