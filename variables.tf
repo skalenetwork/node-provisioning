@@ -10,19 +10,19 @@ variable "volume_region" {}
 
 variable "volume_size" {}
 
+variable "docker_lvmpy_stream" {}
+
 variable "ssh_fingerprints" {
   type = list(string)
 }
 
-variable "COUNT" {}
+variable "container_configs_stream" {}
 
-variable "stream" {}
+variable "COUNT" {}
 
 variable "cli_version" {}
 
 variable "cli_space" {}
-
-variable "github_token" {}
 
 variable "docker_username" {}
 

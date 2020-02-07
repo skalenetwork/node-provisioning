@@ -19,14 +19,7 @@ printenv > /root/init-env
 sudo -E bash -c "curl -L https://skale-cli.sfo2.cdn.digitaloceanspaces.com/$CLI_SPACE/skale-$VERSION_NUM-`uname -s`-`uname -m` >  /usr/local/bin/skale"
 sudo chmod +x /usr/local/bin/skale
 
-skale node init --sgx-url $SGX_SERVER_URL --disk-mountpoint $DISK_MOUNTPOINT --install-deps --env-file /root/init-env
+skale node init --install-deps --env-file /root/init-env
 
-while ! [ -f $TOKEN_FILE ];
-do
-  echo "Waiting for tokens.json file..."
-  sleep 2
-done
-
-USER_REGISTRATION_TOKEN=$(skale user token --short)
-skale user register -u $SKALE_USERNAME -p $PASSWORD -t $USER_REGISTRATION_TOKEN
-
+echo "Waiting for sgx certificates handshake"
+sleep 60
