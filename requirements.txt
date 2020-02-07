@@ -1,2 +1,2 @@
-skale-py==2.1dev15
+skale.py==2.1dev17
 PyYAML==5.1.2

@@ -49,8 +49,7 @@ resource "digitalocean_droplet" "node" {
       "export VERSION_NUM=${var.cli_version}",
       "export CLI_SPACE=${var.cli_space}",
 
-      "export GIT_BRANCH=${var.stream}",
-      "export GITHUB_TOKEN=${var.github_token}",
+      "export CONTAINER_CONFIGS_STREAM=${var.container_configs_stream}",
       "export DOCKER_USERNAME=${var.docker_username}",
       "export DOCKER_PASSWORD=${var.docker_password}",
       "export DISK_MOUNTPOINT=${var.disk_mountpoint}",
@@ -66,10 +65,11 @@ resource "digitalocean_droplet" "node" {
       "export IMA_ENDPOINT=${var.ima_endpoint}",
 
 
-      "export MANAGER_CONTRACTS_INFO_URL=${var.manager_url}",
-      "export IMA_CONTRACTS_INFO_URL=${var.ima_url}",
+      "export MANAGER_CONTRACTS_ABI_URL=${var.manager_url}",
+      "export IMA_CONTRACTS_ABI_URL=${var.ima_url}",
       "export FILEBEAT_HOST=${var.filebeat_url}",
       "export SGX_SERVER_URL=${var.sgx_url}",
+      "export DOCKER_LVMPY_STREAM=${var.docker_lvmpy_stream}",
 
       "chmod +x /tmp/scripts/provision_host.sh",
       "sudo -E bash /tmp/scripts/provision_host.sh",

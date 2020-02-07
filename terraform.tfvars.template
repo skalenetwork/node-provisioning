@@ -5,9 +5,8 @@ ssh_fingerprints = [
 ]
 cli_version = ""
 cli_space = ""
-stream = ""
+container_configs_stream = ""
 
-github_token = ""
 docker_username = ""
 docker_password = ""
 db_password = ""
@@ -31,3 +30,5 @@ ima_endpoint = ""
 
 filebeat_url = ""
 sgx_url = ""
+
+docker_lvmpy_stream = ""

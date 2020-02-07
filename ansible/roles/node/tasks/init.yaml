@@ -1,20 +1,10 @@
-- name: Run init skale-node init
+- name: Run skale node init
   command: 
     chdir: "{{ base_path }}/skale-node-cli"
     cmd: "skale node init  --install-deps --env-file {{ base_path }}/skale-node-cli/.env"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
-  when: env is defined and env == "dev"
-
-- name: Run init skale-node init
-  command:
-    chdir: "{{ base_path }}/skale-node-cli"
-    cmd: "skale node init  --install-deps --env-file {{ base_path }}/skale-node-cli/.env"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-  when: env is defined and env != "dev"
 
 - name: Pause to make sure skale-admin exchange certs with sgx server
   pause:
