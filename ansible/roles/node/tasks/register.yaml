@@ -9,7 +9,7 @@
     ETH_PRIVATE_KEY: "{{ wallet_private_key_output.stdout }}"
     ENDPOINT: "{{ endpoint }}"
   args:
-    executable: python3
+    executable: /usr/bin/python3
 
 - name: Register ip address
   set_fact:
