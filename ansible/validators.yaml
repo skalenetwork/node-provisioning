@@ -10,19 +10,17 @@
           mode: 0644
     
     - name: Set hosts
-        set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}""
-        with_dict: "{{ hostvars }}"
+      set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
+      with_dict: "{{ hostvars }}"
 
-    - name: Execute prepare_base_wallet script
+    - name: Execute setup_validators script
       script: setup_validators.py
       environment:
         BASE_DIR: "files"
-        SKALE_AMOUNT: "1"
-        ETH_AMOUNT: "5"
+        SKALE_AMOUNT: "0"
+        ETH_AMOUNT: "1"
         ETH_PRIVATE_KEY: "{{ eth_private_key }}"
         ENDPOINT: "{{ endpoint }}"
-        SKALE_AMOUNT: "0"
-        ETH_AMOUNT: "0.1"
         MIN_DELEGATION_AMOUNT: "0"
         COMMISSION_RATE: "1"
         NODES_NUMBER: "{{ hosts|length }}"
@@ -32,7 +30,7 @@
 
 
     - name: Save base keys to remote servers 
-        command: "ssh root@{{ item.0 }} echo {{ item.1 }} > {{ base_path }}/base_key.txt"
-        with_together:
-          - "{{ hosts }}"
-          - "{{ lookup('file', 'files/base-keys.txt').splitlines() }}"
+      command: "ssh root@{{ item.0 }} echo {{ item.1 }} > {{ base_path }}/base_key.txt"
+      with_together:
+        - "{{ hosts }}"
+        - "{{ lookup('file', 'files/base-keys.txt').splitlines() }}"

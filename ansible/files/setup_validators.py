@@ -89,7 +89,7 @@ def whitelist_validator(validator_id):
 
 
 def generate_random_name(length=5):
-    ''.join(random.choice(string.ascii_uppercase + string.digits))
+    return ''.join(random.choice(string.ascii_uppercase + string.digits))
 
 
 def setup_validators():
