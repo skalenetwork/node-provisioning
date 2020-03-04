@@ -1,0 +1,16 @@
+- name: Get skale wallet info output 
+  command: skale wallet info -f json"
+  register: wallet_data_json 
+  
+- name: Get validator base private key
+  command: cat "{{ base_path }}"
+  register: validator_key
+
+- name: Get address from wallet_data_json
+  set_fact: address=(wallet_data_json.stdout | from_json).address
+
+- name: Link address to validator
+  script: link_address.py
+  environment:
+    ETH_PRIVATE_KEY="{{ validator_key.stdout }}"
+    ENDPOINT="{{ endpoint }}"

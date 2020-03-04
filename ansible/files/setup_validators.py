@@ -19,6 +19,8 @@
 
 import logging
 import os
+import random
+import string
 
 from skale import Skale
 from skale.wallets import Web3Wallet
@@ -37,20 +39,13 @@ SKALE_AMOUNT = float(os.getenv('SKALE_AMOUNT'))
 ETH_AMOUNT = float(os.getenv('ETH_AMOUNT'))
 MIN_DELEGATION_AMOUNT = int(os.getenv('MIN_DELEGATION_AMOUNT'))
 COMMISSION_RATE = int(os.getenv('COMMISSION_RATE'))
-VALIDATOR_FILE = os.path.join(BASE_DIR, 'validator-ids.txt')
+BASE_KEYS_FILEPATH = os.path.join(BASE_DIR, 'base-keys.txt')
 
 NODES_NUMBER = int(os.getenv('NODES_NUMBER'))
 
 web3 = init_web3(ENDPOINT)
 wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
 skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
-
-
-def save_wallet_info(node_index, account) -> None:
-    filepath = os.path.join(BASE_DIR, f'node{node_index}-wallet.txt')
-    with open(filepath, 'w') as outfile:
-        logger.info(f'Saving info to {filepath}')
-        outfile.write(account["private_key"])
 
 
 def create_base_account_for_validator(validator_web3) -> dict:
@@ -81,6 +76,10 @@ def create_validator(name):
         wait_for=True
     )
     check_receipt(tx_res.receipt)
+    validator_id = skale.validator_service.validator_id_by_address(
+        validator_base_account['address']
+    )
+    return validator_id, validator_base_account['private_key']
 
 
 def whitelist_validator(validator_id):
@@ -89,21 +88,24 @@ def whitelist_validator(validator_id):
                                                   wait_for=True)
 
 
-def get_validators_ids():
-    return [data['id'] for data in skale.validator_service.ls()]
+def generate_random_name(length=5):
+    ''.join(random.choice(string.ascii_uppercase + string.digits))
 
 
 def setup_validators():
-    names = [f'name{i}' for i in range(NODES_NUMBER)]
+    names = [generate_random_name() for _ in range(NODES_NUMBER)]
+    validator_ids = []
+    validator_base_keys = []
     for name in names:
-        create_validator(name)
+        id, pkey = create_validator(name)
+        validator_ids.append(id)
+        validator_base_keys.append(pkey)
 
-    validators_ids = get_validators_ids()
-    for vid in validators_ids:
+    for vid in validator_ids:
         whitelist_validator(vid)
 
-    with open(VALIDATOR_FILE, 'w') as vid_file:
-        vid_file.write('\n'.join(map(str, validators_ids)))
+    with open(BASE_KEYS_FILEPATH, 'w') as vid_file:
+        vid_file.write('\n'.join(map(str, validator_base_keys)))
 
 
 def main():

@@ -1,0 +1,24 @@
+- name: Register current web3 wallet 
+  command: cat "{{ base_path }}/base_key.txt"
+  register: wallet_private_key_output
+
+- name: Execute transfer_funds script 
+  script: transfer_funds.py
+  environment:
+    BASE_DIR: "{{ base_path }}"
+    ETH_PRIVATE_KEY: "{{ wallet_private_key_output.stdout }}"
+    ENDPOINT: "{{ endpoint }}"
+  args:
+    executable: /usr/bin/python3
+
+- name: Register ip address
+  set_fact:
+    ip_address: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
+- name: Run skale node register 
+  command: 
+    chdir: "{{ base_path }}/skale-node-cli"
+    cmd: "skale node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8
