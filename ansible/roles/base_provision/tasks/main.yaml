@@ -24,3 +24,13 @@
 - import_tasks: docker.yaml
   tags:
     docker
+
+- name: Install skale.py
+  pip:
+    name: skale.py==3.0dev20
+
+- name: Download contracts from digitalocean
+  get_url:
+    url: "{{ manager_contracts }}"
+    dest: "{{ base_path }}/manager.json"
+    mode: 0644

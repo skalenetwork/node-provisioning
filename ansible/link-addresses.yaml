@@ -1,0 +1,4 @@
+- name: Link sgx wallet address to validator
+  hosts: nodes
+  roles:
+    - role: validators

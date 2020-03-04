@@ -104,6 +104,12 @@ def setup_validators():
     for vid in validator_ids:
         whitelist_validator(vid)
 
+    # TODO: Remove cool hack
+    skale.constants_holder._set_msr(
+        new_msr=0,
+        wait_for=True
+    )
+
     with open(BASE_KEYS_FILEPATH, 'w') as vid_file:
         vid_file.write('\n'.join(map(str, validator_base_keys)))
 
