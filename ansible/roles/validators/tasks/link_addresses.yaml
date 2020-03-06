@@ -6,14 +6,16 @@
   command: cat "{{ base_path }}/base_key.txt"
   register: validator_key
 
-- name: Get address from wallet_data_json
-  set_fact: address=(wallet_data_json.stdout | from_json).address
+- name: Get wallet data from json 
+  set_fact: 
+    wallet_data: "{{ wallet_data_json.stdout | to_json | from_json }}"
 
 - name: Link address to validator
   script:
-    cmd: link_address.py "{{ address }}"
+    cmd: link_address.py "{{ wallet_data.address }}"
   environment:
     ETH_PRIVATE_KEY: "{{ validator_key.stdout }}"
     ENDPOINT: "{{ endpoint }}"
+    BASE_DIR: "{{ base_path }}"
   args:
     executable: python3

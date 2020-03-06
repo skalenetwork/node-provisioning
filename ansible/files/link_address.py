@@ -17,7 +17,7 @@ def main():
     wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
     skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
     address = sys.argv[1]
-    tx_res = skale.contracts.delegation_service.link_node_address(
+    tx_res = skale.delegation_service.link_node_address(
         address, wait_for=True
     )
     check_receipt(tx_res.receipt)

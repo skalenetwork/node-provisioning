@@ -4,4 +4,4 @@
     - role: cleanup
     - role: sources
     - role: skale-cli
-    - role: node
+    - role: init

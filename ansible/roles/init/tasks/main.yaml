@@ -5,7 +5,9 @@
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
+  tags: init
 
 - name: Pause to make sure skale-admin exchange certs with sgx server
   pause:
     seconds: 60
+  tags: init

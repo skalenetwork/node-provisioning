@@ -3,10 +3,10 @@ echo "[nodes]" > inventory/hosts
 cd terraform
 TF_VAR_NUMBER=$NODES_NUMBER terraform apply
 echo 'Nodes machines created'
-cat hosts >> ../inventory/hosts
+sort hosts >> ../inventory/hosts
 rm hosts
 cd ../
 cat inventory/hosts
 echo 'Sleep 10 seconds'
 sleep 20
-ansible-playbook -i inventory main2.yaml
+# ansible-playbook -i inventory main2.yaml

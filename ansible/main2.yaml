@@ -1,4 +1,4 @@
 # - import_playbook: base.yaml
-# - import_playbook: restart.yaml
-# - import_playbook: validators.yaml
+- import_playbook: restart.yaml
+- import_playbook: validators.yaml
 - import_playbook: link-addresses.yaml

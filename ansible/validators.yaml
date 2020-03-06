@@ -2,35 +2,39 @@
   hosts: 127.0.0.1
   connection: local
   tasks:
-
-    - name: Download contracts from digitalocean
-      get_url:
-          url: "{{ manager_contracts }}" 
-          dest: "files/manager.json"
-          mode: 0644
+    - name: Perform validators for nodes generation 
+      import_role: 
+        name: validators
+        tasks_from: generate
+  #   tasks:
+    #- name: Download contracts from digitalocean to local machine
+      #get_url:
+          #url: "{{ manager_contracts }}" 
+          #dest: "files/manager.json"
+          #mode: 0644
     
-    - name: Set hosts
-      set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
-      with_dict: "{{ hostvars }}"
+    #- name: Set hosts
+      #set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
+      #with_dict: "{{ hostvars }}"
 
-    - name: Execute setup_validators script
-      script: setup_validators.py
-      environment:
-        BASE_DIR: "files"
-        SKALE_AMOUNT: "0"
-        ETH_AMOUNT: "1"
-        ETH_PRIVATE_KEY: "{{ eth_private_key }}"
-        ENDPOINT: "{{ endpoint }}"
-        MIN_DELEGATION_AMOUNT: "0"
-        COMMISSION_RATE: "1"
-        NODES_NUMBER: "{{ hosts|length }}"
-      args:
-        executable: python3
-      tags: base_wallet 
+    #- name: Execute setup_validators script
+      #script: setup_validators.py
+      #environment:
+        #BASE_DIR: "files"
+        #SKALE_AMOUNT: "0"
+        #ETH_AMOUNT: "1"
+        #ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+        #ENDPOINT: "{{ endpoint }}"
+        #MIN_DELEGATION_AMOUNT: "0"
+        #COMMISSION_RATE: "1"
+        #NODES_NUMBER: "{{ hosts|length }}"
+      #args:
+        #executable: python3
+      #tags: base_wallet 
 
 
-    - name: Save base keys to remote servers 
-      command: "ssh root@{{ item.0 }} echo {{ item.1 }} > {{ base_path }}/base_key.txt"
-      with_together:
-        - "{{ hosts }}"
-        - "{{ lookup('file', 'files/base-keys.txt').splitlines() }}"
+    #- name: Save base keys to remote servers 
+      #command: "ssh root@{{ item.0 }} echo {{ item.1 }} > {{ base_path }}/base_key.txt"
+      #with_together:
+        #- "{{ hosts }}"
+        #- "{{ lookup('file', 'files/base-keys.txt').splitlines() }}"
