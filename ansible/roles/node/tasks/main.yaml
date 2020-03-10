@@ -1,7 +1,0 @@
-- import_tasks: init.yaml
-  tags:
-    - init
-
-- import_tasks: register.yaml
-  tags:
-    - register

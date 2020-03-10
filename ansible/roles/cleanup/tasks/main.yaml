@@ -9,10 +9,6 @@
     executable: python3
     tags: cleanup
 
-- name: Install docker.py
-  pip:
-    name: docker==4.2.0
-
 - name: Get all container ids
   command: "docker ps -aq"
   register: containers_output

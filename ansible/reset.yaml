@@ -1,2 +1,5 @@
-- import_playbook: wallets.yaml
-- import_playbook: restart.yaml
+- import_playbook: cleanup.yaml
+- import_playbook: setup.yaml
+- import_playbook: validators.yaml
+- import_playbook: link-addresses.yaml
+- import_playbook: register.yaml
