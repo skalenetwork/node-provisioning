@@ -27,10 +27,20 @@
 
 - name: Install skale.py
   pip:
-    name: skale.py==3.0dev20
+    name: skale.py==3.1dev6
+  tags:
+    pip
+
+- name: Install docker.py
+  pip:
+    name: docker==4.2.0
+  tags:
+    pip
 
 - name: Download contracts from digitalocean
   get_url:
     url: "{{ manager_contracts }}"
     dest: "{{ base_path }}/manager.json"
     mode: 0644
+  tags:
+    contracts

@@ -1,7 +1,0 @@
-- name: Restart node
-  hosts: nodes
-  roles:
-    - role: cleanup
-    - role: sources
-    - role: skale-cli
-    - role: init

@@ -1,0 +1,4 @@
+- name: Cleanup contracts
+  hosts: nodes
+  roles:
+    - role: cleanup

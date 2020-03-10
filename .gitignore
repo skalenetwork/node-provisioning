@@ -13,8 +13,13 @@ wallets/*
 
 # ansible
 ansible/my-inventory
+ansible/inventory/
+ansible/files/base-keys.txt
+ansible/files/validator-ids.txt
+ansible/terraform/hosts
 
 # other
+.ropeproject/
 venv/
 .env
 manager.json

@@ -3,7 +3,6 @@
   roles:
     - role: sources
       tags: 
-        - sync
         - source
 
     - role: update
