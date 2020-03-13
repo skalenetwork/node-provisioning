@@ -20,6 +20,7 @@
   synchronize:
     src: "{{ skale_node_cli_path }}"
     dest: "{{ base_path }}"
+  when: env is defined and env == "dev"
 
 - name: Replace skale-node docker-compose file
   template:
@@ -28,11 +29,11 @@
   when: env is defined and env == "dev"
 
 - name: Remove existent .env content
-  shell: "echo '' > {{ base_path }}/skale-node-cli/.env"
+  shell: "echo '' > {{ base_path }}/init-env"
 
 - name: Write variables to .env file 
   lineinfile:
-    path: "{{ base_path }}/skale-node-cli/.env"
+    path: "{{ base_path }}/init-env"
     insertbefore: BOF
     line: "{{ item.name }}={{ item.value }}"
   with_items:

@@ -68,7 +68,7 @@ def create_validator(name):
     validator_skale = create_skale_for_validator(validator_base_account,
                                                  validator_web3)
 
-    tx_res = validator_skale.delegation_service.register_validator(
+    tx_res = validator_skale.validator_service.register_validator(
         name=name,
         description=f'Validator for node {name}',
         fee_rate=COMMISSION_RATE,

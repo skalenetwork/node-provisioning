@@ -2,18 +2,29 @@
   command:
     chdir: "{{ base_path }}/skale-node-cli/"
     cmd: "pip3 install -e '.[dev]'"
+  when: env is defined and env == "dev"
 
 - name: Register skale command
   set_fact:
     skale: "{{ base_path }}/cli-venv/bin/python main.py"
+  when: env is defined and env == "dev"
 
 - name: Build skale command
   command: 
     cmd: "bash scripts/build.sh 0.0.0 test"
     chdir: "{{ base_path }}/skale-node-cli"
+  when: env is defined and env == "dev"
 
 - name: Copy executable to /usr/bin/local
   copy: remote_src=True src="{{ base_path }}/skale-node-cli/dist/skale-0.0.0-Linux-x86_64" dest=/usr/local/bin/skale
+  when: env is defined and env == "dev"
+
+- name: Download skale_cli from spaces
+  get_url:
+    url: "{{ skale_cli_url }}"
+    dest: "/usr/local/bin/skale"
+    mode: 644
+  when: env is defined and env == "test"
 
 - name: Add execute permission to skale executable 
   file:

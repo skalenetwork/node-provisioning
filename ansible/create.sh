@@ -1,7 +1,6 @@
 set -e
 : "${NODES_NUMBER?Need to set NODES_NUMBER}"
 
-export ANSIBLE_HOST_KEY_CHECKING=False
 echo "[nodes]" > inventory/hosts
 cd terraform
 rm -f hosts
@@ -12,4 +11,4 @@ cd ../
 cat inventory/hosts
 echo 'Sleep 10 seconds'
 sleep 20
-ansible-playbook -i inventory main.yaml
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory main.yaml

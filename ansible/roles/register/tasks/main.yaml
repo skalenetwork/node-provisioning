@@ -17,7 +17,6 @@
 
 - name: Run skale node register 
   command: 
-    chdir: "{{ base_path }}/skale-node-cli"
     cmd: "skale node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000"
   environment:
     LANG: en_US.utf-8
