@@ -27,7 +27,7 @@
 
 - name: Install skale.py
   pip:
-    name: skale.py==3.2dev0
+    name: skale.py==3.2dev1
   tags:
     pip
 

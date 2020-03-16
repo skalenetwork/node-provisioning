@@ -9,6 +9,7 @@ from skale.utils.web3_utils import init_web3, check_receipt
 BASE_DIR = os.getenv('BASE_DIR')
 ENDPOINT = os.getenv('ENDPOINT')
 ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
+print(ABI_FILEPATH)
 ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 
 
