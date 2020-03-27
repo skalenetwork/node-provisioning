@@ -1,5 +1,6 @@
 - name: Setup skale node
   hosts: nodes
+  become: true
   roles:
     - role: sources
       tags: 

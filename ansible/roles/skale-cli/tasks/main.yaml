@@ -23,6 +23,7 @@
   get_url:
     url: "{{ skale_cli_url }}"
     dest: "/usr/local/bin/skale"
+    force: yes
     mode: 644
   when: env is defined and env == "test"
 
