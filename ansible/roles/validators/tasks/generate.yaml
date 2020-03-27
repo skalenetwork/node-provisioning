@@ -7,6 +7,7 @@
 - name: Set hosts
   set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
   with_dict: "{{ hostvars }}"
+  tags: save_base_keys
 
 - name: Execute setup_validators script
   script: setup_validators.py
@@ -21,12 +22,12 @@
     NODES_NUMBER: "{{ hosts|length }}"
   args:
     executable: python3
-  tags: base_wallet 
+  tags: setup_validators
 
 
 - name: Save base keys to remote servers 
-  command: "ssh root@{{ item.0 }} echo {{ item.1 }} > {{ base_path }}/base_key.txt"
+  command: 'ssh -i {{ pem_cert_path }} ubuntu@{{ item.0 }} "echo {{ item.1 }} | sudo tee {{ base_path }}/base_key.txt"'
   with_together:
     - "{{ hosts }}"
     - "{{ lookup('file', 'files/base-keys.txt').splitlines() }}"
-
+  tags: save_base_keys

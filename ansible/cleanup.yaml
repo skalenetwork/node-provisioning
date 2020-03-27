@@ -1,4 +1,5 @@
 - name: Cleanup contracts
   hosts: nodes
+  become: true
   roles:
     - role: cleanup
