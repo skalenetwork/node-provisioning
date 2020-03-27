@@ -3,7 +3,7 @@ import os
 
 from skale import Skale
 from skale.wallets import Web3Wallet
-from skale.utils.web3_utils import init_web3, wait_receipt
+from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
 
 logger = logging.getLogger(__name__)
@@ -21,8 +21,7 @@ skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
 
 def remove_active_nodes():
     for node_id in skale.nodes_data.get_active_node_ids():
-        res = skale.manager.delete_node_by_root(node_id)
-        wait_receipt(skale.web3, res['tx'], timeout=10)
+        skale.manager.delete_node_by_root(node_id, wait_for=True)
 
 
 def get_all_schains_names(skale):
@@ -35,8 +34,7 @@ def get_all_schains_names(skale):
 def remove_all_schains():
     schain_names = get_all_schains_names(skale)
     for name in schain_names:
-        res = skale.manager.delete_schain(name)
-        wait_receipt(skale.web3, res['tx'], timeout=10)
+        skale.manager.delete_schain(name, wait_for=True)
 
 
 def cleanup():

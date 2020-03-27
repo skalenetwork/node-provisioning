@@ -7,7 +7,7 @@
     ENDPOINT: "{{ endpoint }}"
   args:
     executable: python3
-  tags: cleanup
+    tags: cleanup
 
 - name: Get all container ids
   command: "docker ps -aq"

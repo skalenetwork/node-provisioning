@@ -20,6 +20,7 @@
   synchronize:
     src: "{{ skale_node_cli_path }}"
     dest: "{{ base_path }}"
+  when: env is defined and env == "dev"
 
 - name: Replace skale-node docker-compose file
   template:
@@ -28,11 +29,11 @@
   when: env is defined and env == "dev"
 
 - name: Remove existent .env content
-  shell: "echo '' > {{ base_path }}/skale-node-cli/.env"
+  shell: "echo '' > {{ base_path }}/init-env"
 
 - name: Write variables to .env file 
   lineinfile:
-    path: "{{ base_path }}/skale-node-cli/.env"
+    path: "{{ base_path }}/init-env"
     insertbefore: BOF
     line: "{{ item.name }}={{ item.value }}"
   with_items:
@@ -50,12 +51,5 @@
     - { name: IMA_CONTRACTS_ABI_URL, value: "{{ ima_contracts }}"}
     - { name: CONTAINER_CONFIGS_DIR, value: "{{ container_configs_dir }}"}
     - { name: DOCKER_LVMPY_STREAM, value: "{{ docker_lvmpy_stream }}"}
-    #    - { name: DKG_CONTRACTS_INFO_URL, value: "{{ dkg_contracts }}"}
     - { name: DISK_MOUNTPOINT, value: "{{ block_device }}"}
     - { name: SGX_SERVER_URL, value: "{{ sgx_url }}"}
-
-- name: Download contracts from digitalocean
-  get_url:
-      url: "{{ manager_contracts }}" 
-      dest: "{{ base_path }}/manager.json"
-      mode: 0644

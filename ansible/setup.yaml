@@ -9,7 +9,6 @@
     - role: skale-cli
       tags: cli
 
-    - role: node
+    - role: init
       tags: 
-        - node
-        - sync
+        - init

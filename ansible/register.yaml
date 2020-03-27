@@ -1,0 +1,6 @@
+- name: Register node 
+  hosts: nodes
+  roles:
+    - role: register
+      tags: 
+        - register
