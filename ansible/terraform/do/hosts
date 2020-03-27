@@ -1,0 +1,4 @@
+node0 ansible_host=134.122.78.113
+node3 ansible_host=134.122.78.120
+node2 ansible_host=134.122.78.126
+node1 ansible_host=134.122.78.205
