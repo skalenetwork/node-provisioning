@@ -49,7 +49,7 @@ resource "aws_instance" "node" {
   ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = var.instance_type
   availability_zone = var.availability_zone
-  key_name = "ivan-key"
+  key_name = var.key_name
 
   root_block_device {
     volume_size = var.root_volume_size
