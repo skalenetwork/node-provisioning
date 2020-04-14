@@ -27,7 +27,7 @@
 
 - name: Install skale.py
   pip:
-    name: skale.py==3.2b0
+    name: skale.py==3.4dev5
     state: forcereinstall
   tags:
     pip

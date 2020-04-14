@@ -32,6 +32,20 @@ resource "aws_volume_attachment" "ebs_att" {
   device_name = "/dev/sdd"
   volume_id   = aws_ebs_volume.lvm_volume[count.index].id
   instance_id = aws_instance.node[count.index].id
+
+  provisioner "remote-exec" {
+    inline = [
+      "export VOLUME_SIZE=${var.lvm_volume_size}",
+      "echo /dev/`lsblk -do NAME,SIZE | grep $VOLUME_SIZE | cut -d ' ' -f 1` | sudo tee /root/lvm-block-device",
+    ]
+    connection {
+      type     = "ssh"
+      user     = "ubuntu"
+      host = aws_instance.node[count.index].public_ip
+      private_key = file(var.ssh_private_key_path)
+    }
+  }
+
 }
 
 resource "aws_ebs_volume" "lvm_volume" {

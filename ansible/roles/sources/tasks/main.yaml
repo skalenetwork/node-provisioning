@@ -31,6 +31,10 @@
 - name: Remove existent .env content
   shell: "echo '' > {{ base_path }}/init-env"
 
+- name: Get block device from lvm-block-device file created by terraform
+  shell: cat "{{ base_path }}/lvm-block-device"
+  register: block_device
+
 - name: Write variables to .env file 
   lineinfile:
     path: "{{ base_path }}/init-env"
@@ -51,5 +55,5 @@
     - { name: IMA_CONTRACTS_ABI_URL, value: "{{ ima_contracts }}"}
     - { name: CONTAINER_CONFIGS_DIR, value: "{{ container_configs_dir }}"}
     - { name: DOCKER_LVMPY_STREAM, value: "{{ docker_lvmpy_stream }}"}
-    - { name: DISK_MOUNTPOINT, value: "{{ block_device }}"}
+    - { name: DISK_MOUNTPOINT, value: "{{ block_device.stdout }}"}
     - { name: SGX_SERVER_URL, value: "{{ sgx_url }}"}

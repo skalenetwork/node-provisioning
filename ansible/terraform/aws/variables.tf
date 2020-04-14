@@ -15,3 +15,5 @@ variable "lvm_volume_size" {}
 variable "prefix" {}
 
 variable "key_name" {}
+
+variable "ssh_private_key_path" {}
