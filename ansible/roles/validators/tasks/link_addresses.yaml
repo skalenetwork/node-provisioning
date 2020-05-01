@@ -15,6 +15,7 @@
     wallet_data: "{{ wallet_data_json.stdout | to_json | from_json }}"
 
 - name: Link address to validator
+  become: yes
   script:
     cmd: link_address.py "{{ wallet_data.address }}"
   environment:

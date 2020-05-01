@@ -41,7 +41,7 @@ resource "aws_volume_attachment" "ebs_att" {
     connection {
       type     = "ssh"
       user     = "ubuntu"
-      host = aws_instance.node[count.index].public_ip
+      host = aws_eip.node_eip[count.index].public_ip
       private_key = file(var.ssh_private_key_path)
     }
   }
@@ -73,8 +73,13 @@ resource "aws_instance" "node" {
     Name = "${var.prefix}-${count.index}"
   }
 
-  provisioner "local-exec" {
-    command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
-  }
 }
 
+
+resource "aws_eip" "node_eip" {
+   count = "${var.NUMBER}"
+   instance = aws_instance.node[count.index].id
+   provisioner "local-exec" {
+     command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
+   }
+}

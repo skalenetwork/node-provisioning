@@ -14,7 +14,6 @@
   synchronize:
     src: "{{ skale_node_path }}"
     dest: "{{ base_path }}"
-  when: env is defined and env == "dev"
 
 - name: Synchronization of skale-node-cli repo
   synchronize:

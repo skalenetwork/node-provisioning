@@ -1,8 +1,15 @@
 - name: Install requirements 
   command:
     chdir: "{{ base_path }}/skale-node-cli/"
-    cmd: "pip3 install -e '.[dev]'"
+    cmd: "pip3 install -e '.'"
   when: env is defined and env == "dev"
+
+- name: Install setuptools 39-0-1
+  pip:
+    name: setuptools==39.0.1
+    state: forcereinstall
+  tags:
+    pip
 
 - name: Register skale command
   set_fact:

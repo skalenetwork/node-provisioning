@@ -13,8 +13,8 @@
   script: setup_validators.py
   environment:
     BASE_DIR: "files"
-    SKALE_AMOUNT: "0"
-    ETH_AMOUNT: "1"
+    SKALE_AMOUNT: "5"
+    ETH_AMOUNT: "5"
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MIN_DELEGATION_AMOUNT: "0"
