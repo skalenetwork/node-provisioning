@@ -1,4 +1,6 @@
-variable "NUMBER" {}
+variable "NUMBER" {
+  default = 2
+}
 
 provider "digitalocean" {
   token = var.do_token

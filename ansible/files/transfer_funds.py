@@ -37,7 +37,7 @@ ENDPOINT = os.getenv('ENDPOINT')
 ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
 
-GAS_COMMISSION_FACTOR = 0.9
+GAS_COMMISSION_FACTOR = 0.7
 
 
 logger = logging.getLogger(__name__)

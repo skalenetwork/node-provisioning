@@ -24,9 +24,9 @@ import string
 
 from skale import Skale
 from skale.wallets import Web3Wallet
-from skale.utils.web3_utils import init_web3, check_receipt
+from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
-from skale.utils.account_tools import generate_account, send_ether
+from skale.utils.account_tools import generate_account, send_ether, send_tokens
 
 logger = logging.getLogger(__name__)
 init_default_logger()
@@ -40,6 +40,7 @@ ETH_AMOUNT = float(os.getenv('ETH_AMOUNT'))
 MIN_DELEGATION_AMOUNT = int(os.getenv('MIN_DELEGATION_AMOUNT'))
 COMMISSION_RATE = int(os.getenv('COMMISSION_RATE'))
 BASE_KEYS_FILEPATH = os.path.join(BASE_DIR, 'base-keys.txt')
+VALIDATOR_IDS_FILEPATH = os.path.join(BASE_DIR, 'validator-ids.txt')
 
 NODES_NUMBER = int(os.getenv('NODES_NUMBER'))
 
@@ -59,6 +60,7 @@ def create_skale_for_validator(account_dict, validator_web3) -> Skale:
         ENDPOINT, ABI_FILEPATH,
         Web3Wallet(account_dict['private_key'], validator_web3)
     )
+    send_tokens(skale, wallet, account_dict['address'], SKALE_AMOUNT)
     return validator_skale
 
 
@@ -75,17 +77,18 @@ def create_validator(name):
         min_delegation_amount=MIN_DELEGATION_AMOUNT,
         wait_for=True
     )
-    check_receipt(tx_res.receipt)
-    validator_id = skale.validator_service.validator_id_by_address(
-        validator_base_account['address']
-    )
+    tx_res.raise_for_status()
+
+    # New validator will have id equals to number of validators
+    validator_id = skale.validator_service.number_of_validators()
     return validator_id, validator_base_account['private_key']
 
 
 def whitelist_validator(validator_id):
     if not skale.validator_service._is_validator_trusted(validator_id):
-        skale.validator_service._enable_validator(validator_id,
-                                                  wait_for=True)
+        tx_res = skale.validator_service._enable_validator(validator_id,
+                                                           wait_for=True)
+        tx_res.raise_for_status()
 
 
 def generate_random_name(length=5):
@@ -105,13 +108,17 @@ def setup_validators():
         whitelist_validator(vid)
 
     # TODO: Remove cool hack
-    skale.constants_holder._set_msr(
+    tx_res = skale.constants_holder._set_msr(
         new_msr=0,
         wait_for=True
     )
+    tx_res.raise_for_status()
 
     with open(BASE_KEYS_FILEPATH, 'w') as vid_file:
         vid_file.write('\n'.join(map(str, validator_base_keys)))
+
+    with open(VALIDATOR_IDS_FILEPATH, 'w') as vid_file:
+        vid_file.write('\n'.join(map(str, validator_ids)))
 
 
 def main():
