@@ -1,4 +1,5 @@
 - name: Run skale node update
+  become: root
   shell:
     cmd: "skale node update --yes --env-file {{ base_path }}/init-env"
   environment:

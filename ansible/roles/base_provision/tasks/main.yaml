@@ -27,7 +27,7 @@
 
 - name: Install skale.py
   pip:
-    name: skale.py==3.6dev6
+    name: skale.py==3.7dev2
     state: forcereinstall
   tags:
     pip
@@ -43,5 +43,6 @@
     url: "{{ manager_contracts }}"
     dest: "{{ base_path }}/manager.json"
     mode: 0644
+    force: true
   tags:
     contracts

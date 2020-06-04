@@ -14,7 +14,7 @@
   environment:
     BASE_DIR: "files"
     SKALE_AMOUNT: "5"
-    ETH_AMOUNT: "5"
+    ETH_AMOUNT: "0.2"
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MIN_DELEGATION_AMOUNT: "0"

@@ -3,12 +3,14 @@
     src: "{{ skale_admin_path }}"
     dest: "{{ base_path }}"
   when: env is defined and env == "dev"
+  tags: admin
     
 - name: Synchronization of transaction-manager repo
   synchronize:
     src: "{{ transaction_manager_path }}"
     dest: "{{ base_path }}"
   when: env is defined and env == "dev"
+  tags: tm
 
 - name: Synchronization of skale-node repo
   synchronize:
@@ -46,8 +48,6 @@
     - { name: DB_PASSWORD, value: "{{ db_password }}"}
     - { name: DB_ROOT_PASSWORD, value: "{{ db_root_password }}"}
     - { name: DB_PORT, value: "{{ db_port }}"}
-    - { name: DOCKER_USERNAME, value: "{{ docker_username }}"}
-    - { name: DOCKER_PASSWORD, value: "{{ docker_password }}"}
     - { name: CONTAINER_CONFIGS_STREAM, value: "{{ container_configs_stream }}"}
     - { name: FILEBEAT_HOST, value: "{{ filebeat_host }}"}
     - { name: MANAGER_CONTRACTS_ABI_URL, value: "{{ manager_contracts }}"}
