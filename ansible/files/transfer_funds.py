@@ -96,7 +96,9 @@ def main():
     skale = init_web3_skale()
     _run_tm_manager(skale)  # todo: temporary measure, remove later
     address = get_node_wallet_address()
-    eth_amount, skale_amount = get_transfer_amount(skale)
+    # todo: temporary fix
+    # eth_amount, skale_amount = get_transfer_amount(skale)
+    eth_amount, skale_amount = 0.21, 0
     send_funds(skale, address, skale_amount, eth_amount)
 
 
