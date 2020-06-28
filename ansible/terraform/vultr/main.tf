@@ -24,6 +24,22 @@ resource "vultr_server" "node" {
     ssh_key_ids = [vultr_ssh_key.main_key.id]
 
     provisioner "local-exec" {
-        command = "echo ‘node${count.index} ansible_host=${self.main_ip}’ >> hosts"
+        command = "echo 'node${count.index} ansible_host=${self.main_ip}' >> hosts"
     }
+}
+
+output "public_ips" {
+    description = "map output of the hostname and public ip for each instance"
+    value = zipmap(
+        vultr_server.node.*.hostname,
+        vultr_server.node.*.main_ip,
+    )
+}
+
+output "ids_of_droplets" {
+    description = "map output of the hostname and ID for each instance"
+    value = zipmap(
+        vultr_server.node.*.hostname,
+        vultr_server.node.*.id,
+    )
 }

@@ -1,0 +1,7 @@
+- hosts: nodes
+  gather_facts: false
+  tasks:
+    - name: copy keys to nodes
+      copy:
+        src: ../authorized_keys
+        dest: /root/.ssh/
