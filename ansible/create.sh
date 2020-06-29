@@ -18,8 +18,6 @@ if [ $PROVIDER = "vultr" ]; then
 else
   TF_VAR_NUMBER=$NODES_NUMBER terraform apply
 fi
-echo 'Nodes machines created'
-sort hosts >> ../../inventory/hosts
 cd ../../
 cat inventory/hosts
 echo 'Sleep 10 seconds'

@@ -7,7 +7,8 @@ import os
 
 VULTR_API_KEY = os.getenv('VULTR_API_KEY')
 vultr = Vultr(VULTR_API_KEY)
-OUTPUT_PATH=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'hosts_info.json')
+OUTPUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           'hosts_info.json')
 SOCKET_TIMEOUT = 30
 
 
@@ -28,7 +29,8 @@ def get_hosts_mapping():
         data = json.load(droplets_json)
         ids = data['ids_of_droplets']['value']
         ips = data['public_ips']['value']
-    return [{'id': host[0], 'ip': host[1]} for host in zip(ids.values(), ips.values())]
+    return [{'id': host[0], 'ip': host[1]}
+            for host in zip(ids.values(), ips.values())]
 
 
 def get_failed_hosts(hosts):

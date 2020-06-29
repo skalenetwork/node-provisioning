@@ -27,17 +27,14 @@ from skale import Skale
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
-from skale.utils.account_tools import (send_ether, send_tokens,
-                                       check_ether_balance,
-                                       check_skale_balance)
+from skale.utils.account_tools import (send_ether, check_ether_balance)
 
 
 BASE_DIR = os.getenv('BASE_DIR')
 ENDPOINT = os.getenv('ENDPOINT')
+ETH_AMOUNT = os.getenv('ETH_AMOUNT')
 ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
-
-GAS_COMMISSION_FACTOR = 0.7
 
 
 logger = logging.getLogger(__name__)
@@ -74,18 +71,9 @@ def get_node_wallet_address():
     return wallet_info['address']
 
 
-def send_funds(skale, address, skale_amount, eth_amount):
-    send_tokens(skale, skale.wallet, address, skale_amount)
+def send_funds(skale, address, eth_amount):
     send_ether(skale.web3, skale.wallet, address, eth_amount)
     check_ether_balance(skale.web3, address)
-    check_skale_balance(skale, address)
-
-
-def get_transfer_amount(skale):
-    address = skale.wallet.address
-    ether_balance = check_ether_balance(skale.web3, address)
-    skale_balance = check_skale_balance(skale, address)
-    return float(ether_balance) * GAS_COMMISSION_FACTOR, skale_balance
 
 
 def _run_tm_manager(skale):
@@ -96,10 +84,7 @@ def main():
     skale = init_web3_skale()
     _run_tm_manager(skale)  # todo: temporary measure, remove later
     address = get_node_wallet_address()
-    # todo: temporary fix
-    # eth_amount, skale_amount = get_transfer_amount(skale)
-    eth_amount, skale_amount = 0.21, 0
-    send_funds(skale, address, skale_amount, eth_amount)
+    send_funds(skale, address, ETH_AMOUNT)
 
 
 if __name__ == "__main__":

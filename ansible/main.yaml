@@ -1,5 +1,6 @@
 - import_playbook: base.yaml
 - import_playbook: setup.yaml
 - import_playbook: validators.yaml
-- import_playbook: link-addresses.yaml
+- import_playbook: sign_validator_id.yaml
+- import_playbook: link_nodes.yaml
 - import_playbook: register.yaml

@@ -13,10 +13,11 @@
   script: setup_validators.py
   environment:
     BASE_DIR: "files"
-    SKALE_AMOUNT: "5"
-    ETH_AMOUNT: "0.2"
+    SKALE_AMOUNT: "0"
+    NODE_ETH_AMOUNT: "{{ node_eth_amount }}"
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
+    VALIDATOR_NAME: "{{ validator_name }}"
     MIN_DELEGATION_AMOUNT: "0"
     COMMISSION_RATE: "1"
     NODES_NUMBER: "{{ hosts|length }}"
@@ -25,9 +26,3 @@
   tags: setup_validators
 
 
-- name: Save base keys to remote servers 
-  command: 'ssh root@{{ item.0 }} "echo {{ item.1 }} | sudo tee {{ base_path }}/base_key.txt"'
-  with_together:
-    - "{{ hosts }}"
-    - "{{ lookup('file', 'files/base-keys.txt').splitlines() }}"
-  tags: save_base_keys

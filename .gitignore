@@ -16,6 +16,8 @@ ansible/my-inventory
 ansible/inventory/
 ansible/files/base-keys.txt
 ansible/files/validator-ids.txt
+ansible/files/validator-pk
+ansible/files/validator-id
 ansible/terraform/do/hosts
 ansible/terraform/aws/hosts
 ansible/terraform/vultr/hosts

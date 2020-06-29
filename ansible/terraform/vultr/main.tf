@@ -12,6 +12,7 @@ resource "vultr_block_storage" "datavolume" {
     region_id = var.region_id
     size_gb = var.volume_size
     attached_id = vultr_server.node[count.index].id
+    depends_on = [vultr_server.node]
 }
 
 resource "vultr_server" "node" {
@@ -22,6 +23,7 @@ resource "vultr_server" "node" {
     label = "${var.prefix}-${count.index}"
     hostname = "${var.prefix}-${count.index}"
     ssh_key_ids = [vultr_ssh_key.main_key.id]
+    depends_on = [vultr_ssh_key.main_key]
 
     provisioner "local-exec" {
         command = "echo 'node${count.index} ansible_host=${self.main_ip}' >> hosts"

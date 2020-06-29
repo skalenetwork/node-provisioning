@@ -1,0 +1,34 @@
+- name: Link sgx wallet address to validator
+  hosts: nodes
+  serial: 1
+  tasks:
+    - name: Get address
+      slurp:
+        src: "{{ base_path }}/address"
+      register: address_content
+      tags:
+        - address
+        - link
+
+    - name: Get signature
+      slurp:
+        src: "{{ base_path }}/signature"
+      register: signature_content
+      tags:
+        - address
+        - link
+
+    - debug:
+        msg: "{{ address_content['content'] | b64decode }}"
+
+    - debug:
+        msg: "{{ signature_content['content'] | b64decode }}"
+
+    - name: Run link_address script
+      local_action: command python3 files/link_node.py
+      environment:
+        BASE_DIR: "files"
+        ADDRESS: "{{ address_content['content'] | b64decode }}"
+        SIGNATURE: "{{ signature_content['content'] | b64decode }}"
+        ENDPOINT: "{{ endpoint }}"
+        NODE_ETH_AMOUNT: "{{ node_eth_amount }}"

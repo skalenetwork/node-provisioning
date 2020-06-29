@@ -25,7 +25,6 @@ def main():
     address = sys.argv[1]
     validator_id = skale.validator_service.validator_id_by_address(
         skale.wallet.address)
-    print(ETH_PRIVATE_KEY)
     print(skale.wallet.address)
     res = subprocess.run(['skale', 'node', 'signature', str(validator_id)])
     stdout = res.stdout.decode('utf-8')

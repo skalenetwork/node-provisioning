@@ -26,7 +26,7 @@ from skale import Skale
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
-from skale.utils.account_tools import generate_account, send_ether, send_tokens
+from skale.utils.account_tools import generate_account, send_ether
 
 logger = logging.getLogger(__name__)
 init_default_logger()
@@ -36,12 +36,12 @@ ENDPOINT = os.getenv('ENDPOINT')
 ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
 ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 SKALE_AMOUNT = float(os.getenv('SKALE_AMOUNT'))
-ETH_AMOUNT = float(os.getenv('ETH_AMOUNT'))
+NODE_ETH_AMOUNT = float(os.getenv('NODE_ETH_AMOUNT'))
 MIN_DELEGATION_AMOUNT = int(os.getenv('MIN_DELEGATION_AMOUNT'))
 COMMISSION_RATE = int(os.getenv('COMMISSION_RATE'))
-BASE_KEYS_FILEPATH = os.path.join(BASE_DIR, 'base-keys.txt')
-VALIDATOR_IDS_FILEPATH = os.path.join(BASE_DIR, 'validator-ids.txt')
-
+VALIDATOR_ID_FILEPATH = os.path.join(BASE_DIR, 'validator-id')
+BASE_KEY_FILEPATH = os.path.join(BASE_DIR, 'validator-pk')
+VALIDATOR_NAME = os.getenv('VALIDATOR_NAME')
 NODES_NUMBER = int(os.getenv('NODES_NUMBER'))
 
 web3 = init_web3(ENDPOINT)
@@ -51,7 +51,8 @@ skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
 
 def create_base_account_for_validator(validator_web3) -> dict:
     account_data = generate_account(validator_web3)
-    send_ether(web3, wallet, account_data['address'], ETH_AMOUNT)
+    send_ether(web3, wallet, account_data['address'],
+               (NODES_NUMBER + 1) * NODE_ETH_AMOUNT, wait_for=True)
     return account_data
 
 
@@ -60,7 +61,6 @@ def create_skale_for_validator(account_dict, validator_web3) -> Skale:
         ENDPOINT, ABI_FILEPATH,
         Web3Wallet(account_dict['private_key'], validator_web3)
     )
-    send_tokens(skale, wallet, account_dict['address'], SKALE_AMOUNT)
     return validator_skale
 
 
@@ -95,34 +95,23 @@ def generate_random_name(length=5):
     return ''.join(random.choice(string.ascii_uppercase + string.digits))
 
 
-def setup_validators():
-    names = [generate_random_name() for _ in range(NODES_NUMBER)]
-    validator_ids = []
-    validator_base_keys = []
-    for name in names:
-        id, pkey = create_validator(name)
-        validator_ids.append(id)
-        validator_base_keys.append(pkey)
-
-    for vid in validator_ids:
-        whitelist_validator(vid)
-
-    # TODO: Remove cool hack
-    tx_res = skale.constants_holder._set_msr(
+def setup_validator():
+    id, pkey = create_validator(VALIDATOR_NAME)
+    whitelist_validator(id)
+    skale.constants_holder._set_msr(
         new_msr=0,
         wait_for=True
     )
-    tx_res.raise_for_status()
 
-    with open(BASE_KEYS_FILEPATH, 'w') as vid_file:
-        vid_file.write('\n'.join(map(str, validator_base_keys)))
+    with open(VALIDATOR_ID_FILEPATH, 'w') as key_file:
+        key_file.write(str(id))
 
-    with open(VALIDATOR_IDS_FILEPATH, 'w') as vid_file:
-        vid_file.write('\n'.join(map(str, validator_ids)))
+    with open(BASE_KEY_FILEPATH, 'w') as vid_file:
+        vid_file.write(str(pkey))
 
 
 def main():
-    setup_validators()
+    setup_validator()
 
 
 if __name__ == "__main__":
