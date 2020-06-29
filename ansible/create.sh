@@ -5,6 +5,7 @@ if [ $PROVIDER = "vultr" ]; then
   : "${VULTR_API_KEY?Need to set VULTR_API_KEY}"
 fi
 
+rm ~/.ssh/known_hosts
 echo "[nodes]" > inventory/hosts
 cd terraform/$PROVIDER
 rm -f hosts
