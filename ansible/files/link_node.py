@@ -20,6 +20,8 @@ def main():
     with open(validator_pk_path) as pk_file:
         pk = pk_file.read().strip()
 
+    print(ADDRESS)
+    print(SIGNATURE)
     web3 = init_web3(ENDPOINT)
     wallet = Web3Wallet(pk, web3)
     skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)

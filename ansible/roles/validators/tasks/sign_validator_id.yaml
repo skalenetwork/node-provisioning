@@ -16,7 +16,7 @@
 - debug: msg="Validator id {{ validator_id }}"
 
 - name: Sign validator id
-  become: root
+  become: yes
   command:
     cmd: "skale node signature {{ validator_id }}"
   register: signature

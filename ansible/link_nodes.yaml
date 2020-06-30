@@ -3,6 +3,7 @@
   serial: 1
   tasks:
     - name: Get address
+      become: yes
       slurp:
         src: "{{ base_path }}/address"
       register: address_content
@@ -11,6 +12,7 @@
         - link
 
     - name: Get signature
+      become: yes
       slurp:
         src: "{{ base_path }}/signature"
       register: signature_content
