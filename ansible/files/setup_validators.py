@@ -85,7 +85,7 @@ def create_validator(name):
 
 
 def whitelist_validator(validator_id):
-    if not skale.validator_service._is_validator_trusted(validator_id):
+    if not skale.validator_service._is_authorized_validator(validator_id):
         tx_res = skale.validator_service._enable_validator(validator_id,
                                                            wait_for=True)
         tx_res.raise_for_status()
