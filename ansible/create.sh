@@ -11,4 +11,4 @@ cd ../../
 cat inventory/hosts
 echo 'Sleep 10 seconds'
 sleep 20
-# ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v main.yaml
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v main.yaml

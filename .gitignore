@@ -18,6 +18,7 @@ ansible/files/base-keys.txt
 ansible/files/validator-ids.txt
 ansible/terraform/do/hosts
 ansible/terraform/aws/hosts
+ansible.cfg
 
 # other
 .ropeproject/

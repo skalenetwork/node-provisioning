@@ -58,3 +58,4 @@
     - { name: SGX_SERVER_URL, value: "{{ sgx_url }}"}
     - { name: TG_API_KEY, value: "{{ tg_api_key }}"}
     - { name: TG_CHAT_ID, value: "{{ tg_chat_id }}"}
+    - { name: MONITORING_CONTAINERS, value: "{{ monitoring_containers }}"}
