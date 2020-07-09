@@ -58,6 +58,9 @@ services:
       DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       DB_PORT: ${DB_PORT}
       SKALE_DIR_HOST: ${SKALE_DIR}
+      TG_API_KEY: ${TG_API_KEY}
+      TG_CHAT_ID: ${TG_CHAT_ID}
+      MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
     command: "python3 admin.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -90,8 +93,10 @@ services:
       FLASK_APP_HOST: "127.0.0.1"
       FLASK_DEBUG_MODE: "False"
       SKALE_DIR_HOST: ${SKALE_DIR}
+      TG_API_KEY: ${TG_API_KEY}
+      TG_CHAT_ID: ${TG_CHAT_ID}
+      MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
     command: "gunicorn app:app -c gunicorn.conf.py"
-    # command: "python3 app.py"
     ports:
       - 3007:3007
     volumes:
@@ -108,7 +113,7 @@ services:
     network_mode: host
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ~/.skale/node_data/mysql-data:/var/lib/mysql
+      - ${SKALE_DIR}/node_data/mysql-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_USER: ${DB_USER}
@@ -120,10 +125,10 @@ services:
   sla:
     <<: *skale_base
     container_name: skale_sla
-    image: skalenetwork/sla-agent:0.4.1-beta.2
+    image: skalenetwork/sla-agent:0.7.0-develop.4
     network_mode: host
     environment:
-      TM_URL: http://transaction-manager:3008
+      TM_URL: http://127.0.0.1:3008
       ENDPOINT: ${ENDPOINT}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -132,16 +137,14 @@ services:
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
-    depends_on:
-      - mysql
 
   bounty:
     <<: *skale_base
     container_name: skale_bounty
-    image: skalenetwork/bounty-agent:0.4.1-beta.2
+    image: skalenetwork/bounty-agent:0.7.0-develop.5
     network_mode: host
     environment:
-      TM_URL: http://transaction-manager:3008
+      TM_URL: http://127.0.0.1:3008
       ENDPOINT: ${ENDPOINT}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -150,9 +153,18 @@ services:
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
-    depends_on:
-      - mysql
 
+  watchdog:
+    <<: *skale_base
+    container_name: skale_watchdog
+    image: skalenetwork/watchdog:0.0.1-beta.1
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      FLASK_APP_PORT: 3009
+      FLASK_APP_HOST: "0.0.0.0"
+      FLASK_DEBUG_MODE: "False"
 
   advisor:
     <<: *skale_base

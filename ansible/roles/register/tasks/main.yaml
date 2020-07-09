@@ -11,9 +11,11 @@
   args:
     executable: /usr/bin/python3
 
+
 - name: Register ip address
   set_fact:
-    ip_address: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    # ip_address: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}" # private ip
+    ip_address: "{{ hostvars[inventory_hostname].ansible_host }}" # public ip
 
 - name: Run skale node register 
   command: 

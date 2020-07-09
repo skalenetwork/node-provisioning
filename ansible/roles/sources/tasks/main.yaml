@@ -56,3 +56,6 @@
     - { name: DOCKER_LVMPY_STREAM, value: "{{ docker_lvmpy_stream }}"}
     - { name: DISK_MOUNTPOINT, value: "{{ block_device.stdout }}"}
     - { name: SGX_SERVER_URL, value: "{{ sgx_url }}"}
+    - { name: TG_API_KEY, value: "{{ tg_api_key }}"}
+    - { name: TG_CHAT_ID, value: "{{ tg_chat_id }}"}
+    - { name: MONITORING_CONTAINERS, value: "{{ monitoring_containers }}"}

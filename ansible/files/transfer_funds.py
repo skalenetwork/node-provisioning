@@ -37,7 +37,7 @@ ENDPOINT = os.getenv('ENDPOINT')
 ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
 
-GAS_COMMISSION_FACTOR = 0.7
+GAS_COMMISSION_FACTOR = 0.9
 
 
 logger = logging.getLogger(__name__)
@@ -96,7 +96,8 @@ def main():
     skale = init_web3_skale()
     _run_tm_manager(skale)  # todo: temporary measure, remove later
     address = get_node_wallet_address()
-    eth_amount, skale_amount = get_transfer_amount(skale)
+    # eth_amount, skale_amount = get_transfer_amount(skale)
+    eth_amount, skale_amount = 0.2, 0
     send_funds(skale, address, skale_amount, eth_amount)
 
 
