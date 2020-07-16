@@ -1,7 +1,18 @@
+- name: Sync docker-compose.yml
+  synchronize:
+    src: "{{ base_path }}/skale-node/docker-compose.yml"
+    dest: "{{ base_path }}/.skale/config/docker-compose.yml"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Sync containers.json
+  synchronize:
+    src: "{{ base_path }}/skale-node/containers.json"
+    dest: "{{ base_path }}/.skale/config/containers.json"
+  delegate_to: "{{ inventory_hostname }}"
+
 - name: Run skale node update
   shell:
     cmd: "skale node update --env-file {{ base_path }}/init-env --yes"
-    # cmd: "skale node update --yes"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8

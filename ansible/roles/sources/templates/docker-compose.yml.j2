@@ -106,6 +106,33 @@ services:
     depends_on:
       - mysql
 
+  celery:
+    <<: *skale_base
+    container_name: celery
+    image: "skale-admin:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/skale-admin"
+      dockerfile: Dockerfile
+    network_mode: host
+    tty: true
+    environment:
+      TG_API_KEY: ${TG_API_KEY}
+      TG_CHAT_ID: ${TG_CHAT_ID}
+    command: "celery -A tools.notifications.tasks worker --loglevel=info"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  redis:
+    <<: *skale_base
+    container_name: redis
+    image: "redis:alpine"
+    network_mode: host
+    tty: true
+    environment:
+     - REDIS_REPLICATION_MODE=master
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   mysql:
     <<: *skale_base
     container_name: skale_mysql
