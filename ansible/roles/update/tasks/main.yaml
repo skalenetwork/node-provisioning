@@ -12,7 +12,7 @@
 
 - name: Run skale node update
   shell:
-    cmd: "skale node update --env-file {{ base_path }}/init-env --yes"
+    cmd: "skale node update {{ base_path }}/init-env --yes"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
