@@ -61,6 +61,7 @@ services:
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
       MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
+      BACKUP_RUN: ${BACKUP_RUN}
     command: "python3 admin.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -96,6 +97,7 @@ services:
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
       MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
+      BACKUP_RUN: ${BACKUP_RUN}
     command: "gunicorn app:app -c gunicorn.conf.py"
     ports:
       - 3007:3007
