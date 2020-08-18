@@ -10,6 +10,12 @@
     dest: "{{ base_path }}/.skale/config/containers.json"
   delegate_to: "{{ inventory_hostname }}"
 
+- name: Sync filestorage_info.json
+  synchronize:
+    src: "{{ base_path }}/skale-node/filestorage_info.json"
+    dest: "{{ base_path }}/.skale/config/filestorage_info.json"
+  delegate_to: "{{ inventory_hostname }}"
+
 - name: Run skale node update
   shell:
     cmd: "skale node update {{ base_path }}/init-env --yes"
