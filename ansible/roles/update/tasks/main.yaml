@@ -1,30 +1,3 @@
-- name: Sync docker-compose.yml
-  synchronize:
-    src: "{{ base_path }}/skale-node/docker-compose.yml"
-    dest: "{{ base_path }}/.skale/config/docker-compose.yml"
-  delegate_to: "{{ inventory_hostname }}"
-
-- name: Sync containers.json
-  synchronize:
-    src: "{{ base_path }}/skale-node/containers.json"
-    dest: "{{ base_path }}/.skale/config/containers.json"
-  delegate_to: "{{ inventory_hostname }}"
-
-- name: Sync filestorage_info.json
-  synchronize:
-    src: "{{ base_path }}/skale-node/filestorage_info.json"
-    dest: "{{ base_path }}/.skale/config/filestorage_info.json"
-  delegate_to: "{{ inventory_hostname }}"
-
-- name: Sync static_schain_params.json
-  synchronize:
-    src: "{{ base_path }}/skale-node/static_schain_params.json"
-    dest: "{{ base_path }}/.skale/config/static_schain_params.json"
-  delegate_to: "{{ inventory_hostname }}"
-
-- name: Run skale node update
-  shell:
-    cmd: "skale node update {{ base_path }}/init-env --yes"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
+- import_tasks: config.yaml
+- import_tasks: skale_update.yaml
+- import_tasks: resource_allocation.yaml
