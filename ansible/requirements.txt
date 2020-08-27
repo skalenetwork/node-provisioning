@@ -1,2 +1,2 @@
 ansible==2.9.6
-skale.py==3.10dev1
+skale.py==3.10dev25

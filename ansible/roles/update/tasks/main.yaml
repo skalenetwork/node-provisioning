@@ -1,7 +1,3 @@
-- name: Run skale node update
-  shell:
-    cmd: "skale node update {{ base_path }}/init-env --yes"
-    # cmd: "skale node update --yes"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
+- import_tasks: config.yaml
+- import_tasks: skale_update.yaml
+- import_tasks: resource_allocation.yaml

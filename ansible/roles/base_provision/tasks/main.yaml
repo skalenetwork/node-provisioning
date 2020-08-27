@@ -1,3 +1,6 @@
+- import_tasks: swap.yaml
+  tags: swap
+
 - name: Set soft ulimits
   pam_limits:
     domain: root
@@ -27,7 +30,7 @@
 
 - name: Install skale.py
   pip:
-    name: skale.py==3.10dev1
+    name: skale.py==3.10dev25
     state: forcereinstall
   tags:
     pip

@@ -20,14 +20,17 @@ skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
 
 
 def remove_active_nodes():
-    for node_id in skale.nodes_data.get_active_node_ids():
-        skale.manager.delete_node_by_root(node_id, wait_for=True)
+    for node_id in skale.nodes.get_active_node_ids():
+        skale.manager.node_exit(node_id, wait_for=True)
 
 
 def get_all_schains_names(skale):
-    schains_ids = skale.schains_data.get_all_schains_ids()
-    names = [skale.schains_data.get(sid).get('name')
-             for sid in schains_ids]
+    schains_ids = skale.schains_internal.get_all_schains_ids()
+    print(schains_ids)
+    names = [
+        skale.schains.get(sid).get('name')
+        for sid in schains_ids
+    ]
     return names
 
 

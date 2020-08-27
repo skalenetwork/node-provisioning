@@ -1,0 +1,9 @@
+- name: Run resource allocation generate
+  shell:
+    cmd: "skale resources-allocation generate --yes"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8
+  tags:
+    - resource_allocation
+
