@@ -27,3 +27,5 @@ venv/
 manager.json
 
 *.log
+
+.DS_Store
