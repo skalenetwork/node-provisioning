@@ -21,7 +21,7 @@
   apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
 
 - name: Install packages
-  apt: name={{ item }} update_cache=yes state=latest 
+  apt: name={{ item }} update_cache=yes state=latest
   loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'python3-dev']
 
 - import_tasks: docker.yaml
@@ -40,12 +40,3 @@
     name: docker==4.2.0
   tags:
     pip
-
-- name: Download contracts from digitalocean
-  get_url:
-    url: "{{ manager_contracts }}"
-    dest: "{{ base_path }}/manager.json"
-    mode: 0644
-    force: true
-  tags:
-    contracts

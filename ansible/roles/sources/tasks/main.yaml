@@ -1,10 +1,19 @@
+- name: Download contracts from digitalocean
+  get_url:
+    url: "{{ manager_contracts }}"
+    dest: "{{ base_path }}/manager.json"
+    mode: 0644
+    force: true
+  tags:
+    contracts
+
 - name: Synchronization of skale-admin repo
   synchronize:
     src: "{{ skale_admin_path }}"
     dest: "{{ base_path }}"
   when: env is defined and env == "dev"
   tags: admin
-    
+
 - name: Synchronization of transaction-manager repo
   synchronize:
     src: "{{ transaction_manager_path }}"
@@ -36,7 +45,7 @@
   #   shell: cat "{{ base_path }}/lvm-block-device"
   #   register: block_device
 
-- name: Write variables to .env file 
+- name: Write variables to .env file
   lineinfile:
     path: "{{ base_path }}/init-env"
     insertbefore: BOF
