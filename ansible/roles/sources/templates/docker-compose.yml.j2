@@ -111,10 +111,7 @@ services:
   celery:
     <<: *skale_base
     container_name: celery
-    image: "skale-admin:${TAG:-latest}"
-    build:
-      context: "{{ base_path }}/skale-admin"
-      dockerfile: Dockerfile
+    image: skalenetwork/admin:0.17.0-beta.2
     network_mode: host
     tty: true
     environment:
@@ -138,6 +135,7 @@ services:
       - ${SKALE_DIR}/node_data/redis-data:/data/db:rw
       - ${SKALE_DIR}/config:/config:ro
 
+
   mysql:
     <<: *skale_base
     container_name: skale_mysql
@@ -146,6 +144,7 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - ${SKALE_DIR}/node_data/mysql-data:/var/lib/mysql
+      - ${SKALE_DIR}/node_data/.mysql-backup:/mysql-backup
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       MYSQL_USER: ${DB_USER}

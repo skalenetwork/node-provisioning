@@ -15,25 +15,31 @@
   command: "docker ps -aq"
   become: true
   register: containers_output
-  tags: 
+  tags:
     - cleanup
 
-- name: Split containers ids output 
+- name: Split containers ids output
   register: containers_output
   set_fact:
     containers_ids: "{{ containers_output.stdout.split('\n') }}"
-  tags: 
+  tags:
     - cleanup
 
 - name: Destroy all containers
   become: true
-  docker_container: 
+  docker_container:
     name: "{{ item }}"
     state: absent
     force_kill: yes
   with_items: "{{ containers_ids | default([]) }}"
-  tags: 
+  tags:
     - cleanup
+
+- name: Get all docker host info
+  docker_host_info:
+    volumes: yes
+    containers: yes
+  register: docker_info
 
 - name: Remove .skale directory
   become: true

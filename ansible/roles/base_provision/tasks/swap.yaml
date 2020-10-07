@@ -1,6 +1,6 @@
 - name: Register swap_file name
   set_fact:
-    swap_file: "/swapfile" 
+    swap_file: "/swapfile"
   tags:
     - swap_var
 
