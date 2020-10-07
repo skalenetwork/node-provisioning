@@ -40,3 +40,10 @@
     name: docker==4.2.0
   tags:
     pip
+
+- name: Install docker-compose
+  pip:
+    name: docker-compose==1.27.4
+  tags:
+    - pip
+    - docker-compose
