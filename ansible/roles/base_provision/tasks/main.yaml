@@ -1,3 +1,17 @@
+- name: Install aptitude
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- name: Install packages
+  apt: name=python3.8 update_cache=yes state=latest
+
+- name: Change link to python3.8
+  file:
+    state: link
+    force: yes
+    src: "{{ item }}"
+    dest: /usr/bin/python3.8
+  loop: ['/usr/bin/python3', '/usr/bin/python']
+
 - import_tasks: swap.yaml
   tags: swap
 
