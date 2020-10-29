@@ -21,3 +21,9 @@
     src: "{{ base_path }}/skale-node/static_schain_params.json"
     dest: "{{ base_path }}/.skale/config/static_schain_params.json"
   delegate_to: "{{ inventory_hostname }}"
+
+- name: Sync schain_allocation.yml
+  synchronize:
+    src: "{{ base_path }}/skale-node/schain_allocation.yml"
+    dest: "{{ base_path }}/.skale/config/schain_allocation.yml"
+  delegate_to: "{{ inventory_hostname }}"
