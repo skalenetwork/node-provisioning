@@ -11,6 +11,8 @@
   synchronize:
     src: "{{ skale_admin_path }}"
     dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
   when: env is defined and env == "dev"
   tags: admin
 

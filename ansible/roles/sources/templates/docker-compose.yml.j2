@@ -11,6 +11,7 @@ services:
       options:
         max-file: "5"
         max-size: "10m"
+
   transaction-manager:
     <<: *skale_base
     container_name: skale_transaction-manager

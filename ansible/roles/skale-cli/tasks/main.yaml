@@ -1,4 +1,4 @@
-- name: Install requirements 
+- name: Install requirements
   command:
     chdir: "{{ base_path }}/skale-node-cli/"
     cmd: "pip3 install -e '.'"
@@ -17,7 +17,7 @@
   when: env is defined and env == "dev"
 
 - name: Build skale command
-  command: 
+  command:
     cmd: "bash scripts/build.sh 0.0.0 test"
     chdir: "{{ base_path }}/skale-node-cli"
   when: env is defined and env == "dev"
@@ -34,7 +34,7 @@
     mode: 644
   when: env is defined and env == "test"
 
-- name: Add execute permission to skale executable 
+- name: Add execute permission to skale executable
   file:
     path: /usr/local/bin/skale
     mode: '0555'
