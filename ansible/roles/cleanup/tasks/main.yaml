@@ -18,12 +18,29 @@
   tags:
     - cleanup
 
+    # - name: Get all images
+    #   command: "docker images -q"
+    #   become: true
+    #   register: images_output
+    #   tags:
+    #     - cleanup
+
+
 - name: Split containers ids output
   register: containers_output
   set_fact:
     containers_ids: "{{ containers_output.stdout.split('\n') }}"
   tags:
     - cleanup
+
+
+    # - name: Split images ids output
+    #   register: images_output
+    #   set_fact:
+    #     images_ids: "{{ images_output.stdout.split('\n') }}"
+    #   tags:
+    #     - cleanup
+
 
 - name: Destroy all containers
   become: true
@@ -35,11 +52,12 @@
   tags:
     - cleanup
 
-- name: Get all docker host info
-  docker_host_info:
-    volumes: yes
-    containers: yes
-  register: docker_info
+    # - name: Destroy all images
+    #   become: true
+    #   docker_image:
+    #     name: "{{ item }}"
+    #     state: absent
+    #   with_items: "{{ images_ids | default([]) }}"
 
 - name: Remove .skale directory
   become: true
