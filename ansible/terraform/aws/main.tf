@@ -1,5 +1,6 @@
 # https://cloud-images.ubuntu.com/locator/ec2/ for ami identication
 
+
 variable "NUMBER" {
   default = 2
 }
@@ -31,7 +32,7 @@ resource "aws_volume_attachment" "ebs_att" {
   count = "${var.NUMBER}"
   device_name = "/dev/sdd"
   volume_id   = aws_ebs_volume.lvm_volume[count.index].id
-  instance_id = aws_instance.node[count.index].id
+  instance_id = "${var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id}"
 
   provisioner "remote-exec" {
     inline = [
@@ -42,7 +43,7 @@ resource "aws_volume_attachment" "ebs_att" {
       type     = "ssh"
       user     = "ubuntu"
       # host = aws_eip.node_eip[count.index].public_ip
-      host = aws_instance.node[count.index].public_ip
+      host = "${var.spot_instance ? aws_spot_instance_request.node[count.index].public_ip : aws_instance.node[count.index].public_ip}"
       private_key = file(var.ssh_private_key_path)
     }
   }
@@ -59,8 +60,30 @@ resource "aws_ebs_volume" "lvm_volume" {
   }  
 }
 
+
+resource "aws_spot_instance_request" "node" {
+  count = "${var.spot_instance ? var.NUMBER : 0}"
+  #   spot_price    = "0.03"
+  ami           = "${data.aws_ami.ubuntu.id}"
+  instance_type = var.instance_type
+  availability_zone = var.availability_zone
+  wait_for_fulfillment = true
+  key_name = var.key_name
+
+  root_block_device {
+    volume_size = var.root_volume_size
+  }
+
+  tags = {
+    Name = "${var.prefix}-${count.index}"
+  }
+  provisioner "local-exec" {
+    command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
+  }
+}
+
 resource "aws_instance" "node" {
-  count = "${var.NUMBER}"
+  count = "${!var.spot_instance ? var.NUMBER : 0}"
   ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = var.instance_type
   availability_zone = var.availability_zone
@@ -76,7 +99,6 @@ resource "aws_instance" "node" {
   provisioner "local-exec" {
     command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
   }
-
 }
 
 
