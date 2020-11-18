@@ -57,7 +57,7 @@ resource "aws_ebs_volume" "lvm_volume" {
 
   tags = {
     Name = "LvmVolume"
-  }  
+  }
 }
 
 
@@ -68,6 +68,7 @@ resource "aws_spot_instance_request" "node" {
   instance_type = var.instance_type
   availability_zone = var.availability_zone
   wait_for_fulfillment = true
+  vpc_security_group_ids = [aws_security_group.security_group.id]
   key_name = var.key_name
 
   root_block_device {
@@ -88,6 +89,7 @@ resource "aws_instance" "node" {
   instance_type = var.instance_type
   availability_zone = var.availability_zone
   key_name = var.key_name
+  vpc_security_group_ids = [aws_security_group.security_group.id]
 
   root_block_device {
     volume_size = var.root_volume_size
@@ -98,6 +100,72 @@ resource "aws_instance" "node" {
   }
   provisioner "local-exec" {
     command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
+  }
+}
+
+
+data "aws_vpc" "default" {
+  default = true
+}
+
+resource "aws_security_group" "security_group" {
+  vpc_id       = data.aws_vpc.default.id
+  name         = "node_security_group"
+  description  = "Security group for nodes"
+
+  # allow ingress of port 22
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 10000
+    to_port     = 12000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 53
+    to_port     = 53
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # allow egress of all ports
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+   Name = "node_security_group"
+   Description = "Security Group for nodes"
   }
 }
 
