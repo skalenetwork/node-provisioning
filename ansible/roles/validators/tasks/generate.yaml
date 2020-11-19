@@ -9,12 +9,11 @@
   with_dict: "{{ hostvars }}"
   tags: save_base_keys
 
-- name: Execute setup_validators script
-  script: setup_validators.py
+- name: Execute setup_validator script
+  script: setup_validator.py
   environment:
     BASE_DIR: "files"
-    SKALE_AMOUNT: "5"
-    ETH_AMOUNT: "0.5"
+    ETH_AMOUNT: "0.2"
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MIN_DELEGATION_AMOUNT: "0"
@@ -23,11 +22,3 @@
   args:
     executable: python3
   tags: setup_validators
-
-
-- name: Save base keys to remote servers
-  command: 'ssh -i {{ pem_cert_path }} ubuntu@{{ item.0 }} "echo {{ item.1 }} | sudo tee {{ base_path }}/base_key.txt"'
-  with_together:
-    - "{{ hosts }}"
-    - "{{ lookup('file', 'files/base-keys.txt').splitlines() }}"
-  tags: save_base_keys
