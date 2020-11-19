@@ -1,0 +1,44 @@
+- name: Save folder name for nodes addresses info
+  set_fact:
+    node_info_dir: "files/node-info"
+
+- name:  Create foder for nodes addresses info
+  file:
+    path: "{{ node_info_dir }}"
+    state: directory
+    mode: 0755
+  delegate_to: localhost
+
+- name: Get validator id
+  set_fact:
+    validator_id: "{{ lookup('file', 'files/validator-id.txt') }}"
+
+- debug: msg="{{ validator_id }}"
+
+- name: Get skale wallet info output
+  command: "skale wallet info -f json"
+  register: wallet_cmd_result
+  environment:
+    LC_ALL: "C.UTF-8"
+    LANG: "C.UTF-8"
+
+- name: Get wallet data from json
+  set_fact:
+    wallet_data: "{{ wallet_cmd_result.stdout | to_json | from_json }}"
+
+- name: Get node signature
+  command: "skale node signature {{ validator_id }}"
+  register: signature_cmd_result
+  environment:
+    LC_ALL: "C.UTF-8"
+    LANG: "C.UTF-8"
+
+- name: Get wallet data from json
+  set_fact:
+    signature: "{{ signature_cmd_result.stdout.split()[1] }}"
+
+- name: Save address and signature to a file
+  copy:
+    content: "{{ wallet_data.address}} {{ signature }}"
+    dest: "{{ node_info_dir }}/{{ inventory_hostname }}"
+  delegate_to: "127.0.0.1"
