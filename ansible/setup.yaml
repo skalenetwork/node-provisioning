@@ -3,13 +3,13 @@
   become: true
   roles:
     - role: sources
-      tags: 
+      tags:
         - sync
         - source
 
-    - role: skale-cli
+    - role: skale_cli
       tags: cli
 
     - role: init
-      tags: 
+      tags:
         - init
