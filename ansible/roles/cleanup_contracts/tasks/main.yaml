@@ -1,0 +1,12 @@
+- name: Cleanup contracts
+  script: cleanup_contracts.py
+  run_once: yes
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+  args:
+    executable: python3
+  tags:
+    - cleanup
+    - cleanup_contracts

@@ -1,0 +1,6 @@
+- name: Generate and save node signatures
+  hosts: nodes
+  roles:
+    - role: signature
+      tags:
+        - signature

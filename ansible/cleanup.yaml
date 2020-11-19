@@ -1,5 +1,2 @@
-- name: Cleanup node
-  hosts: nodes
-  become: true
-  roles:
-    - role: cleanup
+- import_playbook: cleanup_contracts.yaml
+- import_playbook: cleanup_nodes.yaml

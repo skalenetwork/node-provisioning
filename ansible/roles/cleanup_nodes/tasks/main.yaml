@@ -1,16 +1,3 @@
-- name: Cleanup contracts
-  script: cleanup_contracts.py
-  run_once: yes
-  environment:
-    BASE_DIR: "{{ base_path }}"
-    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
-    ENDPOINT: "{{ endpoint }}"
-  args:
-    executable: python3
-  tags:
-    - cleanup
-    - cleanup_contracts
-
 - name: Get all container ids
   command: "docker ps -aq"
   become: true
@@ -52,6 +39,14 @@
   tags:
     - cleanup
 
+
+- name: Remove skale.db
+  file:
+    state: absent
+    path: /home/ubuntu/.skale/node_data/skale.db
+  tags:
+    - skaledb
+
     # - name: Destroy all images
     #   become: true
     #   docker_image:
@@ -66,3 +61,4 @@
     state: absent
   tags:
     - cleanup
+    - rm_dotskale
