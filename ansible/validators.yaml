@@ -1,8 +1,0 @@
-- name: Setup validators
-  hosts: 127.0.0.1
-  connection: local
-  tasks:
-    - name: Perform validators for nodes generation 
-      import_role: 
-        name: validators
-        tasks_from: generate
