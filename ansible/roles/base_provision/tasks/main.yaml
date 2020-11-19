@@ -31,16 +31,16 @@
   tags:
     docker
 
+- name: Install docker.py
+  pip:
+    name: docker==4.2.0
+  tags:
+    pip
+
 - name: Install skale.py
   pip:
     name: skale.py==3.10dev25
     state: forcereinstall
-  tags:
-    pip
-
-- name: Install docker.py
-  pip:
-    name: docker==4.2.0
   tags:
     pip
 
