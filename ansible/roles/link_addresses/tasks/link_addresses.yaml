@@ -1,0 +1,17 @@
+- name: Get validator private key
+  run_once: yes
+  set_fact:
+    validator_private_key: "{{ lookup('file', 'files/base-key.txt') }}"
+
+- name: Link address to validator
+  run_once: yes
+  script: link_address.py
+  environment:
+    ETH_PRIVATE_KEY: "{{ validator_private_key }}"
+    ADDRESS: "{{ lookup('file', '{{ item }}').split()[0].strip() }}"
+    SIGNATURE: "{{ lookup('file', '{{ item }}').split()[1].strip() }}"
+    ENDPOINT: "{{ endpoint }}"
+    BASE_DIR: "files"
+  args:
+    executable: python3
+  with_fileglob: "node-info/*"

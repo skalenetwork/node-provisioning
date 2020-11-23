@@ -1,8 +1,8 @@
-- name: Link sgx wallet address to validator
-  hosts: nodes
-  become: true
-  tasks:
-    - name: Importing link-addresses.yaml from validators role
-      import_role:
-        name: validators
-        tasks_from: link_addresses
+- name: Link sgx wallet addresses to validator
+  hosts: 127.0.0.1
+  connection: local
+  serial: 1
+  roles:
+    - role: link_addresses
+      tags:
+        - link_addresses

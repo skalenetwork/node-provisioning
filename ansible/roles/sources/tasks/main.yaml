@@ -11,6 +11,8 @@
   synchronize:
     src: "{{ skale_admin_path }}"
     dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
   when: env is defined and env == "dev"
   tags: admin
 
@@ -31,6 +33,7 @@
     src: "{{ skale_node_cli_path }}"
     dest: "{{ base_path }}"
   when: env is defined and env == "dev"
+  tags: cli
 
 - name: Replace skale-node docker-compose file
   template:
