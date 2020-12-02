@@ -121,7 +121,9 @@ services:
       - ${SKALE_DIR}/node_data:/skale_node_data
     depends_on:
       - mysql
-
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
   celery:
     <<: *skale_base
     container_name: celery
