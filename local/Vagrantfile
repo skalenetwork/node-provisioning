@@ -1,0 +1,19 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+    servers.each do |machine|
+        config.vm.box = "hashicorp/bionic64"
+        config.vm.network "public_network"
+
+        config.vm.provider "virtualbox" do |v|
+        file_to_disk = 'disk2.vdi'
+        unless File.exist?(file_to_disk)
+            v.customize ['createhd', '--filename', file_to_disk, '--size', 50 * 1024]
+        end
+        v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+        end
+
+        config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true
+    end
+end
