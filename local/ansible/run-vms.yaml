@@ -1,0 +1,6 @@
+- name: Run Vagrant VMs on bare metal
+  hosts: server
+  # become: true
+  roles:
+    - role: vagrant
+
