@@ -8,9 +8,9 @@ n_of_servers = 2
 
 Vagrant.configure("2") do |config|
     for i in 1..n_of_servers
-        # puts "I: #{i}"
-        # puts "I: #{i}"
-        # puts "I: #{i}"
+        puts "I: #{i}"
+        puts "I: #{i}"
+        puts "I: #{i}"
 
         config.vm.box = "hashicorp/bionic64"
         config.vm.network "public_network", bridge: "eno1"

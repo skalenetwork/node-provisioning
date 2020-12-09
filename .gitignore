@@ -30,3 +30,5 @@ manager.json
 *.log
 
 .DS_Store
+
+inventory/hosts

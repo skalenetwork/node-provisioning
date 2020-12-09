@@ -1,2 +1,0 @@
-[server]
-server1 ansible_host=192.168.2.104 ansible_ssh_user=skale4 
