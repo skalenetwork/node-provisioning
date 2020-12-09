@@ -7,14 +7,16 @@
 - name:  Destroy previous Vagrant instances
   environment:
     NUM_OF_VMS: 2
+  become: yes
   command:
     chdir: "{{ base_path }}/vagrant/"
-    cmd: "vagrant destroy"
+    cmd: "vagrant destroy -f"
   tags: destroy
 
 - name:  Vagrant up
   # environment:
   #   NUM_OF_VMS: 2
+  become: yes
   command:
     chdir: "{{ base_path }}/vagrant/"
     cmd: "vagrant up"
