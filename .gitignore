@@ -31,4 +31,5 @@ manager.json
 
 .DS_Store
 
-inventory/hosts
+local/ansible/inventory/*
+
