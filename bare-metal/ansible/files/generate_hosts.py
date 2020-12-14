@@ -10,7 +10,7 @@ NODES_PREFIX = '[nodes]\n'
 def generate_hosts():
     with open('hosts', 'w') as f:
         f.write(NODES_PREFIX)
-        for i in range(1, NUM_OF_VMS):
+        for i in range(1, NUM_OF_VMS+1):
             f.write(f'node{i} ansible_host={SUBNET}.{BASE_IP+i} ansible_ssh_user={SSH_USER}\n')
 
 if __name__ == "__main__":
