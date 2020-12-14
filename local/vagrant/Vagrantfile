@@ -1,23 +1,57 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+
+def number_or_nil(string)
+  Integer(string || '')
+rescue ArgumentError
+  nil
+end
+
+
 VAGRANTFILE_API_VERSION = "2"
+BASE_PATH = ENV['BASE_PATH']
+PUB_KEY_PATH = "#{BASE_PATH}/vagrant/id_rsa.pub"
+SUBNET = ENV['SUBNET'] # ex: "192.168.2"
+NUM_OF_VMS = number_or_nil(ENV['NUM_OF_VMS'])
+DISK_SIZE = number_or_nil(ENV['DISK_SIZE'])
+BASE_IP = number_or_nil(ENV['BASE_IP'])
+
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box = "hashicorp/bionic64"
-    (1..3).each do |i|
+    (1..NUM_OF_VMS).each do |i|
         config.vm.define "node-#{i}" do |node|
-            node.vm.network "public_network", bridge: "eno1"
+            node.vm.network "public_network", bridge: "eno1", ip: "#{SUBNET}.#{BASE_IP+i}"
             node.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true, bridge: "eno1"
-
-            node.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/me.pub"
-
+            node.vm.provision "shell" do |s|
+                ssh_pub_key = ""
+                if File.file?(PUB_KEY_PATH)
+                  ssh_pub_key = File.readlines(PUB_KEY_PATH).first.strip
+                else
+                  puts "No SSH key found. You will need to remedy this before pushing to the repository."
+                end
+                s.inline = <<-SHELL
+                  if grep -sq "#{ssh_pub_key}" /home/vagrant/.ssh/authorized_keys; then
+                    echo "SSH keys already provisioned."
+                    exit 0;
+                  fi
+                  echo "SSH key provisioning."
+                  mkdir -p /home/vagrant/.ssh/
+                  touch /home/vagrant/.ssh/authorized_keys
+                  echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
+                  echo #{ssh_pub_key} > /home/vagrant/.ssh/id_rsa.pub
+                  chmod 644 /home/vagrant/.ssh/id_rsa.pub
+                  chown -R vagrant:vagrant /home/vagrant
+                  exit 0
+                SHELL
+            end
             file_for_disk = "./large_disk#{i}.vdi"
             node.vm.provider "virtualbox" do |v|
                unless File.exist?(file_for_disk)
                    v.customize ['createhd', 
                                 '--filename', file_for_disk, 
-                                '--size', 80 * 1024]
+                                '--size', DISK_SIZE * 1024]
                    v.customize ['storageattach', :id, 
                                 '--storagectl', 'SATA Controller', 
                                 '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_for_disk]

@@ -1,6 +1,14 @@
 - name: Run Vagrant VMs on bare metal
   hosts: server
-  # become: true
   roles:
     - role: vagrant
-
+  tags:
+    - vagrant
+- name: Generate hosts file for node provision
+  hosts: 127.0.0.1
+  connection: local
+  serial: 1
+  roles:
+    - role: generate_hosts
+  tags:
+    - hosts
