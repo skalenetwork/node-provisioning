@@ -21,6 +21,11 @@ ansible/terraform/aws/hosts
 ansible/ansible.cfg
 ansible/sgx/ansible.cfg
 
+ansible/files/base-key.txt
+ansible/files/validator-id.txt
+
+ansible/files/node*
+
 # other
 .ropeproject/
 venv/
@@ -31,6 +36,7 @@ manager.json
 
 .DS_Store
 
-local/ansible/inventory/*
-local/ansible/hosts
+# bare metal setup
 
+bare-metal/ansible/inventory/*
+bare-metal/ansible/hosts
