@@ -1,0 +1,12 @@
+- name: Generate hosts
+  script: generate_hosts.py
+  run_once: yes
+  environment:
+    BASE_DIR: "files"
+    NUM_OF_VMS: "{{ num_of_vms }}"
+    SUBNET: "{{ subnet }}"
+    BASE_IP: "{{ base_ip }}"
+    SSH_USER: "{{ ssh_user }}"
+  args:
+    executable: python3
+
