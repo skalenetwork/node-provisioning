@@ -24,6 +24,9 @@ ansible/sgx/ansible.cfg
 ansible/files/base-key.txt
 ansible/files/validator-id.txt
 
+ansible/files/cert.pem
+ansible/files/privkey.pem
+
 ansible/files/node*
 
 # other

@@ -85,3 +85,12 @@ Recreates accounts and runs restart.yaml steps.
 ```
 ansible-playbook -i path-to-your-inventory restart.yaml 
 ```
+
+### Upload SSL certificates
+
+1) Copy `cert.pem` and `privkey.pem` files to the `ansible/files` directory
+2) Run:
+3) 
+```bash
+ansible-playbook -i path-to-your-inventory ssl.yaml 
+```
