@@ -27,27 +27,11 @@ services:
       FLASK_APP_HOST: "127.0.0.1"
       FLASK_DEBUG_MODE: "False"
       SKALE_DIR_HOST: ${SKALE_DIR}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
-
-#   transaction-manager:
-#     <<: *skale_base
-#     container_name: skale_transaction-manager
-#     image: "transaction-manager:${TAG:-latest}"
-#     build:
-#       context: "{{ base_path }}/transaction-manager"
-#       dockerfile: Dockerfile
-#     network_mode: host
-#     tty: true
-#     environment:
-#       SGX_SERVER_URL: ${SGX_SERVER_URL}
-#       SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
-#       ENDPOINT: ${ENDPOINT}
-#       NODE_DATA_PATH: /skale_node_data
-#       REDIS_URI: "redis://127.0.0.1:6379"
-#     volumes:
-#       - ${SKALE_DIR}/node_data:/skale_node_data
 
   skale-admin:
     <<: *skale_base
@@ -75,6 +59,8 @@ services:
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
       MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       BACKUP_RUN: ${BACKUP_RUN}
     command: "python3 admin.py"
     volumes:
@@ -112,6 +98,8 @@ services:
       TG_CHAT_ID: ${TG_CHAT_ID}
       MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
       BACKUP_RUN: ${BACKUP_RUN}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
     command: "gunicorn app:app -c gunicorn.conf.py"
     ports:
       - 3007:3007
@@ -131,6 +119,8 @@ services:
     environment:
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
     command: "celery -A tools.notifications.tasks worker --loglevel=info"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -179,6 +169,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       DB_PORT: ${DB_PORT}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -197,6 +189,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       DB_PORT: ${DB_PORT}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
