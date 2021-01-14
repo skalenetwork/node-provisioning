@@ -16,6 +16,8 @@
     SUBNET: "{{ subnet }}"
     DISK_SIZE: "{{ disk_size }}"
     BASE_IP: "{{ base_ip }}"
+    RAM_SIZE: "{{ ram_size }}"
+    VM_BASE_NAME: "{{ vm_base_name }}"
   become: yes
   command:
     chdir: "{{ base_path }}/vagrant/"
@@ -44,6 +46,8 @@
     SUBNET: "{{ subnet }}"
     DISK_SIZE: "{{ disk_size }}"
     BASE_IP: "{{ base_ip }}"
+    RAM_SIZE: "{{ ram_size }}"
+    VM_BASE_NAME: "{{ vm_base_name }}"
   become: yes
   command:
     chdir: "{{ base_path }}/vagrant/"

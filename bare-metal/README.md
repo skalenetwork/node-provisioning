@@ -18,6 +18,8 @@ num_of_vms=4
 disk_size=80
 base_ip=50
 ssh_user=vagrant
+ram_size=4096
+vm_base_name=mynode
 ```
 
 Ansible cfg example:
@@ -34,4 +36,14 @@ When Vagrant provison is completed `hosts` file will be created in `bare-metal/a
 
 ```bash
 ansible-playbook -i inventory -v main.yaml
+```
+
+Default `DISK_MOUNTPOINT` for VirtualBox VMs: `/dev/sdb`
+
+## Destroy machines
+
+To destroy running VMs run:
+
+```bash
+ansible-playbook -i inventory run-vms.yaml --tags destroy
 ```
