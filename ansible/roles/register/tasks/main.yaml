@@ -5,7 +5,7 @@
 
 - name: Run skale node register
   command:
-    cmd: "skale node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000"
+    cmd: "skale node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000 --domain-name {{ ip_address }}.{{ base_domain_name }}"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
