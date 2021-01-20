@@ -208,6 +208,18 @@ services:
       FLASK_APP_HOST: "127.0.0.1"
       FLASK_DEBUG_MODE: "False"
 
+  nginx:
+    <<: *skale_base
+    image: nginx:1.19.6
+    container_name: skale_nginx
+    network_mode: host
+    depends_on:
+      - watchdog
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 3009:3009
+
   advisor:
     <<: *skale_base
     container_name: monitor_cadvisor
