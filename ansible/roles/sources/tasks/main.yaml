@@ -28,7 +28,7 @@
     src: "{{ skale_node_path }}"
     dest: "{{ base_path }}"
 
-- name: Synchronization of skale-node-cli repo
+- name: Synchronization of node-cli repo
   synchronize:
     src: "{{ skale_node_cli_path }}"
     dest: "{{ base_path }}"
