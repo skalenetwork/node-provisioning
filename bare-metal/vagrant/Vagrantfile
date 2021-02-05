@@ -16,6 +16,7 @@ SUBNET = ENV['SUBNET'] # ex: "192.168.2"
 NUM_OF_VMS = number_or_nil(ENV['NUM_OF_VMS'])
 DISK_SIZE = number_or_nil(ENV['DISK_SIZE'])
 RAM_SIZE = number_or_nil(ENV['RAM_SIZE'])
+CPUS = number_or_nil(ENV['CPUS'])
 VM_BASE_NAME = ENV['VM_BASE_NAME']
 BASE_IP = number_or_nil(ENV['BASE_IP'])
 
@@ -50,7 +51,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             end
             file_for_disk = "./large_disk#{i}.vdi"
             node.vm.provider "virtualbox" do |v|
-              v.customize ["modifyvm", :id, "--memory", RAM_SIZE]
+              v.memory = RAM_SIZE
+              v.cpus = CPUS
               v.name = "#{VM_BASE_NAME}-#{i}"
               unless File.exist?(file_for_disk)
                    v.customize ['createhd', 
