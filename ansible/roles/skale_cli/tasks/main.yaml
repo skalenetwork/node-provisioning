@@ -1,7 +1,7 @@
 - name: Install requirements
   command:
     chdir: "{{ base_path }}/node-cli/"
-    cmd: "pip3 install -e '.'"
+    cmd: "pip3 install --ignore-installed PyYAML -e '.'"
   when: env is defined and env == "dev"
 
 - name: Install setuptools 39-0-1

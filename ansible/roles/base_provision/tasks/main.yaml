@@ -27,6 +27,11 @@
   apt: name={{ item }} update_cache=yes state=latest
   loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'python3-dev']
 
+- name: Update pip
+  pip:
+    name: pip
+    state: latest
+
 - import_tasks: docker.yaml
   tags:
     docker
@@ -34,13 +39,6 @@
 - name: Install docker.py
   pip:
     name: docker==4.2.0
-  tags:
-    pip
-
-- name: Install skale.py
-  pip:
-    name: skale.py==3.10dev25
-    state: forcereinstall
   tags:
     pip
 
