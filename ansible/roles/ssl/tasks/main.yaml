@@ -18,3 +18,11 @@
   environment:
     LC_ALL: "C.UTF-8"
     LANG: "C.UTF-8"
+
+- name: Set domain name
+  command: "sudo skale node set-domain -d {{ inventory_hostname }}.{{ base_domain_name }} --yes"
+  environment:
+    LC_ALL: "C.UTF-8"
+    LANG: "C.UTF-8"
+  tags: 
+    domains
