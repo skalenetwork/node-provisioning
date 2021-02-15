@@ -63,7 +63,7 @@ resource "aws_ebs_volume" "lvm_volume" {
 
 resource "aws_spot_instance_request" "node" {
   count = "${var.spot_instance ? var.NUMBER : 0}"
-  spot_price    = "0.8"
+  spot_price    = "${var.spot_price}"
   ami           = "${data.aws_ami.ubuntu.id}"
   instance_type = var.instance_type
   availability_zone = var.availability_zone
