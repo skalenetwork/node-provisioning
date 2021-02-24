@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.4'
 
 services:
   base: &skale_base
@@ -15,7 +15,7 @@ services:
   transaction-manager:
     <<: *skale_base
     container_name: skale_transaction-manager
-    image: skalenetwork/transaction-manager:1.0.0-stable.0
+    image: skalenetwork/transaction-manager:1.1.0-beta.7
     network_mode: host
     tty: true
     environment:
@@ -29,6 +29,8 @@ services:
       SKALE_DIR_HOST: ${SKALE_DIR}
       DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
+      MAX_GAS_PRICE_WEI : ${MAX_GAS_PRICE_WEI}
+      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -40,6 +42,7 @@ services:
     build:
       context: "{{ base_path }}/skale-admin"
       dockerfile: Dockerfile
+    cpu_shares: 192
     network_mode: host
     tty: true
     cap_add:
@@ -59,16 +62,22 @@ services:
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
       MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       BACKUP_RUN: ${BACKUP_RUN}
+      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      MAX_ALLOWED_LOG_TIME_DIFF: 600
     command: "python3 admin.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
-    depends_on:
-      - mysql
+    healthcheck:
+      test: ["CMD", "python3", "healthchecks/admin.py"]
+      interval: 1m
+      timeout: 10s
+      retries: 2
+      start_period: 30s
 
   skale-api:
     <<: *skale_base
@@ -79,6 +88,9 @@ services:
       dockerfile: Dockerfile
     network_mode: host
     tty: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     environment:
       TM_URL: http://127.0.0.1:3008
       SGX_SERVER_URL: ${SGX_SERVER_URL}
@@ -98,11 +110,10 @@ services:
       TG_CHAT_ID: ${TG_CHAT_ID}
       MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
       BACKUP_RUN: ${BACKUP_RUN}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
     command: "gunicorn app:app -c gunicorn.conf.py"
-    ports:
-      - 3007:3007
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${SKALE_DIR}:/skale_vol
@@ -113,37 +124,35 @@ services:
   celery:
     <<: *skale_base
     container_name: celery
-    image: skalenetwork/admin:0.17.0-beta.2
+    image: skalenetwork/admin:1.1.0-beta.33
     network_mode: host
     tty: true
     environment:
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
     command: "celery -A tools.notifications.tasks worker --loglevel=info"
+
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
   redis:
     <<: *skale_base
     container_name: redis
-    image: "redis:6.0-alpine"
+    image: "redis:6.0.10-alpine"
     network_mode: host
     tty: true
     environment:
-     - REDIS_REPLICATION_MODE=master
+      - REDIS_REPLICATION_MODE=master
     command: "redis-server /data/redis.conf"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${SKALE_DIR}/node_data/redis-data:/data/db:rw
       - ${SKALE_DIR}/config/redis.conf:/data/redis.conf
 
-
   mysql:
     <<: *skale_base
     container_name: skale_mysql
-    image: mysql/mysql-server:5.7
+    image: mysql/mysql-server:5.7.30
     network_mode: host
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -154,33 +163,11 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: "db_skale"
-    ports:
-      - ${DB_PORT}:3306
-
-  sla:
-    <<: *skale_base
-    container_name: skale_sla
-    image: skalenetwork/sla-agent:1.0.2-beta.1
-    network_mode: host
-    environment:
-      TM_URL: http://127.0.0.1:3008
-      ENDPOINT: ${ENDPOINT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_PORT: ${DB_PORT}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
-    volumes:
-      - ${SKALE_DIR}:/skale_vol
-      - ${SKALE_DIR}/node_data:/skale_node_data
-    depends_on:
-      - mysql
 
   bounty:
     <<: *skale_base
     container_name: skale_bounty
-    image: skalenetwork/bounty-agent:1.0.0-develop.2
+    image: skalenetwork/bounty-agent:1.1.1-beta.3
     network_mode: host
     environment:
       TM_URL: http://127.0.0.1:3008
@@ -189,8 +176,9 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       DB_PORT: ${DB_PORT}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -200,9 +188,8 @@ services:
   watchdog:
     <<: *skale_base
     container_name: skale_watchdog
-    image: skalenetwork/watchdog:0.1.0-develop.0
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    image: skalenetwork/watchdog:1.1.3-beta.1
+    network_mode: host
     environment:
       FLASK_APP_PORT: 3010
       FLASK_APP_HOST: "127.0.0.1"
@@ -217,13 +204,12 @@ services:
       - watchdog
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - 3009:3009
 
   advisor:
     <<: *skale_base
     container_name: monitor_cadvisor
     image: google/cadvisor:latest
+    cpu_shares: 128
     network_mode: host
     volumes:
       - /:/rootfs:ro
@@ -231,8 +217,6 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-    ports:
-      - "8080:8080"
 
   node-exporter:
     <<: *skale_base
@@ -251,7 +235,7 @@ services:
 
   filebeat:
     <<: *skale_base
-    container_name: monitor_filebeat
+    container_name: skale_filebeat
     user: root
     image: docker.elastic.co/beats/filebeat:7.3.1
     network_mode: host

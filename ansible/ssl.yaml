@@ -1,6 +1,6 @@
 - name: Upload SSL certificates to the nodes
   hosts: nodes
-  # become: true
+  become: true
   roles:
     - role: ssl
       tags:
