@@ -73,3 +73,4 @@
     - { name: TG_CHAT_ID, value: "{{ tg_chat_id }}"}
     - { name: MONITORING_CONTAINERS, value: "{{ monitoring_containers }}"}
     - { name: DEFAULT_GAS_PRICE_WEI, value: "{{ default_gas_price_wei }}"}
+    - { name: ENV_TYPE, value: "{{ env_type }}"}
