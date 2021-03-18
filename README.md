@@ -94,3 +94,11 @@ ansible-playbook -i path-to-your-inventory restart.yaml
 ```bash
 ansible-playbook -i path-to-your-inventory ssl.yaml 
 ```
+### Upload authorized_keys to nodes
+
+1) add `authorized_keys` file with all id_rsa.pub what you want to add for access on nodes to the `ansible/files` directory
+2) Run:
+3) 
+```bash
+ansible-playbook -i path-to-your-inventory upload_authorized_keys.yaml 
+```
