@@ -12,3 +12,20 @@
     - role: generate_hosts
   tags:
     - hosts
+
+- name: Generate script for restart VM on host
+  hosts: 127.0.0.1
+  connection: local
+  serial: 1
+  roles:
+    - role: generate_script
+  tags:
+    - hosts
+
+- name: Add add_rerun_vm_script to host
+  hosts: server
+  become: true
+  roles:
+    - role: add_rerun_vm_script
+      tags:
+        - rerun_vm_script
