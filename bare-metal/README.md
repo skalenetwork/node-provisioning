@@ -19,6 +19,7 @@ disk_size=80
 base_ip=50
 ssh_user=vagrant
 ram_size=4096
+cpus=1
 vm_base_name=mynode
 ```
 
