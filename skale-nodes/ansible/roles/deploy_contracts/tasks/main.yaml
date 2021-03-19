@@ -1,0 +1,12 @@
+- name: Deploy contracts
+  command: bash {{ playbook_dir }}/../../helper-scripts/deploy_manager.sh
+  run_once: yes
+  environment:
+    MANAGER_TAG: "{{ manager_tag }}"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+    GAS_PRICE: "{{ deploy_gas_price }}"
+    NETWORK: "custom"
+  tags:
+    - deploy_sm
+    - deploy_contracts

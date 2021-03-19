@@ -6,6 +6,18 @@ This repo will help deploy and register multiple SKALE nodes in the cloud automa
 
 NOTE: This is for QA and testing purposes only.
 
+- [SKALE Node Provisoning](#skale-node-provisoning)
+  - [Host requirements](#host-requirements)
+  - [Supported providers](#supported-providers)
+  - [Usage](#usage)
+    - [Secrets preparation](#secrets-preparation)
+    - [Provision SKALE nodes in the cloud](#provision-skale-nodes-in-the-cloud)
+  - [Setup on existent nodes from sources](#setup-on-existent-nodes-from-sources)
+    - [Other options](#other-options)
+  - [Tasks](#tasks)
+    - [Deploy SM](#deploy-sm)
+    - [Upload SSL certificates](#upload-ssl-certificates)
+
 ## Host requirements
 
 - Terraform >= 0.12
@@ -13,8 +25,7 @@ NOTE: This is for QA and testing purposes only.
 
 ## Supported providers
 
-- DigitalOcean
-- A̶W̶S̶ (deprecated and should be updated)
+- AWS
 
 ## Usage
 
@@ -84,6 +95,25 @@ ansible-playbook -i path-to-your-inventory restart.yaml
 Recreates accounts and runs restart.yaml steps.
 ```
 ansible-playbook -i path-to-your-inventory restart.yaml 
+```
+
+## Tasks
+
+### Deploy SM
+
+Required variables in the inventory:
+
+```
+manager_tag=''
+eth_private_key=''
+endpoint=''
+deploy_gas_price=''
+```
+
+Execution:
+
+```bash
+ansible-playbook -i inventory deploy_contracts.yaml
 ```
 
 ### Upload SSL certificates

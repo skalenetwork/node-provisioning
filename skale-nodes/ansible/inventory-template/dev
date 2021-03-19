@@ -31,3 +31,7 @@ tg_chat_id=''
 monitoring_containers=''
 base_domain_name=''
 env_type=''
+
+# optional parameters
+manager_tag=''
+deploy_gas_price='2000000000' # 2 gwei
