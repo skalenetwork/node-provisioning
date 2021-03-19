@@ -1,0 +1,56 @@
+- name: Synchronization of vagrant folder
+  synchronize:
+    src: "{{ inventory_dir }}/../../vagrant"
+    dest: "{{ base_path }}"
+  tags: sync
+
+- name: Copy public SSH key to the server
+  copy:
+    src: "~/.ssh/id_rsa.pub"
+    dest: "{{ base_path }}/vagrant"
+
+- name:  Destroy previous Vagrant instances
+  environment:
+    NUM_OF_VMS: "{{ num_of_vms }}"
+    BASE_PATH: "{{ base_path }}"
+    SUBNET: "{{ subnet }}"
+    DISK_SIZE: "{{ disk_size }}"
+    BASE_IP: "{{ base_ip }}"
+    RAM_SIZE: "{{ ram_size }}"
+    VM_BASE_NAME: "{{ vm_base_name }}"
+  become: yes
+  command:
+    chdir: "{{ base_path }}/vagrant/"
+    cmd: "vagrant destroy -f"
+  tags: destroy
+
+- name: Find old .vdi files
+  find:
+    paths:
+      - "{{ base_path }}/vagrant"
+    patterns: "*.vdi"
+  register: find_results
+  tags: destroy
+
+- name: Remove old .vdi files
+  file:
+    path: "{{ item['path'] }}"
+    state: absent
+  with_items: "{{ find_results['files'] }}"
+  tags: destroy
+
+- name:  Vagrant up
+  environment:
+    NUM_OF_VMS: "{{ num_of_vms }}"
+    BASE_PATH: "{{ base_path }}"
+    SUBNET: "{{ subnet }}"
+    DISK_SIZE: "{{ disk_size }}"
+    BASE_IP: "{{ base_ip }}"
+    RAM_SIZE: "{{ ram_size }}"
+    CPUS: "{{ cpus }}"
+    VM_BASE_NAME: "{{ vm_base_name }}"
+  become: yes
+  command:
+    chdir: "{{ base_path }}/vagrant/"
+    cmd: "vagrant up"
+  tags: up
