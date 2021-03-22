@@ -1,0 +1,21 @@
+- name: Copy {{ restart_vm_file_name }}.sh to {{ base_path }}
+  copy:
+    src: "files/{{ restart_vm_file_name }}.sh"
+    dest: "{{ base_path }}/"
+
+- name: Make the {{ restart_vm_file_name }}.sh executable
+  ansible.builtin.file:
+    path: "{{ base_path }}/{{ restart_vm_file_name }}.sh"
+    owner: root
+    group: root
+    mode: '755'
+    
+- name: Copy {{ restart_vm_file_name }}.service to /etc/systemd/system/
+  copy:
+    src: "files/{{ restart_vm_file_name }}.service"
+    dest: "/etc/systemd/system/"
+
+- name: Enable {{restart_vm_file_name}}.service
+  ansible.builtin.systemd:
+    name: "{{ restart_vm_file_name }}"
+    enabled: yes

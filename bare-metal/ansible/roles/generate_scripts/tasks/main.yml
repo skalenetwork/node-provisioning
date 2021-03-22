@@ -1,0 +1,11 @@
+- name: Generate scripts
+  script: generate_scripts.py
+  run_once: yes
+  environment:
+    BASE_DIR: "files"
+    NUM_OF_VMS: "{{ num_of_vms }}"
+    BASE_NAME: "{{ vm_base_name }}"
+    BASE_PATH: "{{ base_path }}"
+    RESTART_VM_FILE_NAME: "{{ restart_vm_file_name }}"
+  args:
+    executable: python3
