@@ -45,4 +45,4 @@ manager.json
 bare-metal/ansible/inventory/*
 bare-metal/ansible/hosts*
 bare-metal/ansible/ansible.cfg
-bare-metal/ansible/files/restart_vm.sh
+bare-metal/ansible/files/restart_vm*
