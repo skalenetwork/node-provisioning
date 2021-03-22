@@ -21,6 +21,7 @@ ssh_user=vagrant
 ram_size=4096
 cpus=1
 vm_base_name=mynode
+restart_vm_file_name=restart_vm
 ```
 
 Ansible cfg example:
