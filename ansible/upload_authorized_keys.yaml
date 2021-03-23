@@ -1,7 +1,0 @@
-- name: Upload authorized_keys to the nodes
-  hosts: nodes
-  become: true
-  roles:
-    - role: authorized_keys
-      tags:
-        - authorized_keys

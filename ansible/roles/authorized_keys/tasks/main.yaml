@@ -1,4 +1,0 @@
-- name: Copy authorized_keys to /root/.ssh
-  copy:
-    src: "files/authorized_keys"
-    dest: "{{ base_path }}/.ssh"
