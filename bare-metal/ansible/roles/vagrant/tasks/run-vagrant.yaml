@@ -39,6 +39,26 @@
   with_items: "{{ find_results['files'] }}"
   tags: destroy
 
+- name: Stop service restart_vm on host, if running
+  become: yes
+  ansible.builtin.systemd:
+    name: restart_vm
+    state: stopped
+  tags: destroy
+
+- name: Remove restart_vm.service file
+  become: yes
+  ansible.builtin.file:
+    path: "/etc/systemd/system/restart_vm.service"
+    state: absent
+  tags: destroy
+
+- name: Remove restart_vm.sh file
+  ansible.builtin.file:
+    path: "{{ base_path }}/restart_vm.sh"
+    state: absent
+  tags: destroy
+
 - name:  Vagrant up
   environment:
     NUM_OF_VMS: "{{ num_of_vms }}"
