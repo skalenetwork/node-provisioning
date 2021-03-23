@@ -1,6 +1,6 @@
 - name: Install requirements
   command:
-    chdir: "{{ base_path }}/node-cli/"
+    chdir: "{{ base_path }}/skale-node-cli/"
     cmd: "pip3 install --ignore-installed PyYAML -e '.'"
   when: env is defined and env == "dev"
 
@@ -19,11 +19,11 @@
 - name: Build skale command
   command:
     cmd: "bash scripts/build.sh 0.0.0 test"
-    chdir: "{{ base_path }}/node-cli"
+    chdir: "{{ base_path }}/skale-node-cli"
   when: env is defined and env == "dev"
 
 - name: Copy executable to /usr/bin/local
-  copy: remote_src=True src="{{ base_path }}/node-cli/dist/skale-0.0.0-Linux-x86_64" dest=/usr/local/bin/skale
+  copy: remote_src=True src="{{ base_path }}/skale-node-cli/dist/skale-0.0.0-Linux-x86_64" dest=/usr/local/bin/skale
   when: env is defined and env == "dev"
 
 - name: Download skale_cli from spaces
