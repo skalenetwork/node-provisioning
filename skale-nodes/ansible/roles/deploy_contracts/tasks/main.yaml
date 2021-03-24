@@ -10,3 +10,18 @@
   tags:
     - deploy_sm
     - deploy_contracts
+- name: Copy to s3
+  aws_s3:
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    bucket: "skale-abis"
+    #bucket: skale-binaries
+    src: "{{ playbook_dir }}/../../helper-scripts/deploy_manager.sh"
+    object: 'skale-manager'
+    region: 'eu-central-1'
+    mode: put
+    # overwrite: "no"
+    permission: "public-read"
+    ignore_nonexistent_bucket: True
+  tags:
+    - upload_contracts

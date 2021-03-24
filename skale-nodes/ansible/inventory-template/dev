@@ -35,3 +35,6 @@ env_type=''
 # optional parameters
 manager_tag=''
 deploy_gas_price='2000000000' # 2 gwei
+
+aws_key=''
+aws_secret=''
