@@ -38,6 +38,10 @@ skale_node_cli_path=''
 
 # optional parameters
 
+## skale-node
+
+disable_ima=''
+
 ## contracts deployment
 
 manager_tag=''
