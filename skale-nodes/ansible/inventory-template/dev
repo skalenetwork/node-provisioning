@@ -1,10 +1,6 @@
 [all:vars]
 ansible_ssh_user='root'
 ansible_python_interpreter=/usr/bin/python3
-skale_admin_path=''
-transaction_manager_path=''
-skale_node_path=''
-skale_node_cli_path=''
 env=test
 base_path=/root
 sgx_url=''
@@ -32,7 +28,18 @@ monitoring_containers=''
 base_domain_name=''
 env_type=''
 
+## dev variables (skip if env=test)
+
+skale_admin_path=''
+transaction_manager_path=''
+skale_node_path=''
+skale_node_cli_path=''
+
+
 # optional parameters
+
+## contracts deployment
+
 manager_tag=''
 deploy_gas_price='2000000000' # 2 gwei
 

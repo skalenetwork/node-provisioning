@@ -1,5 +1,5 @@
-- name: Deploy contracts
-  command: bash {{ playbook_dir }}/../../helper-scripts/deploy_manager.sh
+- name: Deploy contracts (this may take a while, logs - {{ playbook_dir }}/logs/sm-deploy.log)
+  shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_manager.sh 2>&1 | tee {{ playbook_dir }}/logs/sm-deploy.log
   run_once: yes
   environment:
     MANAGER_TAG: "{{ manager_tag }}"
@@ -17,11 +17,18 @@
     bucket: "skale-abis"
     #bucket: skale-binaries
     src: "{{ playbook_dir }}/../../helper-scripts/deploy_manager.sh"
-    object: 'skale-manager'
+    object: 'deploy_manager.sh'
     region: 'eu-central-1'
     mode: put
     # overwrite: "no"
     permission: "public-read"
-    ignore_nonexistent_bucket: True
+    # ignore_nonexistent_bucket: True
+  tags:
+    - upload_contracts
+  register: url_output
+- name: Use result
+  debug:
+   msg: >-
+     ffff {{ url_output.url }}
   tags:
     - upload_contracts
