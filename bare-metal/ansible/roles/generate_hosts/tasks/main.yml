@@ -9,4 +9,3 @@
     SSH_USER: "{{ ssh_user }}"
   args:
     executable: python3
-

@@ -29,10 +29,10 @@ data "aws_ami" "ubuntu" {
 
 
 resource "aws_volume_attachment" "ebs_att" {
-  count = "${var.NUMBER}"
+  count = var.NUMBER
   device_name = "/dev/sdd"
   volume_id   = aws_ebs_volume.lvm_volume[count.index].id
-  instance_id = "${var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id}"
+  instance_id = var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id
 
   provisioner "remote-exec" {
     inline = [
@@ -51,7 +51,7 @@ resource "aws_volume_attachment" "ebs_att" {
 }
 
 resource "aws_ebs_volume" "lvm_volume" {
-  count = "${var.NUMBER}"
+  count = var.NUMBER
   availability_zone = var.availability_zone
   size = var.lvm_volume_size
 
@@ -62,9 +62,9 @@ resource "aws_ebs_volume" "lvm_volume" {
 
 
 resource "aws_spot_instance_request" "node" {
-  count = "${var.spot_instance ? var.NUMBER : 0}"
-  spot_price    = "${var.spot_price}"
-  ami           = "${data.aws_ami.ubuntu.id}"
+  count = var.spot_instance ? var.NUMBER : 0
+  spot_price    = var.spot_price[var.instance_type]
+  ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
   availability_zone = var.availability_zone
   wait_for_fulfillment = true
@@ -84,8 +84,8 @@ resource "aws_spot_instance_request" "node" {
 }
 
 resource "aws_instance" "node" {
-  count = "${!var.spot_instance ? var.NUMBER : 0}"
-  ami           = "${data.aws_ami.ubuntu.id}"
+  count = !var.spot_instance ? var.NUMBER : 0
+  ami   = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
   availability_zone = var.availability_zone
   key_name = var.key_name
@@ -110,7 +110,7 @@ data "aws_vpc" "default" {
 
 resource "aws_security_group" "security_group" {
   vpc_id       = data.aws_vpc.default.id
-  name         = "${var.security_group}"
+  name         = var.security_group
   description  = "Security group for nodes"
 
   # allow ingress of port 22
@@ -171,21 +171,21 @@ resource "aws_security_group" "security_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "${var.security_group}"
+    Name = var.security_group
     Description = "Security Group for nodes"
   }
 }
 
 
 resource "aws_eip_association" "eip_assoc" {
-  count = "${var.NUMBER}"
+  count = var.NUMBER
   allocation_id = aws_eip.node_eip[count.index].id
-  instance_id = "${var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id}"
+  instance_id = var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id
   provisioner "local-exec" {
     command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
   }
 }
 
 resource "aws_eip" "node_eip" {
-  count = "${var.NUMBER}"
+  count = var.NUMBER
 }

@@ -14,10 +14,12 @@ wallets/*
 # ansible
 skale-nodes/ansible/my-inventory
 skale-nodes/ansible/inventory/
-skale-nodes/ansible/files/base-keys.txt
-skale-nodes/ansible/files/validator-ids.txt
+skale-nodes/ansible/files/base-key*.txt
+skale-nodes/ansible/files/dev*
+skale-nodes/ansible/files/authorized_keys
+skale-nodes/ansible/files/validator-id*.txt
 skale-nodes/ansible/terraform/do/hosts
-skale-nodes/ansible/terraform/aws/hosts
+skale-nodes/ansible/terraform/aws/hosts*
 skale-nodes/ansible/ansible.cfg
 skale-nodes/ansible/sgx/ansible.cfg
 
@@ -33,7 +35,7 @@ skale-nodes/ansible/files/node*
 .ropeproject/
 venv/
 .env
-manager.json
+manager*.json
 
 *.log
 
@@ -42,5 +44,7 @@ manager.json
 # bare metal setup
 
 bare-metal/ansible/inventory/*
-bare-metal/ansible/hosts
+bare-metal/ansible/hosts*
 bare-metal/ansible/ansible.cfg
+bare-metal/ansible/files/restart_vm*
+bare-metal/ansible/conf*
