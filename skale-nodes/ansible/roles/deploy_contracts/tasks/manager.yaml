@@ -47,11 +47,3 @@
     state: present
   tags:
     - upload_sm
-
-
-- name: Show ABIs download URL
-  debug:
-   msg: >-
-      ABIs download URL: {{ sm_url }}
-  tags:
-    - aaaa
