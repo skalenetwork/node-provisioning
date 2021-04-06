@@ -108,13 +108,29 @@ manager_tag=''
 eth_private_key=''
 endpoint=''
 deploy_gas_price=''
+
+aws_key='' # for S3 upload
+aws_secret='' # for S3 upload
 ```
 
-Execution:
+Deploy and upload ABIs to AWS S3:
 
 ```bash
 ansible-playbook -i inventory deploy_contracts.yaml
 ```
+
+Deploy only:
+
+```bash
+ansible-playbook -i inventory deploy_contracts.yaml --tags deploy_contracts
+```
+
+Upload only (from `helper-scripts/contracts_data/manager.json`):
+
+```bash
+ansible-playbook -i inventory deploy_contracts.yaml --tags upload_contracts
+```
+
 
 ### Upload SSL certificates
 

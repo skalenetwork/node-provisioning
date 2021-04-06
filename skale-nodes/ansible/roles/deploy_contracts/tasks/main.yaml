@@ -10,25 +10,32 @@
   tags:
     - deploy_sm
     - deploy_contracts
-- name: Copy to s3
+- name: Generate random string
+  set_fact:
+    random_str: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=15') }}"
+  tags:
+    - upload_contracts
+- name: Upload SM ABI to S3
   aws_s3:
     aws_access_key: "{{ aws_key }}"
     aws_secret_key: "{{ aws_secret }}"
     bucket: "skale-abis"
-    #bucket: skale-binaries
-    src: "{{ playbook_dir }}/../../helper-scripts/deploy_manager.sh"
-    object: 'deploy_manager.sh'
+    src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/manager.json"
+    object: 'skale-manager-abi-{{ manager_tag }}-{{ random_str }}.json'
     region: 'eu-central-1'
     mode: put
-    # overwrite: "no"
     permission: "public-read"
-    # ignore_nonexistent_bucket: True
   tags:
     - upload_contracts
   register: url_output
-- name: Use result
+- name: Format download URL
+  shell:  echo "{{ url_output.url }}" | cut -f1 -d"?"
+  register: sm_url
+  tags:
+    - upload_contracts
+- name: Show ABIs download URL
   debug:
    msg: >-
-     ffff {{ url_output.url }}
+      ABIs download URL: {{ sm_url.stdout }}
   tags:
     - upload_contracts
