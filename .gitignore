@@ -48,3 +48,5 @@ bare-metal/ansible/hosts*
 bare-metal/ansible/ansible.cfg
 bare-metal/ansible/files/restart_vm*
 bare-metal/ansible/conf*
+
+skale-nodes/ansible/group_vars/all
