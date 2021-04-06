@@ -1,0 +1,48 @@
+- name: Deploy IMA contracts (this may take a while, logs - {{ playbook_dir }}/logs/ima-deploy.log)
+  shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_ima.sh 2>&1 | tee {{ playbook_dir }}/logs/ima-deploy.log
+  run_once: yes
+  environment:
+    IMA_TAG: "{{ ima_tag }}"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+    GAS_PRICE: "{{ deploy_gas_price }}"
+  tags:
+    - deploy_ima
+- name: Generate random string
+  set_fact:
+    random_str: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=15') }}"
+  tags:
+    - upload_ima
+- name: Upload IMA ABI to S3
+  aws_s3:
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    bucket: "skale-abis"
+    src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/ima.json"
+    object: 'ima-abi-{{ ima_tag }}-{{ random_str }}.json'
+    region: 'eu-central-1'
+    mode: put
+    permission: "public-read"
+  tags:
+    - upload_ima
+  register: url_output
+- name: Format download URL
+  shell:  echo "{{ url_output.url }}" | cut -f1 -d"?"
+  register: ima_url
+  tags:
+    - upload_ima
+- name: Show ABIs download URL
+  debug:
+   msg: >-
+      ABIs download URL: {{ ima_url.stdout }}
+  tags:
+    - upload_ima
+- name: Save IMA URL to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    insertafter: EOF
+    regexp: '^ima_url:'
+    line: "ima_url: {{ ima_url.stdout }}"
+    state: present
+  tags:
+    - upload_ima
