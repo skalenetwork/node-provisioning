@@ -23,10 +23,19 @@
   when: env is defined and env == "dev"
   tags: tm
 
+- name: Synchronization of skale-watchdog repo
+  synchronize:
+    src: "{{ skale_watchdog_path }}"
+    dest: "{{ base_path }}"
+  when: env is defined and env == "dev"
+  tags: watchdog
+
 - name: Synchronization of skale-node repo
   synchronize:
     src: "{{ skale_node_path }}"
     dest: "{{ base_path }}"
+  when: env is defined and env == "dev"
+  tags: skale-node
 
 - name: Synchronization of node-cli repo
   synchronize:

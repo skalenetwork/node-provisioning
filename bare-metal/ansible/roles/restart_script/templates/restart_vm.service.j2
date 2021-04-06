@@ -1,0 +1,10 @@
+[Unit]
+Description=Restart virtual mashines after host reboot
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart={{ base_path }}/restart_vm.sh
+
+[Install]
+WantedBy=multi-user.target

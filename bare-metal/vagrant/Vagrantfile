@@ -54,6 +54,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               v.memory = RAM_SIZE
               v.cpus = CPUS
               v.name = "#{VM_BASE_NAME}-#{i}"
+              v.gui = false
               unless File.exist?(file_for_disk)
                    v.customize ['createhd', 
                                 '--filename', file_for_disk, 
@@ -61,7 +62,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                    v.customize ['storageattach', :id, 
                                 '--storagectl', 'SATA Controller', 
                                 '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_for_disk]
-               end
+              end
            end
        end
     end

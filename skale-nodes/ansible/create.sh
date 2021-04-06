@@ -4,11 +4,11 @@ set -e
 echo "[nodes]" > inventory/hosts
 cd terraform/aws
 rm -f hosts
-TF_VAR_NUMBER=$NODES_NUMBER terraform apply
+TF_VAR_NUMBER=$NODES_NUMBER terraform apply -auto-approve
 echo 'Nodes machines created'
 sort hosts >> ../../inventory/hosts
 cd ../../
 cat inventory/hosts
-echo 'Sleep 10 seconds'
+echo 'Sleep 20 seconds'
 sleep 20
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -v main.yaml

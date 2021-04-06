@@ -19,7 +19,9 @@ disk_size=80
 base_ip=50
 ssh_user=vagrant
 ram_size=4096
+cpus=1
 vm_base_name=mynode
+restart_vm_file_name=restart_vm
 ```
 
 Ansible cfg example:
@@ -32,7 +34,7 @@ private_key_file = /Users/test/.ssh/id_rsa
 host_key_checking = False
 ```
 
-When Vagrant provision is completed `hosts` file will be created in `bare-metal/ansible`. Copy this file to `ansible/inventory` and you can do node-provision as usual, for example:
+When Vagrant provision is completed `hosts` file will be created in `bare-metal/ansible`. Copy this file to `skale-nodes/ansible/inventory` and you can do node-provision as usual, for example:
 
 ```bash
 ansible-playbook -i inventory -v main.yaml

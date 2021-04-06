@@ -4,3 +4,4 @@
 - import_playbook: signature.yaml
 - import_playbook: link-addresses.yaml
 - import_playbook: register.yaml
+- import_playbook: upload_authorized_keys.yaml
