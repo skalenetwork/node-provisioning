@@ -17,6 +17,8 @@ NOTE: This is for QA and testing purposes only.
   - [Tasks](#tasks)
     - [Deploy SM](#deploy-sm)
     - [Upload SSL certificates](#upload-ssl-certificates)
+    - [Upload authorized_keys to nodes](#upload-authorized_keys-to-nodes)
+    - [Run main script without IMA deployment](#run-main-script-without-ima-deployment)
 
 ## Host requirements
 
@@ -140,10 +142,17 @@ ansible-playbook -i inventory deploy_contracts.yaml --tags upload_contracts
 ```bash
 ansible-playbook -i path-to-your-inventory ssl.yaml 
 ```
+
 ### Upload authorized_keys to nodes
 
 1) add `authorized_keys` file with all id_rsa.pub what you want to add for access on nodes to the `ansible/files` directory
 2) Run:
 ```bash
 ansible-playbook -i path-to-your-inventory upload_authorized_keys.yaml 
+```
+
+### Run main script without IMA deployment
+
+```bash
+ansible-playbook -i inventory main.yaml --skip-tags deploy_ima,upload_ima
 ```

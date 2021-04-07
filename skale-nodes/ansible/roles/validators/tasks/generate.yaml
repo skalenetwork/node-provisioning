@@ -1,4 +1,14 @@
-- name: Download contracts from digitalocean to local machine
+- name: Set SM download URL
+  set_fact:
+    manager_contracts: "{{ sm_url }}"
+  when: manager_contracts is undefined
+
+- name: Crash if no SM ABIs URL provided
+  fail: 
+    msg: manager_contracts is undefined
+  when: manager_contracts is undefined
+
+- name: Download contracts to the local machine
   get_url:
       url: "{{ manager_contracts }}"
       dest: "files/manager.json"
