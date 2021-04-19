@@ -45,6 +45,7 @@
     name: restart_vm
     state: stopped
   tags: destroy
+  when: ansible_facts.services['restart_vm'] is defined
 
 - name: Remove restart_vm.service file
   become: yes
@@ -52,12 +53,14 @@
     path: "/etc/systemd/system/restart_vm.service"
     state: absent
   tags: destroy
+  when: ansible_facts.services['restart_vm'] is defined
 
 - name: Remove restart_vm.sh file
   ansible.builtin.file:
     path: "{{ base_path }}/restart_vm.sh"
     state: absent
   tags: destroy
+  when: ansible_facts.services['restart_vm'] is defined
 
 - name:  Vagrant up
   environment:

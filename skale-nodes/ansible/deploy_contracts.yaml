@@ -1,0 +1,7 @@
+- name: Deploy SM contracts
+  hosts: 127.0.0.1
+  connection: local
+  roles:
+    - role: deploy_contracts
+      tags:
+        - deploy_contracts

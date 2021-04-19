@@ -1,3 +1,13 @@
+- name: Set SM download URL
+  set_fact:
+    manager_contracts: "{{ sm_url }}"
+  when: manager_contracts is undefined
+
+- name: Crash if no SM ABIs URL provided
+  fail: 
+    msg: manager_contracts is undefined
+  when: manager_contracts is undefined
+
 - name: Download contracts from digitalocean
   get_url:
     url: "{{ manager_contracts }}"
@@ -83,3 +93,4 @@
     - { name: MONITORING_CONTAINERS, value: "{{ monitoring_containers }}"}
     - { name: DEFAULT_GAS_PRICE_WEI, value: "{{ default_gas_price_wei }}"}
     - { name: ENV_TYPE, value: "{{ env_type }}"}
+    - { name: DISABLE_IMA, value: "{{ disable_ima }}"}

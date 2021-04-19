@@ -6,6 +6,20 @@ This repo will help deploy and register multiple SKALE nodes in the cloud automa
 
 NOTE: This is for QA and testing purposes only.
 
+- [SKALE Node Provisoning](#skale-node-provisoning)
+  - [Host requirements](#host-requirements)
+  - [Supported providers](#supported-providers)
+  - [Usage](#usage)
+    - [Secrets preparation](#secrets-preparation)
+    - [Provision SKALE nodes in the cloud](#provision-skale-nodes-in-the-cloud)
+  - [Setup on existent nodes from sources](#setup-on-existent-nodes-from-sources)
+    - [Other options](#other-options)
+  - [Tasks](#tasks)
+    - [Deploy SM](#deploy-sm)
+    - [Upload SSL certificates](#upload-ssl-certificates)
+    - [Upload authorized_keys to nodes](#upload-authorized_keys-to-nodes)
+    - [Run main script without IMA deployment](#run-main-script-without-ima-deployment)
+
 ## Host requirements
 
 - Terraform >= 0.12
@@ -13,8 +27,7 @@ NOTE: This is for QA and testing purposes only.
 
 ## Supported providers
 
-- DigitalOcean
-- A̶W̶S̶ (deprecated and should be updated)
+- AWS
 
 ## Usage
 
@@ -86,6 +99,41 @@ Recreates accounts and runs restart.yaml steps.
 ansible-playbook -i path-to-your-inventory restart.yaml 
 ```
 
+## Tasks
+
+### Deploy SM
+
+Required variables in the inventory:
+
+```
+manager_tag=''
+eth_private_key=''
+endpoint=''
+deploy_gas_price=''
+
+aws_key='' # for S3 upload
+aws_secret='' # for S3 upload
+```
+
+Deploy and upload ABIs to AWS S3:
+
+```bash
+ansible-playbook -i inventory deploy_contracts.yaml
+```
+
+Deploy only:
+
+```bash
+ansible-playbook -i inventory deploy_contracts.yaml --tags deploy_contracts
+```
+
+Upload only (from `helper-scripts/contracts_data/manager.json`):
+
+```bash
+ansible-playbook -i inventory deploy_contracts.yaml --tags upload_contracts
+```
+
+
 ### Upload SSL certificates
 
 1) Copy `cert.pem` and `privkey.pem` files to the `ansible/files` directory
@@ -94,10 +142,17 @@ ansible-playbook -i path-to-your-inventory restart.yaml
 ```bash
 ansible-playbook -i path-to-your-inventory ssl.yaml 
 ```
+
 ### Upload authorized_keys to nodes
 
 1) add `authorized_keys` file with all id_rsa.pub what you want to add for access on nodes to the `ansible/files` directory
 2) Run:
 ```bash
 ansible-playbook -i path-to-your-inventory upload_authorized_keys.yaml 
+```
+
+### Run main script without IMA deployment
+
+```bash
+ansible-playbook -i inventory main.yaml --skip-tags deploy_ima,upload_ima
 ```
