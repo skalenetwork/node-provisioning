@@ -8,11 +8,13 @@
     GAS_PRICE: "{{ deploy_gas_price }}"
   tags:
     - deploy_ima
+
 - name: Generate random string
   set_fact:
     random_str: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=15') }}"
   tags:
     - upload_ima
+
 - name: Upload IMA ABI to S3
   aws_s3:
     aws_access_key: "{{ aws_key }}"
@@ -26,17 +28,20 @@
   tags:
     - upload_ima
   register: url_output
+
 - name: Format download URL
   shell:  echo "{{ url_output.url }}" | cut -f1 -d"?"
   register: ima_url
   tags:
     - upload_ima
+
 - name: Show ABIs download URL
   debug:
    msg: >-
       ABIs download URL: {{ ima_url.stdout }}
   tags:
     - upload_ima
+
 - name: Save IMA URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"

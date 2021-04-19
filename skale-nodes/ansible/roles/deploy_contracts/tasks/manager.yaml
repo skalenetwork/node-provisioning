@@ -9,11 +9,13 @@
     NETWORK: "custom"
   tags:
     - deploy_sm
+
 - name: Generate random string
   set_fact:
     random_str: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=15') }}"
   tags:
     - upload_sm
+
 - name: Upload SM ABI to S3
   aws_s3:
     aws_access_key: "{{ aws_key }}"
@@ -27,17 +29,20 @@
   tags:
     - upload_sm
   register: url_output
+
 - name: Format download URL
   shell:  echo "{{ url_output.url }}" | cut -f1 -d"?"
   register: sm_url
   tags:
     - upload_sm
+
 - name: Show ABIs download URL
   debug:
    msg: >-
       ABIs download URL: {{ sm_url.stdout }}
   tags:
     - upload_sm
+
 - name: Save SM URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
