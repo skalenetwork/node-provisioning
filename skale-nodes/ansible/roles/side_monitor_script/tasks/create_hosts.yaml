@@ -1,0 +1,8 @@
+- name: Execute generate_hosts script
+  script: generate_hosts.py
+  environment:
+    BASE_DIR: "files"
+    INVENTORY_DIR: "inventory"
+  args:
+    executable: python3
+  tags: generate_hosts
