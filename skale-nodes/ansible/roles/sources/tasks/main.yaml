@@ -8,7 +8,7 @@
     msg: manager_contracts is undefined
   when: manager_contracts is undefined
 
-- name: Download contracts from digitalocean
+- name: Download contracts
   get_url:
     url: "{{ manager_contracts }}"
     dest: "{{ base_path }}/manager.json"
