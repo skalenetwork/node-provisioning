@@ -16,7 +16,7 @@
 - debug: msg="{{ validator_id }}"
 
 - name: Get skale wallet info output
-  command: "skale wallet info -f json"
+  command: "sudo skale wallet info -f json"
   register: wallet_cmd_result
   environment:
     LC_ALL: "C.UTF-8"
@@ -27,7 +27,7 @@
     wallet_data: "{{ wallet_cmd_result.stdout | to_json | from_json }}"
 
 - name: Get node signature
-  command: "skale node signature {{ validator_id }}"
+  command: "sudo skale node signature {{ validator_id }}"
   register: signature_cmd_result
   environment:
     LC_ALL: "C.UTF-8"
