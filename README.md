@@ -166,7 +166,7 @@ and activate she before script start
 to the `ansible/files` directory
 3) Go to `skale-nodes/ansible` dir and run:
 ```bash
-bash generate_hosts.sh
+bash utils/generate_hosts.sh
 ```
 ```bash
 ansible-playbook -i inventory run_monitor.yaml
