@@ -169,5 +169,5 @@ to the `ansible/files` directory
 bash generate_hosts.sh
 ```
 ```bash
-bash run_monitor.sh
+ansible-playbook -i inventory run_monitor.yaml
 ```
