@@ -161,9 +161,13 @@ ansible-playbook -i inventory main.yaml --skip-tags deploy_ima,upload_ima
 ### Run skaled monitor
 
 1) Create if not exists virtual env for python 3.7 or higher in root of project
+and activate she before script start
 2) Add `node_ips.json` file with all ips what you want (example `["ip", ..., "ip"]`) 
 to the `ansible/files` directory
 3) Go to `skale-nodes/ansible` dir and run:
+```bash
+bash generate_hosts.sh
+```
 ```bash
 bash run_monitor.sh
 ```
