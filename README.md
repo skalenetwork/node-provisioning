@@ -19,6 +19,7 @@ NOTE: This is for QA and testing purposes only.
     - [Upload SSL certificates](#upload-ssl-certificates)
     - [Upload authorized_keys to nodes](#upload-authorized_keys-to-nodes)
     - [Run main script without IMA deployment](#run-main-script-without-ima-deployment)
+    - [Run skaled monitor](#run-skaled-monitor)
 
 ## Host requirements
 
@@ -155,4 +156,18 @@ ansible-playbook -i path-to-your-inventory upload_authorized_keys.yaml
 
 ```bash
 ansible-playbook -i inventory main.yaml --skip-tags deploy_ima,upload_ima
+```
+
+### Run skaled monitor
+
+1) Create if not exists virtual env for python 3.7 or higher in root of project
+and activate she before script start
+2) Add `node_ips.json` file with all ips what you want (example `["ip", ..., "ip"]`) 
+to the `ansible/files` directory
+3) Go to `skale-nodes/ansible` dir and run:
+```bash
+bash utils/generate_hosts.sh
+```
+```bash
+ansible-playbook -i inventory run_monitor.yaml
 ```
