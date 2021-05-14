@@ -31,6 +31,7 @@ services:
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       MAX_GAS_PRICE_WEI : ${MAX_GAS_PRICE_WEI}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
+      ALLOWED_TS_DIFF: 1000
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -69,6 +70,8 @@ services:
       MAX_ALLOWED_LOG_TIME_DIFF: 600
       DISABLE_IMA: ${DISABLE_IMA}
       ENV_TYPE: ${ENV_TYPE}
+      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
+      ALLOWED_TS_DIFF: 1000
     command: "python3 admin.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -116,6 +119,8 @@ services:
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
       ENV_TYPE: ${ENV_TYPE}
+      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
+      ALLOWED_TS_DIFF: 1000
     command: "gunicorn app:app -c gunicorn.conf.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
