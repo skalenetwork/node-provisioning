@@ -29,7 +29,8 @@ skale-nodes/ansible/files/validator-id.txt
 skale-nodes/ansible/files/cert.pem
 skale-nodes/ansible/files/privkey.pem
 
-skale-nodes/ansible/files/node*
+skale-nodes/ansible/files/node-info/
+skale-nodes/ansible/files/*.json
 
 # other
 .ropeproject/
