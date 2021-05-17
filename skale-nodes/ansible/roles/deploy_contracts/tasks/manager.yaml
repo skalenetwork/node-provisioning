@@ -20,7 +20,7 @@
   aws_s3:
     aws_access_key: "{{ aws_key }}"
     aws_secret_key: "{{ aws_secret }}"
-    bucket: "skale-aebis"
+    bucket: "skale-abis"
     src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/manager.json"
     object: 'skale-manager-abi-{{ manager_tag }}-{{ random_str }}.json'
     region: 'eu-central-1'

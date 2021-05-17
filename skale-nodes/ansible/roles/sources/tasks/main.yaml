@@ -8,6 +8,17 @@
     msg: manager_contracts is undefined
   when: manager_contracts is undefined
 
+- name: Set IMA download URL
+  set_fact:
+    ima_contracts: "{{ ima_url }}"
+  when: ima_contracts is undefined
+
+- name: Crash if no IMA ABIs URL provided
+  fail: 
+    msg: ima_contracts is undefined
+  when: ima_contracts is undefined
+
+
 - name: Download contracts
   get_url:
     url: "{{ manager_contracts }}"
