@@ -167,7 +167,8 @@ and activate she before script start
 pip install -r skale-nodes/ansible/requirements.txt
 ```
 3) copy `inventory-template` like `inventory` and fill `dev` file with absent fields.
-4) Add `node_ips.json` file with all ips what you want (example `["ip", ..., "ip"]`) 
+4) Add `node_ips.json` file with all ips what you want 
+(example `{"node_name": "node_ip", ..., "node_name": "node_ip"}`) 
 to the `ansible/files` directory
 5) Go to `skale-nodes/ansible` dir and run:
 ```bash
