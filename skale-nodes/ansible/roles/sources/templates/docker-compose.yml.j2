@@ -31,7 +31,7 @@ services:
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       MAX_GAS_PRICE_WEI : ${MAX_GAS_PRICE_WEI}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
-      ALLOWED_TS_DIFF: 1000
+      ALLOWED_TS_DIFF: 10000
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -71,7 +71,7 @@ services:
       DISABLE_IMA: ${DISABLE_IMA}
       ENV_TYPE: ${ENV_TYPE}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
-      ALLOWED_TS_DIFF: 1000
+      ALLOWED_TS_DIFF: 10000
     command: "python3 admin.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -120,7 +120,7 @@ services:
       DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
       ENV_TYPE: ${ENV_TYPE}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
-      ALLOWED_TS_DIFF: 1000
+      ALLOWED_TS_DIFF: 10000
     command: "gunicorn app:app -c gunicorn.conf.py"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -196,7 +196,10 @@ services:
   watchdog:
     <<: *skale_base
     container_name: skale_watchdog
-    image: skalenetwork/watchdog:1.1.3-beta.1
+    image: "skale-watchdog:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/skale-watchdog"
+      dockerfile: Dockerfile
     network_mode: host
     environment:
       FLASK_APP_PORT: 3010
