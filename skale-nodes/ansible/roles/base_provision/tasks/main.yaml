@@ -69,3 +69,7 @@
   with_fileglob: "ssh-keys/*"
   tags:
     ssh
+
+- name: Sync time on host
+  shell: sudo timedatectl set-ntp on
+  become: true
