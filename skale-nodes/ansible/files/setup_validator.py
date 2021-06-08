@@ -27,6 +27,7 @@ from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
 from skale.utils.account_tools import generate_account, send_ether
+from skale.utils.contracts_provision.main import add_test_permissions
 
 logger = logging.getLogger(__name__)
 init_default_logger()
@@ -109,6 +110,7 @@ def setup_validator():
 
 
 def main():
+    add_test_permissions(skale)
     setup_validator()
 
 
