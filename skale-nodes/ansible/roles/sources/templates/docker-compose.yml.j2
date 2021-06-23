@@ -24,7 +24,6 @@ services:
     environment:
       SGX_URL: ${SGX_SERVER_URL}
       ENDPOINT: ${ENDPOINT}
-      DISABLE_GAS_ESTIMATION: 'True'
       ALLOWED_TS_DIFF: 10000
     volumes:
       - ${SKALE_DIR}:/skale_vol
