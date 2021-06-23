@@ -2,11 +2,33 @@
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
-
+  tags:
+    - docker
 - name: Add docker repository
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu bionic stable
     state: present
+  tags:
+    - docker
 
 - name: Update apt and install docker-ce
   apt: update_cache=yes name=docker-ce state=latest
+  tags:
+    - docker
+
+- name: Creating docker daemon config file
+  copy:
+    dest: "/etc/docker/daemon.json"
+    content: |
+      {
+        "live-restore": true
+      }
+  tags:
+    - docker
+
+- name: Reload docker service
+  ansible.builtin.service:
+    name: docker
+    state: reloaded
+  tags:
+    - docker
