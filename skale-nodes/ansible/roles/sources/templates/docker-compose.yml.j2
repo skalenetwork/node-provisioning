@@ -15,22 +15,16 @@ services:
   transaction-manager:
     <<: *skale_base
     container_name: skale_transaction-manager
-    image: skalenetwork/transaction-manager:1.1.0-beta.7
+    image: "skalenetwork/transaction-manager:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/transaction-manager"
+      dockerfile: Dockerfile
     network_mode: host
     tty: true
     environment:
-      SGX_SERVER_URL: ${SGX_SERVER_URL}
-      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
+      SGX_URL: ${SGX_SERVER_URL}
       ENDPOINT: ${ENDPOINT}
-      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY} # todo: use different flask secret key!
-      FLASK_APP_PORT: 3008
-      FLASK_APP_HOST: "127.0.0.1"
-      FLASK_DEBUG_MODE: "False"
-      SKALE_DIR_HOST: ${SKALE_DIR}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
-      MAX_GAS_PRICE_WEI : ${MAX_GAS_PRICE_WEI}
-      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
+      DISABLE_GAS_ESTIMATION: 'True'
       ALLOWED_TS_DIFF: 10000
     volumes:
       - ${SKALE_DIR}:/skale_vol
@@ -214,7 +208,15 @@ services:
     depends_on:
       - watchdog
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ${SKALE_DIR}/node_data/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${SKALE_DIR}/node_data/ssl:/ssl:ro
+      - ${FILESTORAGE_MAPPING}:/filestorage:ro
+      - type: bind
+        bind:
+          propagation: slave
+        source: ${SCHAINS_MNT_DIR}
+        target: ${SCHAINS_MNT_DIR}
+        read_only: true
 
   advisor:
     <<: *skale_base
