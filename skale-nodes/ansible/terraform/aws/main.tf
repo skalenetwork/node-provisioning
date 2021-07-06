@@ -56,7 +56,7 @@ resource "aws_ebs_volume" "lvm_volume" {
   size = var.lvm_volume_size
 
   tags = {
-    Name = "LvmVolume"
+    Name = "${var.prefix}-${count.index}-lvm-volume"
   }
 }
 
