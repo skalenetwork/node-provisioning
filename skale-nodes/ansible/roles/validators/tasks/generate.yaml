@@ -13,6 +13,7 @@
       url: "{{ manager_contracts }}"
       dest: "files/manager.json"
       mode: 0644
+      validate_certs: false
 
 - name: Set hosts
   set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
