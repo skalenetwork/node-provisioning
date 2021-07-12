@@ -1,0 +1,13 @@
+- name: Transfer funds to node wallets
+  run_once: yes
+  script: transfer_funds.py
+  environment:
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ADDRESS: "{{ lookup('file', '{{ item }}').split()[0].strip() }}"
+    ENDPOINT: "{{ endpoint }}"
+    BASE_DIR: "files"
+    AMOUNT: 0.2
+  args:
+    executable: python3
+  with_fileglob: "node-info/*"
+  tags: node_funds

@@ -1,0 +1,8 @@
+- name: Link sgx wallet addresses to validator
+  hosts: 127.0.0.1
+  connection: local
+  serial: 1
+  roles:
+    - role: link_addresses
+      tags:
+        - link_addresses

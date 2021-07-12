@@ -1,0 +1,39 @@
+- name: Get all container ids
+  command: "docker ps -aq"
+  become: true
+  register: containers_output
+  tags:
+    - cleanup
+
+- name: Split containers ids output
+  register: containers_output
+  set_fact:
+    containers_ids: "{{ containers_output.stdout.split('\n') }}"
+  tags:
+    - cleanup
+
+- name: Destroy all containers
+  become: true
+  docker_container:
+    name: "{{ item }}"
+    state: absent
+    force_kill: yes
+  with_items: "{{ containers_ids | default([]) }}"
+  tags:
+    - cleanup
+
+- name: Remove skale.db
+  file:
+    state: absent
+    path: /home/ubuntu/.skale/node_data/skale.db
+  tags:
+    - skaledb
+
+- name: Remove .skale directory
+  become: true
+  file:
+    path: "{{ base_path }}/.skale"
+    state: absent
+  tags:
+    - cleanup
+    - rm_dotskale

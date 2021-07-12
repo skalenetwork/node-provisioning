@@ -1,0 +1,259 @@
+version: '3.4'
+
+services:
+  base: &skale_base
+    image: kubernetes/pause
+    restart: unless-stopped
+    labels:
+      com.skale.prefix: "node"
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+  transaction-manager:
+    <<: *skale_base
+    container_name: skale_transaction-manager
+    image: "skalenetwork/transaction-manager:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/transaction-manager"
+      dockerfile: Dockerfile
+    network_mode: host
+    tty: true
+    environment:
+      SGX_URL: ${SGX_SERVER_URL}
+      ENDPOINT: ${ENDPOINT}
+      ALLOWED_TS_DIFF: 10000
+    volumes:
+      - ${SKALE_DIR}:/skale_vol
+      - ${SKALE_DIR}/node_data:/skale_node_data
+
+  skale-admin:
+    <<: *skale_base
+    container_name: skale_admin
+    image: "skale-admin:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/skale-admin"
+      dockerfile: Dockerfile
+    cpu_shares: 192
+    network_mode: host
+    tty: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      TM_URL: http://127.0.0.1:3008
+      SGX_SERVER_URL: ${SGX_SERVER_URL}
+      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
+      ENDPOINT: ${ENDPOINT}
+      IMA_ENDPOINT: ${IMA_ENDPOINT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_PORT: ${DB_PORT}
+      SKALE_DIR_HOST: ${SKALE_DIR}
+      TG_API_KEY: ${TG_API_KEY}
+      TG_CHAT_ID: ${TG_CHAT_ID}
+      MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
+      BACKUP_RUN: ${BACKUP_RUN}
+      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      MAX_ALLOWED_LOG_TIME_DIFF: 600
+      DISABLE_IMA: ${DISABLE_IMA}
+      ENV_TYPE: ${ENV_TYPE}
+      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
+      ALLOWED_TS_DIFF: 10000
+    command: "python3 admin.py"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SKALE_DIR}:/skale_vol
+      - ${SKALE_DIR}/node_data:/skale_node_data
+    healthcheck:
+      test: ["CMD", "python3", "healthchecks/admin.py"]
+      interval: 1m
+      timeout: 10s
+      retries: 2
+      start_period: 30s
+
+  skale-api:
+    <<: *skale_base
+    container_name: skale_api
+    image: "skale-admin:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/skale-admin"
+      dockerfile: Dockerfile
+    network_mode: host
+    tty: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      TM_URL: http://127.0.0.1:3008
+      SGX_SERVER_URL: ${SGX_SERVER_URL}
+      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
+      ENDPOINT: ${ENDPOINT}
+      IMA_ENDPOINT: ${IMA_ENDPOINT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_PORT: ${DB_PORT}
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+      FLASK_APP_PORT: 3007
+      FLASK_APP_HOST: "127.0.0.1"
+      FLASK_DEBUG_MODE: "False"
+      SKALE_DIR_HOST: ${SKALE_DIR}
+      TG_API_KEY: ${TG_API_KEY}
+      TG_CHAT_ID: ${TG_CHAT_ID}
+      MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
+      BACKUP_RUN: ${BACKUP_RUN}
+      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      ENV_TYPE: ${ENV_TYPE}
+      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
+      ALLOWED_TS_DIFF: 10000
+    command: "gunicorn app:app -c gunicorn.conf.py"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SKALE_DIR}:/skale_vol
+      - ${SKALE_DIR}/node_data:/skale_node_data
+    depends_on:
+      - mysql
+
+  celery:
+    <<: *skale_base
+    container_name: celery
+    image: skalenetwork/admin:1.1.0-beta.33
+    network_mode: host
+    tty: true
+    environment:
+      TG_API_KEY: ${TG_API_KEY}
+      TG_CHAT_ID: ${TG_CHAT_ID}
+    command: "celery -A tools.notifications.tasks worker --loglevel=info"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  redis:
+    <<: *skale_base
+    container_name: redis
+    image: "redis:6.0.10-alpine"
+    network_mode: host
+    tty: true
+    environment:
+      - REDIS_REPLICATION_MODE=master
+    command: "redis-server /data/redis.conf"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SKALE_DIR}/node_data/redis-data:/data/db:rw
+      - ${SKALE_DIR}/config/redis.conf:/data/redis.conf
+
+  mysql:
+    <<: *skale_base
+    container_name: skale_mysql
+    image: mysql/mysql-server:5.7.30
+    network_mode: host
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ${SKALE_DIR}/node_data/mysql-data:/var/lib/mysql
+      - ${SKALE_DIR}/node_data/.mysql-backup:/mysql-backup
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: "db_skale"
+
+  bounty:
+    <<: *skale_base
+    container_name: skale_bounty
+    image: skalenetwork/bounty-agent:1.1.1-beta.3
+    network_mode: host
+    environment:
+      TM_URL: http://127.0.0.1:3008
+      ENDPOINT: ${ENDPOINT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_PORT: ${DB_PORT}
+      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
+      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
+      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+    volumes:
+      - ${SKALE_DIR}:/skale_vol
+      - ${SKALE_DIR}/node_data:/skale_node_data
+    depends_on:
+      - mysql
+
+  watchdog:
+    <<: *skale_base
+    container_name: skale_watchdog
+    image: "skale-watchdog:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/skale-watchdog"
+      dockerfile: Dockerfile
+    network_mode: host
+    environment:
+      FLASK_APP_PORT: 3010
+      FLASK_APP_HOST: "127.0.0.1"
+      FLASK_DEBUG_MODE: "False"
+
+  nginx:
+    <<: *skale_base
+    image: nginx:1.19.6
+    container_name: skale_nginx
+    network_mode: host
+    depends_on:
+      - watchdog
+    volumes:
+      - ${SKALE_DIR}/node_data/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${SKALE_DIR}/node_data/ssl:/ssl:ro
+      - ${FILESTORAGE_MAPPING}:/filestorage:ro
+      - type: bind
+        bind:
+          propagation: slave
+        source: ${SCHAINS_MNT_DIR}
+        target: ${SCHAINS_MNT_DIR}
+        read_only: true
+
+  advisor:
+    <<: *skale_base
+    container_name: monitor_cadvisor
+    image: google/cadvisor:latest
+    cpu_shares: 128
+    network_mode: host
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
+  node-exporter:
+    <<: *skale_base
+    container_name: monitor_node_exporter
+    image: quay.io/prometheus/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    network_mode: host
+
+  filebeat:
+    <<: *skale_base
+    container_name: skale_filebeat
+    user: root
+    image: docker.elastic.co/beats/filebeat:7.3.1
+    network_mode: host
+    environment:
+      FILEBEAT_HOST: ${FILEBEAT_HOST}
+    volumes:
+      - ${SKALE_DIR}/node_data/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock

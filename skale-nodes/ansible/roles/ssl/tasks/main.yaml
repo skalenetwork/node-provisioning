@@ -1,0 +1,28 @@
+- name: Creates SSL certificates directory
+  file:
+    path: "{{ base_path }}/ssl_certs"
+    state: directory
+
+- name: Copy SSL certificate file
+  copy:
+    src: "files/cert.pem"
+    dest: "{{ base_path }}/ssl_certs"
+
+- name: Copy SSL private key file
+  copy:
+    src: "files/privkey.pem"
+    dest: "{{ base_path }}/ssl_certs"
+
+- name: Upload SSL certificates to the node
+  command: "skale ssl upload -c {{ base_path }}/ssl_certs/cert.pem -k {{ base_path }}/ssl_certs/privkey.pem -f"
+  environment:
+    LC_ALL: "C.UTF-8"
+    LANG: "C.UTF-8"
+
+- name: Set domain name
+  command: "sudo skale node set-domain -d {{ inventory_hostname }}.{{ base_domain_name }} --yes"
+  environment:
+    LC_ALL: "C.UTF-8"
+    LANG: "C.UTF-8"
+  tags: 
+    domains

@@ -1,0 +1,11 @@
+- name: Register ip address
+  set_fact:
+    # ip_address: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}" # private ip
+    ip_address: "{{ hostvars[inventory_hostname].ansible_host }}" # public ip
+
+- name: Run skale node register
+  command:
+    cmd: "skale node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000 --domain {{ ip_address }}.{{ base_domain_name }}"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8

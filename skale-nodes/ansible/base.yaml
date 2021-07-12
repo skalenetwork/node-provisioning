@@ -1,0 +1,6 @@
+- name: Setup skale node
+  hosts: nodes
+  become: true
+  roles:
+    - role: base_provision
+      tags: base

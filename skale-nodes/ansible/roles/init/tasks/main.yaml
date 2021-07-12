@@ -1,0 +1,12 @@
+- name: Run skale node init
+  command:
+    cmd: "skale node init {{ base_path }}/init-env"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8
+  tags: init
+
+- name: Pause to make sure skale-admin exchange certs with sgx server
+  pause:
+    seconds: 120
+  tags: init

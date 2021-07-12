@@ -1,0 +1,51 @@
+[all:vars]
+ansible_ssh_user='root'
+ansible_python_interpreter=/usr/bin/python3
+env=test
+base_path=/root
+sgx_url=''
+block_device=''
+eth_private_key=''
+endpoint=''
+ima_endpoint=''
+db_user=''
+db_password=''
+db_root_password=''
+db_port=''
+docker_username=''
+docker_password=''
+filebeat_host=''
+manager_contracts=''
+ima_contracts=''
+container_configs_stream=''
+docker_lvmpy_stream=''
+container_configs_dir=''
+skale_cli_url=''
+pem_cert_path=''
+tg_api_key=''
+tg_chat_id=''
+monitoring_containers=''
+base_domain_name=''
+env_type=''
+
+## dev variables (skip if env=test)
+
+skale_admin_path=''
+transaction_manager_path=''
+skale_node_path=''
+skale_node_cli_path=''
+
+
+# optional parameters
+
+## skale-node
+
+disable_ima=''
+
+## contracts deployment
+
+manager_tag=''
+deploy_gas_price='2000000000' # 2 gwei
+
+aws_key=''
+aws_secret=''

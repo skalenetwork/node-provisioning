@@ -1,0 +1,9 @@
+- name: Update skale node
+  hosts: nodes
+  become: true
+  roles:
+    - role: sources
+      tags: source
+
+    - role: update
+      tags: update

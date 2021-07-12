@@ -1,0 +1,5 @@
+- name: Cleanup nodes
+  hosts: nodes
+  become: true
+  roles:
+    - role: cleanup_nodes

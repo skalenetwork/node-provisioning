@@ -1,0 +1,16 @@
+- name: Copy node-side-monitor.sh to {{ base_path }}
+  copy:
+    src: "files/node-side-monitor.sh"
+    dest: "{{ base_path }}/"
+
+- name: Make the node-side-monitor.sh executable
+  ansible.builtin.file:
+    path: "{{ base_path }}/node-side-monitor.sh"
+    owner: root
+    group: root
+    mode: '755'
+
+- name: Run a node-side-monitor.sh script
+  shell: "{{ base_path }}/node-side-monitor.sh"
+  async: 31536000
+  poll: 0

@@ -1,0 +1,75 @@
+- name: Install aptitude
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- import_tasks: swap.yaml
+  tags: swap
+
+- name: Set soft ulimits
+  pam_limits:
+    domain: root
+    limit_type: soft
+    limit_item: core
+    value: "1000000000"
+  tags: ulimits
+
+- name: Set hard ulimits
+  pam_limits:
+    domain: root
+    limit_type: hard
+    limit_item: core
+    value: "1000000000"
+  tags: ulimits
+
+- name: Install aptitude
+  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+
+- name: Install packages
+  apt: name={{ item }} update_cache=yes state=latest
+  loop: [
+    "apt-transport-https",
+    "ca-certificates",
+    "curl",
+    "software-properties-common",
+    "python3-pip",
+    "virtualenv",
+    "python3-setuptools",
+    "python3-dev",
+    "iptables-persistent"
+    ]
+  tags: apt
+
+- name: Update pip
+  pip:
+    name: pip
+    state: latest
+
+- import_tasks: docker.yaml
+  tags:
+    docker
+
+- name: Install docker.py
+  pip:
+    name: docker==4.2.0
+  tags:
+    pip
+
+- name: Install docker-compose
+  pip:
+    name: docker-compose==1.27.4
+  tags:
+    - pip
+    - docker-compose
+
+- name: Add ssh keys
+  authorized_key:
+    user: ubuntu
+    state: present
+    key: "{{ lookup('file', '{{ item }}') }}"
+
+  with_fileglob: "ssh-keys/*"
+  tags:
+    ssh
+
+- name: Sync time on host
+  shell: sudo timedatectl set-ntp on
+  become: true
