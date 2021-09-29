@@ -4,7 +4,7 @@
   when: manager_contracts is undefined
 
 - name: Crash if no SM ABIs URL provided
-  fail: 
+  fail:
     msg: manager_contracts is undefined
   when: manager_contracts is undefined
 
@@ -14,24 +14,24 @@
   when: ima_contracts is undefined
 
 - name: Crash if no IMA ABIs URL provided
-  fail: 
+  fail:
     msg: ima_contracts is undefined
   when: ima_contracts is undefined
 
 
-- name: Download contracts
-  get_url:
-    url: "{{ manager_contracts }}"
-    dest: "{{ base_path }}/manager.json"
-    mode: 0644
-    force: true
-  tags:
-    contracts
+  # - name: Download contracts
+  #   get_url:
+  #     url: "{{ manager_contracts }}"
+  #     dest: "{{ base_path }}/manager.json"
+  #     mode: 0644
+  #     force: true
+  #   tags:
+  #     contracts
 
 - name: Synchronization of skale-admin repo
   synchronize:
-    src: "{{ skale_admin_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ skale_admin_path }}/"
+    dest: "{{ base_path }}/skale-admin"
     delete: yes
     recursive: yes
   when: env is defined and env == "dev"
@@ -39,29 +39,36 @@
 
 - name: Synchronization of transaction-manager repo
   synchronize:
-    src: "{{ transaction_manager_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ transaction_manager_path }}/"
+    dest: "{{ base_path }}/transaction-manager"
   when: env is defined and env == "dev"
   tags: tm
 
+- name: Synchronization of bounty-agent repo
+  synchronize:
+    src: "{{ bounty_agent_path }}/"
+    dest: "{{ base_path }}/bounty-agent"
+  when: env is defined and env == "dev"
+  tags: bounty_agent
+
 - name: Synchronization of skale-watchdog repo
   synchronize:
-    src: "{{ skale_watchdog_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ skale_watchdog_path }}/"
+    dest: "{{ base_path }}/skale-watchdog"
   when: env is defined and env == "dev"
   tags: watchdog
 
 - name: Synchronization of skale-node repo
   synchronize:
-    src: "{{ skale_node_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ skale_node_path }}/"
+    dest: "{{ base_path }}/skale-node"
   when: env is defined and env == "dev"
   tags: skale-node
 
 - name: Synchronization of node-cli repo
   synchronize:
-    src: "{{ skale_node_cli_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ skale_node_cli_path }}/"
+    dest: "{{ base_path }}/node-cli"
   when: env is defined and env == "dev"
   tags: cli
 

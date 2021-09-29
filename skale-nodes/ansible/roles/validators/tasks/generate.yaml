@@ -4,7 +4,7 @@
   when: manager_contracts is undefined
 
 - name: Crash if no SM ABIs URL provided
-  fail: 
+  fail:
     msg: manager_contracts is undefined
   when: manager_contracts is undefined
 

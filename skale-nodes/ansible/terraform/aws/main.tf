@@ -42,8 +42,8 @@ resource "aws_volume_attachment" "ebs_att" {
     connection {
       type     = "ssh"
       user     = "ubuntu"
-      host = aws_eip.node_eip[count.index].public_ip
-      # host = "${var.spot_instance ? aws_spot_instance_request.node[count.index].public_ip : aws_instance.node[count.index].public_ip}"
+      # host = aws_eip.node_eip[count.index].public_ip
+      host = "${var.spot_instance ? aws_spot_instance_request.node[count.index].public_ip : aws_instance.node[count.index].public_ip}"
       private_key = file(var.ssh_private_key_path)
     }
   }
@@ -63,7 +63,7 @@ resource "aws_ebs_volume" "lvm_volume" {
 
 resource "aws_spot_instance_request" "node" {
   count = var.spot_instance ? var.NUMBER : 0
-  spot_price    = var.spot_price[var.instance_type]
+  spot_price    = 1.0
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
   availability_zone = var.availability_zone
@@ -78,9 +78,9 @@ resource "aws_spot_instance_request" "node" {
   tags = {
     Name = "${var.prefix}-${count.index}"
   }
-  # provisioner "local-exec" {
-  #   command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
-  # }
+  provisioner "local-exec" {
+    command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
+  }
 }
 
 resource "aws_instance" "node" {
@@ -177,15 +177,15 @@ resource "aws_security_group" "security_group" {
 }
 
 
-resource "aws_eip_association" "eip_assoc" {
-  count = var.NUMBER
-  allocation_id = aws_eip.node_eip[count.index].id
-  instance_id = var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id
-  provisioner "local-exec" {
-    command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
-  }
-}
+# resource "aws_eip_association" "eip_assoc" {
+#   count = var.NUMBER
+#   allocation_id = aws_eip.node_eip[count.index].id
+#   instance_id = var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id
+#   provisioner "local-exec" {
+#     command = "echo 'node${count.index} ansible_host=${self.public_ip}' >> hosts"
+#   }
+# }
 
-resource "aws_eip" "node_eip" {
-  count = var.NUMBER
-}
+# resource "aws_eip" "node_eip" {
+#   count = var.NUMBER
+# }

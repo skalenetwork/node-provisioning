@@ -24,7 +24,7 @@ def main():
     skale.validator_service.link_node_address(
         node_address=checksum_address,
         signature=SIGNATURE,
-        gas_price=skale.web3.eth.gasPrice * 60
+        gas_price=skale.web3.eth.gasPrice * 2
     )
 
 
