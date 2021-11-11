@@ -1,0 +1,10 @@
+- name: Build IMA ima
+  community.docker.docker_image:
+    build:
+      path: "{{ base_path }}/IMA"
+    name: skalenetwork/ima
+    tag: test
+    source: build
+    force_source: true
+  tags:
+    - ima

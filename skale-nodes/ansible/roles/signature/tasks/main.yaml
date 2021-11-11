@@ -2,12 +2,12 @@
   set_fact:
     node_info_dir: "files/node-info"
 
-- name:  Create foder for nodes addresses info
-  file:
-    path: "{{ node_info_dir }}"
-    state: directory
-    mode: 0755
-  delegate_to: localhost
+    # - name:  Create foder for nodes addresses info
+    #   file:
+    #     path: "{{ node_info_dir }}"
+    #     state: directory
+    #     mode: 0755
+    #   delegate_to: 127.0.0.1
 
 - name: Get validator id
   set_fact:
@@ -39,6 +39,6 @@
 
 - name: Save address and signature to a file
   copy:
-    content: "{{ wallet_data.address}} {{ signature }}"
+    content: "{{ wallet_data.address }} {{ signature }}"
     dest: "{{ node_info_dir }}/{{ inventory_hostname }}"
   delegate_to: "127.0.0.1"

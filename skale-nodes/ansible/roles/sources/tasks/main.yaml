@@ -4,7 +4,7 @@
   when: manager_contracts is undefined
 
 - name: Crash if no SM ABIs URL provided
-  fail: 
+  fail:
     msg: manager_contracts is undefined
   when: manager_contracts is undefined
 
@@ -14,7 +14,7 @@
   when: ima_contracts is undefined
 
 - name: Crash if no IMA ABIs URL provided
-  fail: 
+  fail:
     msg: ima_contracts is undefined
   when: ima_contracts is undefined
 
@@ -64,6 +64,14 @@
     dest: "{{ base_path }}"
   when: env is defined and env == "dev"
   tags: cli
+
+- name: Synchronize IMA repo
+  synchronize:
+    src: "{{ ima_path }}"
+    dest: "{{ base_path }}"
+    rsync_opts: "--exclude=*/node_modules"
+  when: env is defined and env == "dev"
+  tags: ima
 
 - name: Replace skale-node docker-compose file
   template:

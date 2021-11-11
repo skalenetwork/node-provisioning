@@ -1,0 +1,7 @@
+- name: Build images
+  hosts: nodes
+  become: true
+  roles:
+    - role: images
+      tags:
+        - image
