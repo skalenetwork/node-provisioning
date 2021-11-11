@@ -22,6 +22,7 @@ jobs:
         export VERSION=$(cat VERSION)
         echo "Branch: $BRANCH"
         echo "Base version: $VERSION"
+        ls -altr 
         export VERSION=$(bash ./helper-scripts/calculate_version.sh)
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version $VERSION"
