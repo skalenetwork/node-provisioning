@@ -13,13 +13,13 @@ jobs:
     if: github.event.pull_request.merged
     steps:
     - uses: actions/checkout@v2
-    - name: Checkout code
-      uses: actions/checkout@master
+      with:
+        submodules: true
 
     - name: Calculate version
       run: |
         export BRANCH=${GITHUB_REF##*/}
-        export VERSION=$(cat ./VERSION)
+        export VERSION=$(cat VERSION)
         echo "Branch: $BRANCH"
         echo "Base version: $VERSION"
         export VERSION=$(bash ./helper-scripts/calculate_version.sh)
