@@ -1,0 +1,7 @@
+- name: Setup sgx simulator
+  hosts: nodes
+  become: true
+  roles:
+    - role: sgx_sim
+      tags:
+        - sgx_container

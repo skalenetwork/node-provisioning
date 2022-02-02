@@ -22,13 +22,6 @@
   tags:
     - cleanup
 
-- name: Remove skale.db
-  file:
-    state: absent
-    path: /home/ubuntu/.skale/node_data/skale.db
-  tags:
-    - skaledb
-
 - name: Remove .skale directory
   become: true
   file:

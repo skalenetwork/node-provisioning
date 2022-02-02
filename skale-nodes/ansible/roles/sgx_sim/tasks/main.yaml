@@ -1,0 +1,30 @@
+# - name: Cleanup sgx folder
+#   file:
+#     state: absent
+#     path: "{{ base_path }}/sgx-sim"
+#   tags:
+#     - sgx
+#     - cleanup
+#
+#
+# - name: Create sgx folder
+#   file:
+#     state: directory
+#     path: "{{ base_path }}/sgx-sim"
+#   tags: sgx
+
+
+- name: Restart sgx simulator container
+  community.docker.docker_container:
+    name: sgx-sim
+    image: skalenetwork/sgxwallet_sim:1.77.1-beta.2
+    state: started
+    restart: yes
+    network_mode: host
+    restart_policy: unless-stopped
+    volumes:
+      - "{{ base_path }}/sgx-sim:/usr/src/sdk/sgx_data"
+      - "/dev/urandom:/dev/random"
+    command: -s -y
+  tags:
+    - container
