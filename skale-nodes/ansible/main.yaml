@@ -4,7 +4,7 @@
 - import_playbook: setup.yaml
 - import_playbook: validator.yaml
 - import_playbook: signature.yaml
-- import_playbook: link-addresses.yaml
+- import_playbook: link_addresses.yaml
 - import_playbook: register.yaml
 - import_playbook: upload_authorized_keys.yaml
 - import_playbook: ssl.yaml
