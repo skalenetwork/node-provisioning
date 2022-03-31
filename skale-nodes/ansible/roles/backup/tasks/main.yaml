@@ -32,7 +32,7 @@
     src: "{{ item.path }}"
     dest: files/node-backup/{{ inventory_hostname }}/
     flat: yes
-    with_items: "{{ backup_dir.files }}"
+  with_items: "{{ backup_dir.files }}"
 
 
 - name: Cleanup backup directory

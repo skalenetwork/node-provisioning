@@ -42,8 +42,8 @@ resource "aws_volume_attachment" "ebs_att" {
     connection {
       type     = "ssh"
       user     = "ubuntu"
-      # host = aws_eip.node_eip[count.index].public_ip
-      host = "${var.spot_instance ? aws_spot_instance_request.node[count.index].public_ip : aws_instance.node[count.index].public_ip}"
+      host = aws_eip.node_eip[count.index].public_ip
+      # host = "${var.spot_instance ? aws_spot_instance_request.node[count.index].public_ip : aws_instance.node[count.index].public_ip}"
       private_key = file(var.ssh_private_key_path)
     }
   }
@@ -52,7 +52,8 @@ resource "aws_volume_attachment" "ebs_att" {
 
 resource "aws_ebs_volume" "lvm_volume" {
   count = var.NUMBER
-  availability_zone = var.availability_zone
+  # availability_zone = var.availability_zone
+  availability_zone = "${var.region}${var.zones[count.index % 3]}"
   size = var.lvm_volume_size
 
   tags = {
@@ -87,7 +88,8 @@ resource "aws_instance" "node" {
   count = !var.spot_instance ? var.NUMBER : 0
   ami   = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  availability_zone = var.availability_zone
+  # availability_zone = var.availability_zone
+  availability_zone = "${var.region}${var.zones[count.index % 3]}"
   key_name = var.key_name
   vpc_security_group_ids = [aws_security_group.security_group.id]
 
