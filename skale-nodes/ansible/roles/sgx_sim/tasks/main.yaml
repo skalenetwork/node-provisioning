@@ -27,7 +27,7 @@
 - name: Restart sgx simulator container
   community.docker.docker_container:
     name: sgx-sim
-    image: skalenetwork/sgxwallet_sim:1.77.1-beta.2
+    image: "skalenetwork/sgxwallet_sim:{{ sgx_sim_version }}"
     state: started
     restart: yes
     network_mode: host
