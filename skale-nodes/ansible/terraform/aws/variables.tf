@@ -4,8 +4,6 @@ variable "secret_key" {}
 
 variable "region" {}
 
-variable "availability_zone" {}
-
 variable "instance_type" {}
 
 variable "root_volume_size" {}
@@ -23,3 +21,5 @@ variable "spot_instance" {}
 variable "security_group" {}
 
 variable "spot_price" {}
+
+variable "zones" {}

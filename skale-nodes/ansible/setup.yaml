@@ -2,6 +2,9 @@
   hosts: nodes
   become: true
   roles:
+    - role: sgx_sim
+      when: sgx_sim is defined and sgx_sim == true
+
     - role: sources
       tags:
         - sync

@@ -1,0 +1,40 @@
+- name: Get sgx container status
+  command:
+    cmd: "docker ps -a --filter name=sgx"
+  register: sgx_status
+  tags: deb
+
+- debug:
+    msg: "{{ sgx_status.stdout_lines }}"
+  tags: deb
+
+- name: Cleanup sgx folder
+  file:
+    state: absent
+    path: "{{ base_path }}/sgx-sim"
+  tags:
+    - sgx
+    - cleanup
+
+
+- name: Create sgx folder
+  file:
+    state: directory
+    path: "{{ base_path }}/sgx-sim"
+  tags: sgx
+
+
+- name: Restart sgx simulator container
+  community.docker.docker_container:
+    name: sgx-sim
+    image: "skalenetwork/sgxwallet_sim:{{ sgx_sim_version }}"
+    state: started
+    restart: yes
+    network_mode: host
+    restart_policy: unless-stopped
+    volumes:
+      - "{{ base_path }}/sgx-sim:/usr/src/sdk/sgx_data"
+      - "/dev/urandom:/dev/random"
+    command: -s -y -d -V
+  tags:
+    - container

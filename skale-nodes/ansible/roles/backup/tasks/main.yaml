@@ -1,0 +1,41 @@
+- name: Setting backup archive folder
+  set_fact: backup_path="{{ base_path }}/backup"
+
+
+- name: Ensure backup path
+  file:
+    state: directory
+    path: "{{ backup_path }}"
+
+
+- name: Create backup archive
+  command:
+    cmd: "skale node backup {{ backup_path }}"
+
+
+- name: Create sgx sim backup
+  archive:
+    path: "{{ base_path }}/sgx-sim"
+    dest: "{{ backup_path }}/sgx-sim-{{ ansible_date_time.epoch }}.tar.gz"
+    format: gz
+  when: local_sgx_sim is defined and local_sgx_sim == "true"
+
+
+- name: Find backup files
+  find:
+    path: "{{ backup_path }}"
+  register: backup_dir
+
+
+- name: Download backup archive
+  fetch:
+    src: "{{ item.path }}"
+    dest: files/node-backup/{{ inventory_hostname }}/
+    flat: yes
+  with_items: "{{ backup_dir.files }}"
+
+
+- name: Cleanup backup directory
+  file:
+    state: absent
+    path: "{{ backup_path }}"
