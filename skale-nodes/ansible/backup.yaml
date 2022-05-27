@@ -1,0 +1,7 @@
+- name: Setup skale node
+  hosts: nodes
+  become: true
+  roles:
+    - role: backup
+      tags: backup
+
