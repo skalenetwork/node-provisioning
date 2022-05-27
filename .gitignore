@@ -30,6 +30,7 @@ skale-nodes/ansible/files/cert.pem
 skale-nodes/ansible/files/privkey.pem
 
 skale-nodes/ansible/files/node-info/
+skale-nodes/ansible/files/ssh-keys/
 skale-nodes/ansible/files/*.json
 
 # other
