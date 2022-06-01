@@ -1,7 +1,5 @@
-- import_playbook: deploy_contracts.yaml
 - import_playbook: upload_authorized_keys.yaml
 - import_playbook: base.yaml
-- import_playbook: sgx.yaml
 - import_playbook: setup.yaml
 - import_playbook: validator.yaml
 - import_playbook: signature.yaml
