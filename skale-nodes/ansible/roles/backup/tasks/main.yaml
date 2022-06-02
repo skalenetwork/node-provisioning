@@ -15,8 +15,8 @@
 
 - name: Create sgx sim backup
   archive:
-    path: "{{ base_path }}/sgx-sim"
-    dest: "{{ backup_path }}/sgx-sim-{{ ansible_date_time.epoch }}.tar.gz"
+    path: "{{ base_path }}/sgx-data"
+    dest: "{{ backup_path }}/sgx-data-{{ ansible_date_time.epoch }}.tar.gz"
     format: gz
   when: local_sgx_sim is defined and local_sgx_sim == "true"
 

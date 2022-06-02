@@ -1,0 +1,17 @@
+- name: Run/restart sgx simulator container
+  community.docker.docker_container:
+    name: sgx-sim
+    image: "skalenetwork/sgxwallet_sim:{{ sgx_version }}"
+    container_default_behavior: compatibility
+    state: started
+    restart: yes
+    network_mode: host
+    restart_policy: unless-stopped
+    volumes:
+      - "{{ base_path }}/sgx-data:/usr/src/sdk/sgx_data"
+      - "/dev/urandom:/dev/random"
+    command: -s -y -d -V
+    log_driver: json-file
+    log_opt:
+        max-size: "10m"
+        max-file: "4"
