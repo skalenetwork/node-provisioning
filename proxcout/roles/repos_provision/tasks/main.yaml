@@ -1,0 +1,25 @@
+- name: Clone proxy repository
+  git:
+    repo: https://github.com/skalenetwork/skale-proxy.git
+    dest: /home/ubuntu/skale-proxy/
+    clone: yes
+    update: yes
+    recursive: yes
+    track_submodules: yes
+    force: yes
+    version: feature/SKALE-4289-refactor-proxy
+
+- name: Clone blockscout repository
+  git:
+    repo: https://github.com/skalenetwork/blockscout.git
+    dest: /home/ubuntu/blockscout/
+    clone: yes
+    update: yes
+    recursive: yes
+    track_submodules: yes
+    force: yes
+
+- name: Copy ABIs
+  copy:
+    src: "files/abi.json"
+    dest: "/home/ubuntu/"

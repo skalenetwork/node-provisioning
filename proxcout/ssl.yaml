@@ -1,0 +1,6 @@
+- name: Setup SSL
+  hosts: proxy,explorer
+  become: true
+  roles:
+    - role: ssl_provision
+      tags: ssl

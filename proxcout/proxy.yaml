@@ -1,0 +1,6 @@
+- name: Setup Proxy
+  hosts: proxy
+  become: true
+  roles:
+    - role: proxy_provision
+      tags: proxy

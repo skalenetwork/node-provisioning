@@ -53,3 +53,13 @@ bare-metal/ansible/files/restart_vm*
 bare-metal/ansible/conf*
 
 skale-nodes/ansible/group_vars/all
+
+# proxcout
+
+_network_files/
+proxcout/ansible.cfg
+proxcout/inventory/dev
+proxcout/inventory/hosts
+proxcout/files/ssl/*/*.pem
+proxcout/files/ssl/*.pem
+proxcout/files/abi.json

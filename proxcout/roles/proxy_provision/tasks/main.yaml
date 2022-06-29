@@ -1,0 +1,45 @@
+- name: Create ABIs dir
+  file:
+    path: /home/ubuntu/skale-proxy/abi
+    state: directory
+
+- name: Copy ABIs to proxy
+  copy:
+    src: "files/abi.json"
+    dest: "/home/ubuntu/skale-proxy/data/abi.json"
+
+- name: Remove existent .env content
+  shell: "echo '' > /home/ubuntu/skale-proxy/proxy-ui/.env"
+
+- name: Write variables to .env file for proxy-ui
+  lineinfile:
+    path: "/home/ubuntu/skale-proxy/proxy-ui/.env"
+    insertbefore: BOF
+    line: "{{ item.name }}={{ item.value }}"
+  with_items:
+    - { name: BASE_PROXY_URL, value: "{{ proxy_domain }}"}
+    - { name: EXPLORER_URL, value: "{{ explorer_domain }}"}
+    - { name: CHAIN_ID, value: "{{ chain_id }}"}
+    - { name: NETWORK_NAME, value: "{{ network_name }}"}
+    - { name: MAIN_WEBSITE_URL, value: "{{ main_website_url }}"}
+    - { name: DOCS_WEBSITE_URL, value: "{{ docs_website_url }}"}
+    - { name: NETWORKS, value: "{{ networks }}"}
+    - { name: ABIS_URL, value: "{{ abis_url }}"}
+
+- name: Run proxy
+  command: "bash scripts/run_proxy.sh"
+  environment:
+    BASE_PROXY_URL: "{{ proxy_domain }}"
+    EXPLORER_URL: "{{ explorer_domain }}"
+    CHAIN_ID: "{{ chain_id }}"
+    NETWORK_NAME: "{{ network_name }}"
+    MAIN_WEBSITE_URL: "{{ main_website_url }}"
+    DOCS_WEBSITE_URL: "{{ docs_website_url }}"
+    FIRST_SCHAIN_ID: "{{ groups['proxy'].index(inventory_hostname) * 100 }}"
+    LAST_SCHAIN_ID: "{{ ( groups['proxy'].index(inventory_hostname) + 1) * 100 }}"
+    PROXY_FULL_HOST_NAME: "{{ proxy_domain }}"
+    ETH_ENDPOINT: "{{ eth_endpoint }}"
+    NETWORKS: {}
+    ABIS_URL: "{{ abis_url }}"
+  args:
+    chdir: /home/ubuntu/skale-proxy

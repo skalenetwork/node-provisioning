@@ -1,0 +1,6 @@
+- name: Setup repos
+  hosts: proxy,explorer
+  become: true
+  roles:
+    - role: repos_provision
+      tags: repos
