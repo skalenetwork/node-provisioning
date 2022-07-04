@@ -1,0 +1,35 @@
+- name: Remove .skale directory
+  become: true
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ base_path }}/.skale"
+    - "{{ base_path }}/init-env"
+  tags:
+    - cleanup
+    - rm_dotskale
+
+- name: Remove node artifacts from /var and /etc
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "/etc/skale"
+    - "/var/lib/skale"
+  tags:
+    - cleanup
+
+- name: Remove node-cli binary
+  file:
+    path: "/usr/local/bin/skale"
+    state: absent
+  tags:
+    - cleanup
+    - node-cli
+
+- name: Remove iptables rules
+  ansible.builtin.iptables:
+    chain: "{{ item }}"
+    flush: yes
+  with_items:  [ 'INPUT', 'FORWARD', 'OUTPUT' ]
