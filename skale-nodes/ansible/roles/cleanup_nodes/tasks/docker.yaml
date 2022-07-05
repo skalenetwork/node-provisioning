@@ -13,16 +13,16 @@
     state: absent
     path: "{{ item }}"
   with_items:
-    - "/etc/systemd/system/docker.service.d"
-    - "/etc/docker/daemon.json"
+    # - "/etc/systemd/system/docker.service.d"  TODO: restart docker.socket in node-cli
+    # - "/etc/docker/daemon.json"
     - "/var/run/skale"
-
-- name: Restart docker.socket
-  systemd:
-    state: restarted
-    name: docker.socket
 
 - name: Restart docker
   systemd:
     state: restarted
     name: docker
+
+- name: Restart docker.socket
+  systemd:
+    state: restarted
+    name: docker.socket
