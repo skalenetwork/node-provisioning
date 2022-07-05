@@ -1,4 +1,4 @@
 - import_tasks: containers.yaml
-- import_tasks: node_artifacts.yaml
 - import_tasks: docker_lvmpy.yaml
+- import_tasks: node_artifacts.yaml
 - import_tasks: docker.yaml
