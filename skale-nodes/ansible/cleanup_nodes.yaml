@@ -2,4 +2,6 @@
   hosts: nodes
   become: true
   roles:
-    - role: cleanup_nodes
+    - name: Remove all skale software from node
+      role: cleanup_nodes
+      tags: cleanup

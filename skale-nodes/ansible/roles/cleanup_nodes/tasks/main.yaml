@@ -1,4 +1,15 @@
-- import_tasks: containers.yaml
-- import_tasks: docker_lvmpy.yaml
-- import_tasks: node_artifacts.yaml
-- import_tasks: docker.yaml
+- name: Run container cleanup
+  import_tasks: containers.yaml
+  tags: contianers
+
+- name: Run docker-lvmpy cleanup
+  import_tasks: docker_lvmpy.yaml
+  tags: docker_lvmpy
+
+- name: Run node artifacts cleanup
+  import_tasks: node_artifacts.yaml
+  tags: node_artifacts
+
+- name: Run docker cleanup
+  import_tasks: docker.yaml
+  tags: docker

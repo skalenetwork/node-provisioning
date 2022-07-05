@@ -2,9 +2,6 @@
   systemd:
     state: stopped
     name: docker-lvmpy
-  tags:
-    - cleanup
-
 
 - name: Remove docker-lvmpy artifacts
   file:
@@ -14,5 +11,3 @@
     - "/opt/docker/lvmpy"
     - "/etc/docker-lvmpy"
     - "/etc/systemd/system/docker-lvmpy.service"
-  tags:
-    - cleanup
