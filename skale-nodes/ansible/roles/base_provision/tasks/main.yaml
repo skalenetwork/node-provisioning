@@ -70,6 +70,14 @@
   tags:
     ssh
 
-- name: Sync time on host
+- name: Enable timedatectl
   shell: sudo timedatectl set-ntp on
   become: true
+  tags: ntp
+
+- name: Enable timesyncd service
+  systemd:
+    name: systemd-timesyncd
+    state: started
+  become: true
+  tags: ntp

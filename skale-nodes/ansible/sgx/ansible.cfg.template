@@ -1,5 +1,0 @@
-[defaults]
-remote_user =
-inventory = ./inventory
-private_key_file =
-host_key_checking = False
