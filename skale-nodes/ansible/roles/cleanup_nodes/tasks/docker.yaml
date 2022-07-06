@@ -1,0 +1,28 @@
+- name: Stop docker
+  systemd:
+    state: stopped
+    name: docker
+
+- name: Stop docker.socket
+  systemd:
+    state: stopped
+    name: docker.socket
+
+- name: Remove custom docker artifacts
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    # - "/etc/systemd/system/docker.service.d"  TODO: restart docker.socket in node-cli
+    # - "/etc/docker/daemon.json"
+    - "/var/run/skale"
+
+- name: Restart docker
+  systemd:
+    state: restarted
+    name: docker
+
+- name: Restart docker.socket
+  systemd:
+    state: restarted
+    name: docker.socket
