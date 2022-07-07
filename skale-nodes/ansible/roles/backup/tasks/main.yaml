@@ -1,17 +1,22 @@
 - name: Setting backup archive folder
   set_fact: backup_path="{{ base_path }}/backup"
 
+- name: Turn off the node
+  command:
+    cmd: "skale node turn-off --yes"
+  when: not no_downtime is defined or not no_downtime
+  become: true
 
 - name: Ensure backup path
   file:
     state: directory
     path: "{{ backup_path }}"
-
+  become: true
 
 - name: Create backup archive
   command:
     cmd: "skale node backup {{ backup_path }}"
-
+  become: true
 
 - name: Create sgx sim backup
   archive:
@@ -19,23 +24,63 @@
     dest: "{{ backup_path }}/sgx-data-{{ ansible_date_time.epoch }}.tar.gz"
     format: gz
   when: local_sgx_sim is defined and local_sgx_sim == "true"
+  become: true
 
+- name: Get instance information
+  amazon.aws.ec2_instance_info:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    filters:
+      "network-interface.association.public-ip": "{{ ip_address }}"
+  register: instance_info
+  delegate_to: 127.0.0.1
+
+- name: Set instance id
+  set_fact:
+    instance_id: "{{ instance_info.instances[0].instance_id }}"
+  delegate_to: 127.0.0.1
+
+- name: Create AMI based on instance
+  amazon.aws.ec2_ami:
+    instance_id: "{{ instance_id }}"
+    wait: no
+    name: "{{ ip_address }}-ami"
+  register: ami_info
+
+- name: Set instance id
+  set_fact:
+    ami_id: "{{ ami_info.image_id }}"
+  delegate_to: 127.0.0.1
+
+- name: Turn on the node back
+  command:
+    cmd: "skale node turn-on {{ base_path }}/init-env --yes"
+  when: not no_downtime is defined or not no_downtime
+  become: true
 
 - name: Find backup files
   find:
     path: "{{ backup_path }}"
-  register: backup_dir
-
+  register: backup_files
 
 - name: Download backup archive
   fetch:
-    src: "{{ item.path }}"
-    dest: files/node-backup/{{ inventory_hostname }}/
+    src: "{{ (backup_files.files | sort(attribute='mtime', reverse=true) | first).path }}"
+    dest: "files/node-backup/{{ ip_address }}/"
+    patterns: "skale-node*"
     flat: yes
-  with_items: "{{ backup_dir.files }}"
 
+- name: Dump the backup config
+  copy:
+    dest: "files/node-backup/{{ ip_address }}/ami_info"
+    content: |
+      instance_id: {{ instance_id }}
+      ami_id: {{ ami_id }}
+  delegate_to: 127.0.0.1
 
 - name: Cleanup backup directory
   file:
     state: absent
     path: "{{ backup_path }}"
+  become: true
