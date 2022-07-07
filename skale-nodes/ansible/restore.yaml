@@ -2,6 +2,8 @@
   hosts: nodes
   vars:
     - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
+  vars_files:
+    - "files/node-backup/{{ ip_address }}/volume_snapshot"
   roles:
-    - role: backup
-      tags: backup
+    - role: restore
+      tags: restore

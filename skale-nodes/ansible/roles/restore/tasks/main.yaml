@@ -1,0 +1,39 @@
+- name: Create and attach volume from snapshot
+  amazon.aws.ec2_vol:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    instance: "{{ instance_id }}"
+    snapshot: "{{ snapshot_id }}"
+    device_name: "{{ block_device }}"
+  tags: datadir
+  delegate_to: 127.0.0.1
+  tags: datadir
+
+- name: Find backup files
+  find:
+    path: "files/node-backup/{{ ip_address }}"
+    patterns: "skale-node*"
+  register: backup_files
+  delegate_to: 127.0.0.1
+  tags: node
+
+- debug:
+    msg: "{{ backup_files }}"
+
+- name: Get backup archive
+  set_fact:
+    backup_archive: "{{ (backup_files.files | sort(attribute='mtime', reverse=true) | first).path }}"
+  tags: node
+
+- name: Copy backup archive
+  copy:
+    src: "{{ backup_archive }}"
+    dest: "{{ base_path }}/backup.tar.gz"
+  tags: node
+  become: true
+
+- name: Run skale node restore
+  command:
+    cmd: "skale node restore backup.tar.gz {{ base_path }}/init-env --no-snapshot"
+  tags: node
