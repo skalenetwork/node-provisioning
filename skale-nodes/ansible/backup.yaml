@@ -1,7 +1,20 @@
-- name: Setup skale node
+- name: Backup node
   hosts: nodes
-  become: true
-  roles:
-    - role: backup
-      tags: backup
+  vars:
+    - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
 
+  tasks:
+    - name: Backup node
+      include_role:
+        name: backup
+        apply:
+          tags: node
+
+    - name: Save AMI
+      include_role:
+        name: aws
+        tasks_from: backup
+        apply:
+          tags: aws
+      tags:
+        aws
