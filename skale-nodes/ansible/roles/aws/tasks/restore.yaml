@@ -1,0 +1,42 @@
+- name: Create instance from ami
+  amazon.aws.ec2_instance:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    name: "{{ inventory_hostname }}"
+    key_name: "{{ aws_keyname }}"
+    image_id: "{{ ami_id }}"
+    instance_type: "{{ aws_instance_type }}"
+    network:
+      security_group: "{{ aws_security_group }}"
+    wait: yes
+  register: ec2_info
+  delegate_to: 127.0.0.1
+  tags: ec2
+
+- name: Get new instance id
+  set_fact:
+    new_instance_id: "{{ ec2_info.instance_ids[0] }}"
+  tags: ec2
+
+- name: Pause to wait for instance initialization
+  ansible.builtin.pause:
+    minutes: 2
+
+- name: Associate an elastic IP with a device
+  community.aws.ec2_eip:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    device_id: "{{ new_instance_id }}"
+    ip: "{{ public_ip }}"
+  tags: eip
+  delegate_to: 127.0.0.1
+
+- name: Save config changes
+  lineinfile:
+    path: "files/node-backup/{{ ip_address }}/aws_info"
+    search_string: "{{ instance_id }}"
+    line: "instance_id: {{ new_instance_id }}"
+  delegate_to: 127.0.0.1
+  tags: ec2
