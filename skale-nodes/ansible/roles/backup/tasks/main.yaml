@@ -1,17 +1,22 @@
 - name: Setting backup archive folder
   set_fact: backup_path="{{ base_path }}/backup"
 
+- name: Turn off the node
+  command:
+    cmd: "skale node turn-off --yes"
+  when: not no_downtime is defined or not no_downtime
+  become: true
 
 - name: Ensure backup path
   file:
     state: directory
     path: "{{ backup_path }}"
-
+  become: true
 
 - name: Create backup archive
   command:
     cmd: "skale node backup {{ backup_path }}"
-
+  become: true
 
 - name: Create sgx sim backup
   archive:
@@ -19,23 +24,28 @@
     dest: "{{ backup_path }}/sgx-data-{{ ansible_date_time.epoch }}.tar.gz"
     format: gz
   when: local_sgx_sim is defined and local_sgx_sim == "true"
+  become: true
 
+- name: Turn on the node back
+  command:
+    cmd: "skale node turn-on {{ base_path }}/init-env --yes"
+  when: not no_downtime is defined or not no_downtime
+  become: true
 
 - name: Find backup files
   find:
     path: "{{ backup_path }}"
-  register: backup_dir
-
+  register: backup_files
 
 - name: Download backup archive
   fetch:
-    src: "{{ item.path }}"
-    dest: files/node-backup/{{ inventory_hostname }}/
+    src: "{{ (backup_files.files | sort(attribute='mtime', reverse=true) | first).path }}"
+    dest: "files/node-backup/{{ ip_address }}/"
+    patterns: "skale-node*"
     flat: yes
-  with_items: "{{ backup_dir.files }}"
-
 
 - name: Cleanup backup directory
   file:
     state: absent
     path: "{{ backup_path }}"
+  become: true

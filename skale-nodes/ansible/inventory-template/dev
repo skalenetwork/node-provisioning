@@ -50,3 +50,7 @@ deploy_gas_price='2000000000' # 2 gwei
 
 aws_key=''
 aws_secret=''
+aws_region=''
+aws_keyname=''
+aws_instance_type=''
+aws_security_group=''

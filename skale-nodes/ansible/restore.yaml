@@ -1,19 +1,16 @@
-- name: Backup node
+- name: Restore node from AMI
   hosts: nodes
+  gather_facts: false
   vars:
     - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
+  vars_files:
+    - "files/node-backup/{{ ip_address }}/aws_info"
 
   tasks:
-    - name: Backup node
-      include_role:
-        name: backup
-        apply:
-          tags: node
-
-    - name: Save AMI
+    - name: Restore AWS from AMI
       include_role:
         name: aws
-        tasks_from: backup
+        tasks_from: restore
         apply:
           tags: aws
       tags:
