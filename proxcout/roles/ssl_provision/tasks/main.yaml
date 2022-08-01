@@ -1,0 +1,14 @@
+- name: Copy SSL certs
+  copy: src=files/ssl/ dest=/home/ubuntu/ssl/
+
+- name: Copy SSL certificate file (proxy)
+  copy:
+    src: '/home/ubuntu/ssl/fullchain.pem'
+    dest: '/home/ubuntu/skale-proxy/data/server.crt'
+    remote_src: true
+
+- name: Copy SSL private key file (proxy)
+  copy:
+    src: '/home/ubuntu/ssl/privkey.pem'
+    dest: '/home/ubuntu/skale-proxy/data/server.key'
+    remote_src: true

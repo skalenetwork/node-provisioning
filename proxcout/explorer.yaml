@@ -1,0 +1,6 @@
+- name: Setup Blockscout
+  hosts: explorer
+  become: true
+  roles:
+    - role: explorer_provision
+      tags: explorer

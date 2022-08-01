@@ -1,0 +1,36 @@
+- name: Clone blockscout repository
+  git:
+    repo: https://github.com/skalenetwork/blockscout.git
+    dest: /home/ubuntu/blockscout/
+    clone: yes
+    update: yes
+    recursive: yes
+    track_submodules: yes
+    force: yes
+
+- name: Copy ABIs to explorer
+  copy:
+    src: "files/abi.json"
+    dest: "/home/ubuntu/blockscout/admin/data/abi.json"
+
+- name: Copy SSL certificate file (explorer)
+  copy:
+    src: "/home/ubuntu/ssl/explorer-{{ groups['explorer'].index(inventory_hostname) }}/fullchain.pem"
+    dest: '/home/ubuntu/blockscout/admin/data/certs/server.crt'
+    remote_src: true
+
+- name: Copy SSL private key file (explorer)
+  copy:
+    src: "/home/ubuntu/ssl/explorer-{{ groups['explorer'].index(inventory_hostname) }}/privkey.pem"
+    dest: '/home/ubuntu/blockscout/admin/data/certs/server.key'
+    remote_src: true
+
+- name: Run explorer
+  command: "docker-compose up -d"
+  environment:
+    FIRST_SCHAIN_ID: "{{ groups['explorer'].index(inventory_hostname) * 10 }}"
+    LAST_SCHAIN_ID: "{{ ( groups['explorer'].index(inventory_hostname) + 1) * 10 }}"
+    SCHAIN_PROXY_DOMAIN: "{{ proxy_domain }}"
+    ENDPOINT: "{{ eth_endpoint }}"
+  args:
+    chdir: /home/ubuntu/blockscout/admin
