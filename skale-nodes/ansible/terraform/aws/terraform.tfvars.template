@@ -7,7 +7,10 @@ prefix = instance_name
 security_group = name_of_security_group
 spot_instance = "true" or "false"
 root_volume_size = 150
-lvm_volume_size = 270
+root_volume_type = sc1
+attached_disk_size = 270
+attached_disk_type = gp2
 key_name = key_name_which_will_be_use_when_instance_create
 ssh_private_key_path = path_to_pem_file
 spot_price = {"t2.small" = "0.007", "t2.medium" = "0.015", "t2.large" = "0.029", "t2.xlarge" = "0.056", "t2.2xlarge" = "0.13"}
+zones = {0: "a", 1: "b", 2: "c"}
