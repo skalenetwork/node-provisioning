@@ -31,12 +31,12 @@ data "aws_ami" "ubuntu" {
 resource "aws_volume_attachment" "ebs_att" {
   count = var.NUMBER
   device_name = "/dev/sdd"
-  volume_id   = aws_ebs_volume.lvm_volume[count.index].id
+  volume_id   = aws_ebs_volume.attached_disk[count.index].id
   instance_id = var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id
 
   provisioner "remote-exec" {
     inline = [
-      "export VOLUME_SIZE=${var.lvm_volume_size}",
+      "export VOLUME_SIZE=${var.attached_disk_size}",
       "echo /dev/`lsblk -do NAME,SIZE | grep $VOLUME_SIZE | cut -d ' ' -f 1` | sudo tee /root/lvm-block-device",
     ]
     connection {
@@ -50,15 +50,15 @@ resource "aws_volume_attachment" "ebs_att" {
 
 }
 
-resource "aws_ebs_volume" "lvm_volume" {
+resource "aws_ebs_volume" "attached_disk" {
   count = var.NUMBER
   # availability_zone = var.availability_zone
   availability_zone = "${var.region}${var.zones[count.index % 3]}"
-  size = var.lvm_volume_size
-  volume_type = var.lvm_volume_type
+  size = var.attached_disk_size
+  volume_type = var.attached_disk_type
 
   tags = {
-    Name = "${var.prefix}-${count.index}-lvm-volume"
+    Name = "${var.prefix}-${count.index}-attached_disk"
   }
 }
 
