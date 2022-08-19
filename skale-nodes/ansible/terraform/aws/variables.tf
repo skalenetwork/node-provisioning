@@ -23,3 +23,7 @@ variable "security_group" {}
 variable "spot_price" {}
 
 variable "zones" {}
+
+variable "root_volume_type" {}
+
+variable "lvm_volume_type" {}
