@@ -52,8 +52,7 @@ resource "aws_volume_attachment" "ebs_att" {
 
 resource "aws_ebs_volume" "attached_disk" {
   count = var.NUMBER
-  # availability_zone = var.availability_zone
-  availability_zone = "${var.region}${var.zones[count.index % 3]}"
+  availability_zone = var.zone_separation != "true" ? var.availability_zone : "${var.region}${var.zones[count.index % 3]}"
   size = var.attached_disk_size
   volume_type = var.attached_disk_type
 
@@ -68,7 +67,7 @@ resource "aws_spot_instance_request" "node" {
   spot_price    = var.spot_price[var.instance_type]
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  availability_zone = "${var.region}${var.zones[count.index % 3]}"
+  availability_zone = var.zone_separation != "true" ? var.availability_zone : "${var.region}${var.zones[count.index % 3]}"
   wait_for_fulfillment = true
   vpc_security_group_ids = [aws_security_group.security_group.id]
   key_name = var.key_name
@@ -90,8 +89,7 @@ resource "aws_instance" "node" {
   count = !var.spot_instance ? var.NUMBER : 0
   ami   = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  # availability_zone = var.availability_zone
-  availability_zone = "${var.region}${var.zones[count.index % 3]}"
+  availability_zone = var.zone_separation != "true" ? var.availability_zone : "${var.region}${var.zones[count.index % 3]}"
   key_name = var.key_name
   vpc_security_group_ids = [aws_security_group.security_group.id]
 
