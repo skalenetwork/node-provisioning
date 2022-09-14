@@ -6,10 +6,6 @@ variable "region" {}
 
 variable "instance_type" {}
 
-variable "root_volume_size" {}
-
-variable "lvm_volume_size" {}
-
 variable "prefix" {}
 
 variable "key_name" {}
@@ -24,6 +20,12 @@ variable "spot_price" {}
 
 variable "zones" {}
 
+variable "root_volume_size" {}
+
 variable "root_volume_type" {}
 
-variable "lvm_volume_type" {}
+variable "attached_disk_size" {}
+
+variable "attached_disk_type" {}
+
+variable "zone_separation" {}
