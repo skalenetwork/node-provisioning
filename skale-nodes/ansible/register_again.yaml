@@ -1,6 +1,5 @@
+- import_playbook: cleanup_contracts.yaml
 - import_playbook: cleanup_nodes.yaml
-- import_playbook: update.yaml
-- import_playbook: base.yaml
 - import_playbook: setup.yaml
 - import_playbook: validator.yaml
 - import_playbook: signature.yaml
