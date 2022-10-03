@@ -1,6 +1,3 @@
-- name: Install aptitude
-  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
-
 - import_tasks: swap.yaml
   tags: swap
 
@@ -20,6 +17,16 @@
     value: "1000000000"
   tags: ulimits
 
+- name: Update pip
+  pip:
+    name: pip
+    state: latest
+
+- name: Install cryptography 36
+  pip:
+    name: "cryptography==36"
+
+
 - name: Install aptitude
   apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
 
@@ -30,18 +37,12 @@
     "ca-certificates",
     "curl",
     "software-properties-common",
-    "python3-pip",
     "virtualenv",
     "python3-setuptools",
     "python3-dev",
     "iptables-persistent"
     ]
   tags: apt
-
-- name: Update pip
-  pip:
-    name: pip
-    state: latest
 
 - import_tasks: docker.yaml
   tags:
