@@ -1,0 +1,24 @@
+- name: Ensure base SSL dir
+  file:
+    state: directory
+    path: "{{ base_path }}/ssl/{{ inventory_hostname }}"
+    recurse: yes
+
+- name: Set certificate folder
+  set_fact:
+    letsencrypt_path: "/etc/letsencrypt/live/{{ domain[2:] }}"
+  when: domain[0] == '*'
+
+- name: Set certificate folder
+  set_fact:
+    letsencrypt_path: "/etc/letsencrypt/live/{{ domain }}"
+  when: domain[0] != '*'
+
+- name: Copy SSL certificate file
+  copy:
+    src: "{{ letsencrypt_path }}/{{ item }}"
+    dest: "{{ base_path }}/ssl/{{ inventory_hostname }}/{{ item }}"
+    remote_src: true
+  loop:
+    - fullchain.pem
+    - privkey.pem

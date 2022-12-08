@@ -28,6 +28,7 @@ monitoring_containers=''
 base_domain_name=''
 env_type=''
 sgx_version=''
+cert_mode='certbot/custom'
 
 ## dev variables (skip if env=test)
 
@@ -38,6 +39,10 @@ skale_node_cli_path=''
 
 
 # optional parameters
+
+## cert_mode = certbot
+email=
+do_token=
 
 ## skale-node
 

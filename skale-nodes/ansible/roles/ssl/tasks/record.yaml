@@ -1,0 +1,12 @@
+- debug:
+    msg: "{{ domain }}"
+  tags: retrieve_domain
+
+- name: Retrieve domain
+  community.digitalocean.digital_ocean_domain_record_info:
+    state: present
+    name: "local-test"
+    domain: "skalenodes.com"
+    oauth_token: "{{ do_token }}"
+    type: A
+  tags: retrieve_domain

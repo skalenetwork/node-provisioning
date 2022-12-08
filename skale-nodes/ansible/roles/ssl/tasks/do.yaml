@@ -1,0 +1,14 @@
+- name: Define do credentials path
+  set_fact:
+    do_config: "{{ base_path }}/do.ini"
+
+- name: Create DO credentials file
+  file:
+    state: touch
+    path: "{{ do_config }}"
+    mode: "0600"
+
+- name: Save DO credentials
+  copy:
+    content: "dns_digitalocean_token = {{ do_token }}"
+    dest: "{{ do_config }}"
