@@ -40,7 +40,6 @@ skale_node_cli_path=''
 
 # optional parameters
 
-## cert_mode = certbot
 email=
 do_token=
 

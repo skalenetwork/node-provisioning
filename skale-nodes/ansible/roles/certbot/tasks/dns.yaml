@@ -1,8 +1,0 @@
-- name: Create a corresponding domain
-  community.digitalocean.digital_ocean_domain_record:
-    state: present
-    oauth_token: "{{ do_token }}"
-    type: A
-    name: "{{ domain }}"
-    domain: "{{ base_domain }}"
-    ip: "{{ hostvars[inventory_hostname].ansible_host }}"
