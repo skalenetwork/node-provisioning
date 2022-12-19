@@ -22,5 +22,8 @@
   when: cert_mode == "custom"
   tags: ssl_sync
 
+- import_tasks: record.yaml
+  tags: dns_record
+
 - import_tasks: configure.yaml
   tags: ssl_configure
