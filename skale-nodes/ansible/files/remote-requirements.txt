@@ -1,4 +1,4 @@
 docker-compose==1.27.4
 docker==4.4.0
-cryptography==38.0.0
+cryptography==38.0.3
 pyOpenSSL==22.1.0
