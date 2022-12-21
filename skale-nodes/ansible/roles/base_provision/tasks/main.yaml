@@ -3,10 +3,8 @@
     user: ubuntu
     state: present
     key: "{{ lookup('file', '{{ item }}') }}"
-
   with_fileglob: "ssh-keys/*"
-  tags:
-    ssh
+  tags: ssh
 
 - import_tasks: swap.yaml
   tags: swap
@@ -37,25 +35,37 @@
     "virtualenv",
     "python3-setuptools",
     "python3-dev",
-    "iptables-persistent"
+    "iptables-persistent",
     "python3-pip"
     ]
   tags: apt
 
 - import_tasks: docker.yaml
-  tags:
-    docker
+  tags: docker
 
 - name: Update pip
   pip:
     name: pip
     state: latest
 
-- name: Install docker.py
+- name: Uninstall pyOpenSSL
   pip:
-    requirements: files/remote-requirements.txt
+    name: pyOpenSSL
+    state: absent
   tags:
-    pip
+    - pip
+    - openssl
+
+- name: Sync requirements to remote machine
+  copy:
+    src: files/remote-requirements.txt
+    dest: "{{ base_path }}/requirements.txt"
+  tags: pip
+
+- name: Install requirements
+  pip:
+    requirements: "{{ base_path }}/requirements.txt"
+  tags: pip
 
 - name: Enable timedatectl
   shell: sudo timedatectl set-ntp on
