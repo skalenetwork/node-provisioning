@@ -1,0 +1,15 @@
+[Unit]
+Description=skaleStatsExporter
+
+[Service]
+Type=simple
+User=root
+Group=root
+TimeoutSec=120
+OOMScoreAdjust=-100
+ExecStart=/root/.skale_stats/stats_collector.sh
+SyslogIdentifier=skaleStatsExporter
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

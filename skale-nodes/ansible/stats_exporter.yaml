@@ -1,0 +1,7 @@
+- name: Add script and service to host and then run
+  hosts: nodes
+  become: true
+  tasks:
+    - import_role:
+        name: stats_exporter_script
+        tasks_from: copy_and_run_exporter
