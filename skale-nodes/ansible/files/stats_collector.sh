@@ -32,6 +32,8 @@ while :
                 jq -r 'paths(scalars) as $p  | [ ( [ $p[] | tostring ] | join("_") ), ( getpath($p) | tojson )] | join(" ")' /root/.skale_stats/data/metrics.json | tr -d '"' > /var/www/html/metrics
                 gawk -i inplace '!/result_executionPerformance_RPC_protocols_HTTP_method/' /var/www/html/metrics
                 gawk -i inplace '!/result_executionPerformance_RPC_protocols_HTTPS_method/' /var/www/html/metrics
+                gawk -i inplace '!/result_executionPerformance_RPC_protocols_WS_method/' /var/www/html/metrics
+                gawk -i inplace '!/result_executionPerformance_RPC_protocols_WSS_method/' /var/www/html/metrics
                 gawk -i inplace '!/result_executionPerformance_RPC_summary_method/' /var/www/html/metrics
                 gawk -i inplace '!/result_executionPerformance_RPC_summary_protocol/' /var/www/html/metrics
                 gawk -i inplace '!/result_unddos_calls/' /var/www/html/metrics
