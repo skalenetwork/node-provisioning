@@ -37,6 +37,7 @@ while :
                 gawk -i inplace '!/result_executionPerformance_RPC_summary_method/' /var/www/html/metrics
                 gawk -i inplace '!/result_executionPerformance_RPC_summary_protocol/' /var/www/html/metrics
                 gawk -i inplace '!/result_unddos_calls/' /var/www/html/metrics
+                sed -i -r 's/\//\_/g' /var/www/html/metrics
                 sleep 5
             done
     done
