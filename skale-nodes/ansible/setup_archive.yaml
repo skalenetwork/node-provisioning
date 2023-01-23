@@ -1,0 +1,7 @@
+- name: Setup archive skale node
+  hosts: nodes
+  become: true
+  roles:
+    - role: setup_archive
+      tags: archive
+

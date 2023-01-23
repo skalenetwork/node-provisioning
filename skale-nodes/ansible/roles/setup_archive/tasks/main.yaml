@@ -1,0 +1,8 @@
+- import_tasks: prepare.yaml
+  tags: source
+
+- import_tasks: cli.yaml
+  tags: cli
+
+- import_tasks: init.yaml
+  tags: init

@@ -1,0 +1,19 @@
+- name: Download skale_cli from spaces
+  get_url:
+    url: "{{ skale_cli_url }}"
+    dest: "/usr/local/bin/skale"
+    force: yes
+    mode: 644
+  when: env is defined and env == "test"
+  tags: cli
+
+- name: Add execute permission to skale executable
+  file:
+    path: /usr/local/bin/skale
+    mode: '0555'
+  tags: cli
+
+- name: Register skale command
+  set_fact:
+    skale: "/usr/local/bin/skale"
+  tags: cli

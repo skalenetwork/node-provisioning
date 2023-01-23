@@ -1,0 +1,46 @@
+- name: Set SM download URL
+  set_fact:
+    manager_contracts: "{{ sm_url }}"
+  when: manager_contracts is undefined
+
+- name: Crash if no SM ABIs URL provided
+  fail:
+    msg: manager_contracts is undefined
+  when: manager_contracts is undefined
+
+- name: Set IMA download URL
+  set_fact:
+    ima_contracts: "{{ ima_url }}"
+  when: ima_contracts is undefined
+
+- name: Crash if no IMA ABIs URL provided
+  fail:
+    msg: ima_contracts is undefined
+  when: ima_contracts is undefined
+
+- name: Download contracts
+  get_url:
+    url: "{{ manager_contracts }}"
+    dest: "{{ base_path }}/manager.json"
+    mode: 0644
+    force: true
+  tags: contracts
+
+- name: Remove existent .env content
+  shell: "echo '' > {{ base_path }}/init-env"
+
+- name: Write variables to .env file
+  lineinfile:
+    path: "{{ base_path }}/init-env"
+    insertbefore: BOF
+    line: "{{ item.name }}={{ item.value }}"
+  with_items:
+    - { name: ENDPOINT, value: "{{ endpoint }}"}
+    - { name: CONTAINER_CONFIGS_STREAM, value: "{{ container_configs_stream }}"}
+    - { name: MANAGER_CONTRACTS_ABI_URL, value: "{{ manager_contracts }}"}
+    - { name: IMA_CONTRACTS_ABI_URL, value: "{{ ima_contracts }}"}
+    - { name: DOCKER_LVMPY_STREAM, value: "{{ docker_lvmpy_stream }}"}
+    - { name: DISK_MOUNTPOINT, value: "{{ block_device }}"}
+    - { name: ENV_TYPE, value: "{{ env_type }}"}
+    - { name: SCHAIN_NAME, value: "{{ schain_name }}"}
+    - { name: ENFORCE_BTRFS, value: "True"}
