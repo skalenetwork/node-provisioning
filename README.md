@@ -32,6 +32,13 @@ NOTE: This is for QA and testing purposes only.
 
 ## Usage
 
+### Install requirements
+
+```
+pip install -r requirements.txt
+ansible-galaxy collection install community.digitalocean
+```
+
 ### Secrets preparation
 
 1) Copy contents of the `terraform.tfvars.template` to the `terraform.tfvars` and fill all variables
