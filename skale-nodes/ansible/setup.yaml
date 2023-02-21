@@ -2,14 +2,15 @@
   hosts: nodes
   become: true
   roles:
-    - role: sources
-      tags:
-        - sync
-        - source
+    - role: sync
+      tags: sync
+      when: env is defined and env == "dev"
 
     - role: skale_cli
       tags: cli
 
+    - role: config
+      tags: config
+
     - role: init
-      tags:
-        - init
+      tags: init

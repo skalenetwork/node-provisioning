@@ -1,8 +1,19 @@
-- name: Run skale node update
+- name: Skale sync-node update
   shell:
     cmd: "skale node update {{ base_path }}/init-env --yes"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
     HOME_DIR: "{{ base_path }}"
+  when: sync_node is not defined or not sync_node
+  tags: skale_update
+
+- name: Skale sync node update
+  shell:
+    cmd: "skale sync-node update {{ base_path }}/init-env --yes"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8
+    HOME_DIR: "{{ base_path }}"
+  when: sync_node is defined and sync_node
   tags: skale_update
