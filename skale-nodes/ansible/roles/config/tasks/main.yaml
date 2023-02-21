@@ -39,27 +39,27 @@
     sgx_url: "https://{{ hostvars['sgx0'].ansible_host }}:1026"
   when: sgx_url is not defined or not sgx_url
 
-  # - name: Set env options
-  #   set_fact:
-  #     env_options: >-
-  #       ENDPOINT="{{ endpoint }}"
-  #       IMA_ENDPOINT="{{ ima_endpoint }}"
-  #       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
-  #       FILEBEAT_HOST="{{ filebeat_host }}"
-  #       MANAGER_CONTRACTS_ABI_URL="{{ manager_contracts }}"
-  #       IMA_CONTRACTS_ABI_URL="{{ ima_contracts }}"
-  #       CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
-  #       DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
-  #       DISK_MOUNTPOINT="{{ block_device }}"
-  #       SGX_SERVER_URL="{{ sgx_url }}"
-  #       TG_API_KEY="{{ tg_api_key }}"
-  #       TG_CHAT_ID="{{ tg_chat_id }}"
-  #       MONITORING_CONTAINERS="{{ monitoring_containers }}"
-  #       DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
-  #       ENV_TYPE="{{ env_type }}"
-  #       DISABLE_IMA="{{ disable_ima }}"
-  #     when: sync_node is not defined or not sync_node
-  #     tags: env
+- name: Set env options
+  set_fact:
+    env_options: >-
+      ENDPOINT="{{ endpoint }}"
+      IMA_ENDPOINT="{{ ima_endpoint }}"
+      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      FILEBEAT_HOST="{{ filebeat_host }}"
+      MANAGER_CONTRACTS_ABI_URL="{{ manager_contracts }}"
+      IMA_CONTRACTS_ABI_URL="{{ ima_contracts }}"
+      CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
+      DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
+      DISK_MOUNTPOINT="{{ block_device }}"
+      SGX_SERVER_URL="{{ sgx_url }}"
+      TG_API_KEY="{{ tg_api_key }}"
+      TG_CHAT_ID="{{ tg_chat_id }}"
+      MONITORING_CONTAINERS="{{ monitoring_containers }}"
+      DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
+      ENV_TYPE="{{ env_type }}"
+      DISABLE_IMA="{{ disable_ima }}"
+  when: sync_node is not defined or not sync_node
+  tags: env
 
 - name: Set env options sync node
   set_fact:
