@@ -3,5 +3,6 @@
   become: true
   roles:
     - role: ssl
-      tags:
-        - ssl
+      vars:
+        domain: "{{ inventory_hostname }}.{{ base_domain_name }}"
+      tags: ssl

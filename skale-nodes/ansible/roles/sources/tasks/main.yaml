@@ -18,7 +18,6 @@
     msg: ima_contracts is undefined
   when: ima_contracts is undefined
 
-
 - name: Download contracts
   get_url:
     url: "{{ manager_contracts }}"
@@ -41,6 +40,8 @@
   synchronize:
     src: "{{ transaction_manager_path }}"
     dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
   when: env is defined and env == "dev"
   tags: tm
 
@@ -48,6 +49,8 @@
   synchronize:
     src: "{{ skale_watchdog_path }}"
     dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
   when: env is defined and env == "dev"
   tags: watchdog
 
@@ -55,6 +58,8 @@
   synchronize:
     src: "{{ skale_node_path }}"
     dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
   when: env is defined and env == "dev"
   tags: skale-node
 
@@ -62,8 +67,19 @@
   synchronize:
     src: "{{ skale_node_cli_path }}"
     dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
   when: env is defined and env == "dev"
   tags: cli
+
+- name: Synchronization of bounty-agent repo
+  synchronize:
+    src: "{{ bounty_agent_path }}"
+    dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
+  when: env is defined and env == "dev"
+  tags: bounty
 
 - name: Replace skale-node docker-compose file
   template:

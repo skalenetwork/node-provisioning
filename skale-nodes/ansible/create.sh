@@ -5,7 +5,7 @@ echo "[nodes]" > inventory/hosts
 cd terraform/aws
 rm -f hosts
 rm -f terraform.tfstate.backup
-mkdir tfstate_backup
+mkdir -p tfstate_backup
 mv terraform.tfstate tfstate_backup/terraform.tfstate-$(date +"%F-%T")
 TF_VAR_NUMBER=$NODES_NUMBER terraform apply -auto-approve
 echo 'Nodes machines created'

@@ -1,32 +1,15 @@
-- name: Get all container ids
-  command: "docker ps -aq"
-  become: true
-  register: containers_output
-  tags:
-    - cleanup
+- name: Run container cleanup
+  import_tasks: containers.yaml
+  tags: contianers
 
-- name: Split containers ids output
-  register: containers_output
-  set_fact:
-    containers_ids: "{{ containers_output.stdout.split('\n') }}"
-  tags:
-    - cleanup
+- name: Run docker-lvmpy cleanup
+  import_tasks: docker_lvmpy.yaml
+  tags: docker_lvmpy
 
-- name: Destroy all containers
-  become: true
-  docker_container:
-    name: "{{ item }}"
-    state: absent
-    force_kill: yes
-  with_items: "{{ containers_ids | default([]) }}"
-  tags:
-    - cleanup
+- name: Run node artifacts cleanup
+  import_tasks: node_artifacts.yaml
+  tags: node_artifacts
 
-- name: Remove .skale directory
-  become: true
-  file:
-    path: "{{ base_path }}/.skale"
-    state: absent
-  tags:
-    - cleanup
-    - rm_dotskale
+- name: Run docker cleanup
+  import_tasks: docker.yaml
+  tags: docker

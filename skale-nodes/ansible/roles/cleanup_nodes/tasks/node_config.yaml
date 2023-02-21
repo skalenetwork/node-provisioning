@@ -1,7 +1,6 @@
-- name: Remove node_config.json file 
+- name: Remove node_config.json file
   become: true
   file:
     path: "{{ base_path }}/.skale/node_data/node_config.json"
     state: absent
-  tags:
-    - cleanup_node_config
+  tags: cleanup_node_config
