@@ -1,0 +1,43 @@
+- name: Install the latest version of nginx and jq
+  ansible.builtin.package:
+    name:
+      - nginx
+      - jq
+    state: latest
+
+- name: Create dir for metrics
+  shell: "mkdir -p {{ base_path }}/.skale_stats/data"
+
+- name: Remove default nginx conf
+  shell: "rm /etc/nginx/sites-available/default && rm /etc/nginx/sites-enabled/default"
+
+- name: Copy nginx config
+  copy:
+    src: "files/skale_stats_viewer"
+    dest: "/etc/nginx/sites-available/"
+
+- name: Launch nginx
+  shell: "ln -s /etc/nginx/sites-available/skale_stats_viewer /etc/nginx/sites-enabled/skale_stats_viewer && systemctl restart nginx"
+
+- name: Add iptables rules
+  shell: "iptables -I INPUT -p tcp -m tcp --dport 9228 -j ACCEPT"
+
+- name: Copy stats_collector script 
+  copy:
+    src: "files/stats_collector.sh"
+    dest: "{{ base_path }}/.skale_stats/"
+
+- name: Make the stats_collector script executable
+  ansible.builtin.file:
+    path: "{{ base_path }}/.skale_stats/stats_collector.sh"
+    owner: root
+    group: root
+    mode: '755'
+
+- name: Copy systemd stats_collector service 
+  copy:
+    src: "files/stats_collector.service"
+    dest: "/lib/systemd/system/"
+
+- name: Run systemd stats_collector service 
+  shell: "systemctl enable stats_collector.service && systemctl start stats_collector.service"

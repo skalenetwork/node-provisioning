@@ -9,5 +9,6 @@
     path: "{{ item }}"
   with_items:
     - "/opt/docker/lvmpy"
+    - "/opt/docker-lvmpy"
     - "/etc/docker-lvmpy"
     - "/etc/systemd/system/docker-lvmpy.service"
