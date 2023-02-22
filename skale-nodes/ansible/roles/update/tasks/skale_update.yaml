@@ -1,4 +1,4 @@
-- name: Skale sync-node update
+- name: Run skale node update
   shell:
     cmd: "skale node update {{ base_path }}/init-env --yes"
   environment:
@@ -8,7 +8,7 @@
   when: sync_node is not defined or not sync_node
   tags: skale_update
 
-- name: Skale sync node update
+- name: Run skale sync node update
   shell:
     cmd: "skale sync-node update {{ base_path }}/init-env --yes"
   environment:
