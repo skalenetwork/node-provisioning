@@ -54,7 +54,7 @@ resource "aws_ebs_volume" "attached_disk" {
   count = var.NUMBER
   availability_zone = var.zone_separation != "true" ? var.availability_zone : "${var.region}${var.zones[count.index % 3]}"
   size = var.attached_disk_size
-  volume_type = var.attached_disk_type
+  type = var.attached_disk_type
 
   tags = {
     Name = "${var.prefix}-${count.index}-attached_disk"

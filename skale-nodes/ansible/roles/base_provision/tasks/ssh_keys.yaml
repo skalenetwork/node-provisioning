@@ -1,0 +1,5 @@
+- name: Copy authorized_keys to {{ base_path }}/.ssh
+  copy:
+    src: "files/authorized_keys"
+    dest: "{{ base_path }}/.ssh"
+    # dest: "/home/vagrant/.ssh"

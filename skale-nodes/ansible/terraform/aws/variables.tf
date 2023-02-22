@@ -29,3 +29,5 @@ variable "attached_disk_size" {}
 variable "attached_disk_type" {}
 
 variable "zone_separation" {}
+
+variable "availability_zone" {}
