@@ -73,7 +73,7 @@
       MANAGER_CONTRACTS_ABI_URL={{ manager_contracts }}
       IMA_CONTRACTS_ABI_URL={{ ima_contracts }}
       DISK_MOUNTPOINT={{ block_device }}
-    when: sync_node is defined or sync_node
+  when: sync_node is defined or sync_node
 
 - name: Save new init-env
   copy:
