@@ -6,7 +6,7 @@
 - name: Define cmd for sync node
   set_fact:
     skale_cmd: "skale sync-node init {{ base_path }}/init-env"
-    when: sync_node is defined and sync_node and (archive is not defined or not archive)
+  when: sync_node is defined and sync_node and (archive is not defined or not archive)
 
 - name: Add --catchup if needed
   set_fact:
