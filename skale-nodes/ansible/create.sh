@@ -6,7 +6,8 @@ cd terraform/aws
 rm -f hosts
 rm -f terraform.tfstate.backup
 mkdir -p tfstate_backup
-mv terraform.tfstate tfstate_backup/terraform.tfstate-$(date +"%F-%T")
+mv terraform.tfstate tfstate_backup/terraform.tfstate-$(date +"%F-%T") > /dev/null 2>&1 || \
+echo "No tfstate present"
 TF_VAR_NUMBER=$NODES_NUMBER terraform apply -auto-approve
 echo 'Nodes machines created'
 sort hosts >> ../../inventory/hosts

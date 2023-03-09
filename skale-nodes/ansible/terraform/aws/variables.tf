@@ -22,8 +22,6 @@ variable "zones" {}
 
 variable "root_volume_size" {}
 
-variable "root_volume_type" {}
-
 variable "attached_disk_size" {}
 
 variable "attached_disk_type" {}
