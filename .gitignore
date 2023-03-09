@@ -1,5 +1,5 @@
 # terraform files
-**/.terraform/*
+**/.terraform*
 *.tfstate
 *.tfstate.*
 *.tfvars
