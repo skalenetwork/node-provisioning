@@ -6,22 +6,26 @@
 - name: Define cmd for sync node
   set_fact:
     skale_cmd: "skale sync-node init {{ base_path }}/init-env"
-  when: sync_node is defined and sync_node and (archive is not defined or not archive)
+  when: sync_node is defined and sync_node
 
 - name: Add --catchup if needed
   set_fact:
     skale_cmd: "{{ skale_cmd }} --catchup"
-  when: sync_node is defined and sync_node and catchup is defined and catchup
+  when: sync_node is defined and sync_node == 'True' and catchup is defined and catchup == 'True'
 
 - name: Add --archive if needed
   set_fact:
     skale_cmd: "{{ skale_cmd }} --archive"
-  when: sync_node is defined and sync_node and archive is defined and archive
+  when: sync_node is defined and sync_node == 'True' and archive is defined and archive == 'True'
 
 - name: Add --historic-state if needed
   set_fact:
     skale_cmd: "{{ skale_cmd }} --historic-state"
-  when: sync_node is defined and sync_node and historic_state is defined and historic_state
+  when: sync_node is defined and sync_node == 'True' and historic_state is defined and historic_state == 'True'
+
+- name: Show skale_cmd
+  debug:
+    msg: "{{ skale_cmd }}"
 
 - name: Execute skale_cmd
   command:

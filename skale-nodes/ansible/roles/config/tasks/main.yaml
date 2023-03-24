@@ -37,11 +37,11 @@
 - name: Set sgx url
   set_fact:
     sgx_url: "https://{{ hostvars['sgx0'].ansible_host }}:1026"
-  when: sgx_url is not defined or not sgx_url
+  when: sgx_url is not defined or sgx_url == ''
 
 - name: Set env options
   set_fact:
-    env_options: >-
+    env_options: |
       ENDPOINT="{{ endpoint }}"
       IMA_ENDPOINT="{{ ima_endpoint }}"
       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
@@ -58,7 +58,8 @@
       DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
       ENV_TYPE="{{ env_type }}"
       DISABLE_IMA="{{ disable_ima }}"
-  when: sync_node is not defined or not sync_node
+
+  when: sync_node is not defined or sync_node != True
   tags: env
 
 - name: Set env options sync node
@@ -73,7 +74,11 @@
       MANAGER_CONTRACTS_ABI_URL={{ manager_contracts }}
       IMA_CONTRACTS_ABI_URL={{ ima_contracts }}
       DISK_MOUNTPOINT={{ block_device }}
-  when: sync_node is defined or sync_node
+  when: sync_node is defined and sync_node == True
+
+- name: Show env
+  debug:
+    msg: "{{ env_options }}"
 
 - name: Save new init-env
   copy:
