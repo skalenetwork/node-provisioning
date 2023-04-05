@@ -6,6 +6,6 @@
     NUM_OF_VMS: "{{ num_of_vms }}"
     SUBNET: "{{ subnet }}"
     BASE_IP: "{{ base_ip }}"
-    SSH_USER: "{{ ssh_user }}"
+    SSH_USER: "{{ vm_ssh_user }}"
   args:
     executable: python3

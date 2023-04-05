@@ -1,3 +1,17 @@
+- name: Install dependencies
+  apt: name="{{ item }}" state=latest update_cache=yes force_apt_get=yes
+  loop: ["virtualbox", "vagrant"]
+  become: true
+  tags: apt
+
+- name: Blacklist kvm
+  lineinfile:
+    path: /etc/modprobe.d/blacklist.conf
+    state: present
+    insertafter: EOF
+    line: "blacklist kvm-intel"
+  become: true
+
 - name: Synchronization of vagrant folder
   synchronize:
     src: "{{ inventory_dir }}/../../vagrant"
@@ -18,7 +32,8 @@
     BASE_IP: "{{ base_ip }}"
     RAM_SIZE: "{{ ram_size }}"
     VM_BASE_NAME: "{{ vm_base_name }}"
-  become: yes
+    VAGRANT_DEFAULT_PROVIDER: virtualbox
+    VAGRANT_EXPERIMENTAL: disks
   command:
     chdir: "{{ base_path }}/vagrant/"
     cmd: "vagrant destroy -f"
@@ -62,6 +77,25 @@
   tags: destroy
   when: ansible_facts.services['restart_vm'] is defined
 
+- name: Set env options sync node
+  set_fact:
+    env_options: |
+      NUM_OF_VMS="{{ num_of_vms }}"
+      BASE_PATH="{{ base_path }}"
+      SUBNET="{{ subnet }}"
+      DISK_SIZE="{{ disk_size }}"
+      BASE_IP="{{ base_ip }}"
+      RAM_SIZE="{{ ram_size }}"
+      CPUS="{{ cpus }}"
+      VM_BASE_NAME="{{ vm_base_name }}"
+      VAGRANT_DEFAULT_PROVIDER=virtualbox
+      VAGRANT_EXPERIMENTAL=disks
+
+- name: Save .env file
+  copy:
+    content: "{{ env_options }}"
+    dest: "{{ base_path }}/vagrant/.env"
+
 - name:  Vagrant up
   environment:
     NUM_OF_VMS: "{{ num_of_vms }}"
@@ -72,8 +106,9 @@
     RAM_SIZE: "{{ ram_size }}"
     CPUS: "{{ cpus }}"
     VM_BASE_NAME: "{{ vm_base_name }}"
-  become: yes
+    VAGRANT_DEFAULT_PROVIDER: virtualbox
+    VAGRANT_EXPERIMENTAL: disks
   command:
     chdir: "{{ base_path }}/vagrant/"
-    cmd: "vagrant up"
+    cmd: "vagrant up --provider=virtualbox"
   tags: up

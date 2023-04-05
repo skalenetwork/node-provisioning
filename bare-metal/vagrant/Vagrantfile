@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'fileutils'
+
 
 def number_or_nil(string)
   Integer(string || '')
@@ -22,8 +24,11 @@ BASE_IP = number_or_nil(ENV['BASE_IP'])
 
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-    config.vm.box = "hashicorp/bionic64"
-    (1..NUM_OF_VMS).each do |i|
+    config.vm.box = "ubuntu/focal64"
+    config.vm.disk :disk, size: "100GB", primary: true
+    config.vm.disk :disk, size: "10GB", name: "datadir"
+
+    (0..NUM_OF_VMS - 1).each do |i|
         config.vm.define "node-#{i}" do |node|
             node.vm.network "public_network", bridge: "eno1", ip: "#{SUBNET}.#{BASE_IP+i}"
             node.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true, bridge: "eno1"
@@ -49,20 +54,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                   exit 0
                 SHELL
             end
-            file_for_disk = "./large_disk#{i}.vdi"
             node.vm.provider "virtualbox" do |v|
               v.memory = RAM_SIZE
               v.cpus = CPUS
               v.name = "#{VM_BASE_NAME}-#{i}"
               v.gui = false
-              unless File.exist?(file_for_disk)
-                   v.customize ['createhd', 
-                                '--filename', file_for_disk, 
-                                '--size', DISK_SIZE * 1024]
-                   v.customize ['storageattach', :id, 
-                                '--storagectl', 'SATA Controller', 
-                                '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_for_disk]
-              end
            end
        end
     end
