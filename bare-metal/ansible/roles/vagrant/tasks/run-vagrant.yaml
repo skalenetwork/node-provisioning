@@ -12,6 +12,39 @@
     line: "blacklist kvm-intel"
   become: true
 
+- name: Set datadir base folder
+  set_fact:
+    disk_dir="{{ base_path }}/disks"
+  tags:
+    - setup
+    - destroy
+    - mount
+
+- name: Ensure base dir and disk dir
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop: ["{{ base_path }}", "{{ disk_dir }}"]
+
+- name: Mount block device
+  mount:
+    path: "{{ disk_dir }}"
+    src: "{{ block_device }}"
+    opts: "rw"
+    state: mounted
+    fstype: ext4
+  become: true
+  when: block_device is defined
+  tags: mount
+
+- name: Switch user
+  file:
+    owner: s3
+    group: s3
+    path: "{{ disk_dir }}"
+  become: true
+  tags: mount
+
 - name: Synchronization of vagrant folder
   synchronize:
     src: "{{ inventory_dir }}/../../vagrant"
@@ -31,9 +64,11 @@
     DISK_SIZE: "{{ disk_size }}"
     BASE_IP: "{{ base_ip }}"
     RAM_SIZE: "{{ ram_size }}"
+    CPUS: "{{ cpus }}"
     VM_BASE_NAME: "{{ vm_base_name }}"
     VAGRANT_DEFAULT_PROVIDER: virtualbox
     VAGRANT_EXPERIMENTAL: disks
+    BASE_DISK_PATH: "{{ disk_dir }}"
   command:
     chdir: "{{ base_path }}/vagrant/"
     cmd: "vagrant destroy -f"
@@ -90,6 +125,7 @@
       VM_BASE_NAME="{{ vm_base_name }}"
       VAGRANT_DEFAULT_PROVIDER=virtualbox
       VAGRANT_EXPERIMENTAL=disks
+      BASE_DISK_PATH="{{ disk_dir }}"
 
 - name: Save .env file
   copy:
@@ -108,6 +144,7 @@
     VM_BASE_NAME: "{{ vm_base_name }}"
     VAGRANT_DEFAULT_PROVIDER: virtualbox
     VAGRANT_EXPERIMENTAL: disks
+    BASE_DISK_PATH: "{{ disk_dir }}"
   command:
     chdir: "{{ base_path }}/vagrant/"
     cmd: "vagrant up --provider=virtualbox"
