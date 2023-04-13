@@ -32,7 +32,7 @@ VAGRANT_CONTROLLER_NAME = "SCSI"
 VAGRANT_CONTROLLER_TYPE = "virtio-scsi"
 
 ext_disks = [
-  { :filename => "datadir", :size => 10, :port => 6 }
+  { :filename => "datadir", :size => DISK_SIZE, :port => 6 }
 ]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -58,9 +58,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
 
         config.vm.define "#{VM_BASE_NAME}-#{i}" do |node|
-            node.vm.disk :disk, size: "45GB", primary: true
-            node.vm.network "public_network", bridge: "eno1", ip: "#{SUBNET}.#{BASE_IP+i}"
-            node.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true, bridge: "eno1"
+            node.vm.disk :disk, size: "100GB", primary: true
+            node.vm.network "public_network", bridge: "eno2", ip: "#{SUBNET}.#{BASE_IP+i}"
+            # node.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true, bridge: "eno2"
             node.vm.provision "shell" do |s|
                 ssh_pub_key = ""
                 if File.file?(PUB_KEY_PATH)
@@ -112,22 +112,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 end
               end
             end
-       end
-       config.trigger.after :destroy do |trigger|
-         trigger.name = "Cleanup operation"
-         trigger.ruby do
-           ext_disks.each do |disk|
-             disk_path = File.join(disk_dir, "#{disk[:filename]}-#{i}.vdi")
-              puts "Deleting #{disk_path} here"
-             if File.exist?(disk_path)
-               puts "Deleting \"#{disk[:filename]}\" disk"
-               system("vboxmanage closemedium disk #{disk_path} --delete")
-             end
-           end
-           if File.exist?(disk_dir)
-             FileUtils.rmdir(disk_dir)
-           end
-         end
+
+            node.trigger.after :destroy do |trigger|
+              trigger.name = "Cleanup operation"
+              trigger.ruby do
+                ext_disks.each do |disk|
+                  disk_path = File.join(disk_dir, "#{disk[:filename]}-#{i}.vdi")
+                   puts "Deleting #{disk_path} here"
+                  if File.exist?(disk_path)
+                    puts "Deleting \"#{disk[:filename]}\" disk"
+                    system("vboxmanage closemedium disk #{disk_path} --delete")
+                  end
+                end
+                if File.exist?(disk_dir)
+                  FileUtils.rmdir(disk_dir)
+                end
+              end
+            end
        end
     end
 end

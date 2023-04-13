@@ -7,5 +7,6 @@
     SUBNET: "{{ subnet }}"
     BASE_IP: "{{ base_ip }}"
     SSH_USER: "{{ vm_ssh_user }}"
+    VM_BASE_NAME: "{{ vm_base_name }}"
   args:
     executable: python3
