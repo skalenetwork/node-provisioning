@@ -1,0 +1,11 @@
+server {
+    listen 0.0.0.0:9228;
+    server_name skaleStats;
+    index metrics;
+    location / {
+        root /var/www/html;
+    }
+    location /metrics {
+        root /var/www/html;
+    }
+}

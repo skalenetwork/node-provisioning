@@ -54,7 +54,7 @@ resource "aws_ebs_volume" "attached_disk" {
   count = var.NUMBER
   availability_zone = var.zone_separation != "true" ? var.availability_zone : "${var.region}${var.zones[count.index % 3]}"
   size = var.attached_disk_size
-  volume_type = var.attached_disk_type
+  type = var.attached_disk_type
 
   tags = {
     Name = "${var.prefix}-${count.index}-attached_disk"
@@ -74,7 +74,6 @@ resource "aws_spot_instance_request" "node" {
 
   root_block_device {
     volume_size = var.root_volume_size
-    volume_type = var.root_volume_type
   }
 
   tags = {
@@ -95,7 +94,6 @@ resource "aws_instance" "node" {
 
   root_block_device {
     volume_size = var.root_volume_size
-    volume_type = var.root_volume_type
   }
 
   tags = {
@@ -169,6 +167,27 @@ resource "aws_security_group" "security_group" {
   ingress {
     from_port   = 3009
     to_port     = 3009
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 9228
+    to_port     = 9228
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 9144
+    to_port     = 9144
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 9256
+    to_port     = 9256
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
