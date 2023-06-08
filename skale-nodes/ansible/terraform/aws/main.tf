@@ -31,12 +31,12 @@ data "aws_ami" "ubuntu" {
 resource "aws_volume_attachment" "ebs_att" {
   count = var.NUMBER
   device_name = "/dev/sdd"
-  volume_id   = aws_ebs_volume.lvm_volume[count.index].id
+  volume_id   = aws_ebs_volume.attached_disk[count.index].id
   instance_id = var.spot_instance ? aws_spot_instance_request.node[count.index].spot_instance_id : aws_instance.node[count.index].id
 
   provisioner "remote-exec" {
     inline = [
-      "export VOLUME_SIZE=${var.lvm_volume_size}",
+      "export VOLUME_SIZE=${var.attached_disk_size}",
       "echo /dev/`lsblk -do NAME,SIZE | grep $VOLUME_SIZE | cut -d ' ' -f 1` | sudo tee /root/lvm-block-device",
     ]
     connection {
@@ -50,13 +50,14 @@ resource "aws_volume_attachment" "ebs_att" {
 
 }
 
-resource "aws_ebs_volume" "lvm_volume" {
+resource "aws_ebs_volume" "attached_disk" {
   count = var.NUMBER
-  availability_zone = var.availability_zone
-  size = var.lvm_volume_size
+  availability_zone = var.zone_separation != "true" ? var.availability_zone : "${var.region}${var.zones[count.index % 3]}"
+  size = var.attached_disk_size
+  volume_type = var.attached_disk_type
 
   tags = {
-    Name = "${var.prefix}-${count.index}-lvm-volume"
+    Name = "${var.prefix}-${count.index}-attached_disk"
   }
 }
 
@@ -66,13 +67,14 @@ resource "aws_spot_instance_request" "node" {
   spot_price    = var.spot_price[var.instance_type]
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  availability_zone = var.availability_zone
+  availability_zone = var.zone_separation != "true" ? var.availability_zone : "${var.region}${var.zones[count.index % 3]}"
   wait_for_fulfillment = true
   vpc_security_group_ids = [aws_security_group.security_group.id]
   key_name = var.key_name
 
   root_block_device {
     volume_size = var.root_volume_size
+    volume_type = var.root_volume_type
   }
 
   tags = {
@@ -87,12 +89,13 @@ resource "aws_instance" "node" {
   count = !var.spot_instance ? var.NUMBER : 0
   ami   = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
-  availability_zone = var.availability_zone
+  availability_zone = var.zone_separation != "true" ? var.availability_zone : "${var.region}${var.zones[count.index % 3]}"
   key_name = var.key_name
   vpc_security_group_ids = [aws_security_group.security_group.id]
 
   root_block_device {
     volume_size = var.root_volume_size
+    volume_type = var.root_volume_type
   }
 
   tags = {
@@ -138,6 +141,13 @@ resource "aws_security_group" "security_group" {
   ingress {
     from_port   = 10000
     to_port     = 12000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

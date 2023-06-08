@@ -1,0 +1,8 @@
+- name: Ensure base SSL dir
+  file:
+    state: directory
+    path: "{{ base_path }}/ssl/{{ inventory_hostname }}"
+    recurse: yes
+
+- name: Copy SSL certs
+  copy: src="{{ ssl_src }}/" dest="{{ base_path }}/ssl/{{ inventory_hostname }}/"

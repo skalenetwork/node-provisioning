@@ -1,0 +1,61 @@
+- name: Get all container ids
+  command: "docker ps -aq"
+  become: true
+  register: containers_output
+
+- name: Split containers ids output
+  register: containers_output
+  set_fact:
+    containers_ids: "{{ containers_output.stdout.split('\n') }}"
+
+- name: Destroy admin container
+  become: true
+  docker_container:
+    name: "skale_admin"
+    state: absent
+    force_kill: yes
+    keep_volumes: no
+  tags: admin
+
+- name: Destroy all containers
+  become: true
+  docker_container:
+    name: "{{ item }}"
+    state: absent
+    force_kill: yes
+    keep_volumes: no
+  with_items: "{{ containers_ids | default([]) }}"
+
+- name: Prune docker
+  command:
+    cmd: "docker system prune -af"
+
+- name: Umount shared-space
+  command:
+    cmd: "umount /mnt/schains-shared-space"
+  failed_when: False
+  tags: umount
+
+- name: Register /mnt folders
+  find:
+    paths: "/mnt/"
+    file_type: any
+  register: mnt_folders
+  tags:
+    - mounts
+
+- name: Cleanup /mnt dir
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ mnt_folders.files }}"
+  tags:
+    - mounts
+
+- name: Remove all data-dir volumes
+  lvg:
+    vg: "schains"
+    state: absent
+    force: yes
+  tags:
+    - lvm_artifacts

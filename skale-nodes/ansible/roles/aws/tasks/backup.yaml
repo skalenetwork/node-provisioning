@@ -1,0 +1,64 @@
+- name: Get instance information
+  amazon.aws.ec2_instance_info:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    filters:
+      "network-interface.association.public-ip": "{{ ip_address }}"
+  register: instance_info
+  delegate_to: 127.0.0.1
+
+- name: Set instance id
+  set_fact:
+    instance_id: "{{ instance_info.instances[0].instance_id }}"
+  delegate_to: 127.0.0.1
+
+- name: Stop instance
+  amazon.aws.ec2_instance:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    instance_ids: "{{ instance_id }}"
+    state: stopped
+  register: instance_info
+  delegate_to: 127.0.0.1
+
+- name: Create AMI based on instance
+  amazon.aws.ec2_ami:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    instance_id: "{{ instance_id }}"
+    wait: no
+    name: "{{ ip_address }}-ami-{{ ansible_date_time.epoch }}"
+  register: ami_info
+  delegate_to: 127.0.0.1
+
+- name: Set instance id
+  set_fact:
+    ami_id: "{{ ami_info.image_id }}"
+  delegate_to: 127.0.0.1
+
+- name: Restart instance
+  amazon.aws.ec2_instance:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    instance_ids: "{{ instance_id }}"
+    state: started
+  delegate_to: 127.0.0.1
+
+- name: Ensure backup dir
+  file:
+    state: directory
+    dest: "files/node-backup/{{ ip_address }}"
+  delegate_to: 127.0.0.1
+
+- name: Dump the ami config
+  copy:
+    dest: "files/node-backup/{{ ip_address }}/aws_info"
+    content: |
+      instance_id: {{ instance_id }}
+      ami_id: {{ ami_id }}
+      public_ip: {{ ip_address }}
+  delegate_to: 127.0.0.1

@@ -1,0 +1,48 @@
+- name: Get instance information
+  amazon.aws.ec2_instance_info:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    filters:
+      "network-interface.association.public-ip": "{{ ip_address }}"
+  register: ec2_info
+  delegate_to: 127.0.0.1
+  tags:
+    - ec2
+    - ebs
+
+- name: Set instance id
+  set_fact:
+    instance_id: "{{ ec2_info.instances[0].instance_id }}"
+  tags: ec2
+
+- name: Set volume id
+  set_fact:
+    volume_id: "{{ ec2_info.instances[0].block_device_mappings[1].ebs.volume_id }}"
+  delegate_to: 127.0.0.1
+  tags: ebs
+
+- name: Remove instance
+  amazon.aws.ec2_instance:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    instance_ids: "{{ instance_id }}"
+    state: absent
+    wait: yes
+  delegate_to: 127.0.0.1
+  tags: ec2
+
+- name: Remove volume
+  amazon.aws.ec2_vol:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    id: "{{ volume_id }}"
+    state: absent
+  delegate_to: 127.0.0.1
+  tags: ebs
+
+- name: Pause to wait for the instances to be deprovisioned
+  ansible.builtin.pause:
+    minutes: 2

@@ -67,7 +67,7 @@ services:
       ALLOWED_TS_DIFF: 10000
     command: "python3 admin.py"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
     healthcheck:
@@ -116,7 +116,7 @@ services:
       ALLOWED_TS_DIFF: 10000
     command: "gunicorn app:app -c gunicorn.conf.py"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
     depends_on:
@@ -125,20 +125,24 @@ services:
   celery:
     <<: *skale_base
     container_name: celery
-    image: skalenetwork/admin:1.1.0-beta.33
+    image: "skale-admin:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/skale-admin"
+      dockerfile: Dockerfile
     network_mode: host
     tty: true
     environment:
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
+      SKALE_DIR_HOST: ${SKALE_DIR}
     command: "celery -A tools.notifications.tasks worker --loglevel=info"
 
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/skale:/var/run/skale
 
   redis:
     <<: *skale_base
-    container_name: redis
+    container_name: skale_redis
     image: "redis:6.0.10-alpine"
     network_mode: host
     tty: true
@@ -146,7 +150,6 @@ services:
       - REDIS_REPLICATION_MODE=master
     command: "redis-server /data/redis.conf"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - ${SKALE_DIR}/node_data/redis-data:/data/db:rw
       - ${SKALE_DIR}/config/redis.conf:/data/redis.conf
 
@@ -168,10 +171,14 @@ services:
   bounty:
     <<: *skale_base
     container_name: skale_bounty
-    image: skalenetwork/bounty-agent:1.1.1-beta.3
+    image: "bounty-agent:${TAG:-latest}"
+    build:
+      context: "{{ base_path }}/bounty-agent"
+      dockerfile: Dockerfile
     network_mode: host
     environment:
-      TM_URL: http://127.0.0.1:3008
+      SGX_SERVER_URL: ${SGX_SERVER_URL}
+      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
       ENDPOINT: ${ENDPOINT}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -180,6 +187,7 @@ services:
       DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
+      ALLOWED_TS_DIFF: 10000
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -227,7 +235,6 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
 
   node-exporter:
@@ -256,4 +263,4 @@ services:
     volumes:
       - ${SKALE_DIR}/node_data/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker:/var/lib/docker:ro
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/skale:/var/run/skale

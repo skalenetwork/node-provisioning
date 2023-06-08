@@ -6,7 +6,7 @@
 
 - name: Register swap_file_size (double RAM)
   set_fact:
-    swap_file_size: "{{ (ansible_memtotal_mb * 1024 * 1024 * 1.5) | int | abs }}"
+    swap_file_size: "{{ (ansible_memtotal_mb * 1024 * 1024 * 0.5) | int | abs }}"
   tags:
     - swap_var
 

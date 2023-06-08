@@ -1,0 +1,6 @@
+process_names:
+  - exe:
+    - skaled
+    cmdline:
+    - --ws-port (?P<wsPort>\d+)
+    name: "{{.ExeBase}}:{{.Matches.wsPort}}"

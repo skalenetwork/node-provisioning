@@ -1,5 +1,5 @@
 - name: Upload authorized_keys to the nodes
-  hosts: nodes
+  hosts: nodes,sgx
   become: true
   roles:
     - role: authorized_keys
