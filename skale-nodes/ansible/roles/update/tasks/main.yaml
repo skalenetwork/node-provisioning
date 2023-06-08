@@ -2,10 +2,5 @@
   import_tasks: config.yaml
   when: env is defined and env == "dev"
 
-- name: Update resource_allocation
-  import_tasks: resource_allocation.yaml
-  when: env is defined and env == "dev"
-
-
 - name: Skale node update
   import_tasks: skale_update.yaml

@@ -1,0 +1,59 @@
+- name: Synchronization of skale-admin repo
+  synchronize:
+    src: "{{ skale_admin_path }}"
+    dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
+  when: env is defined and env == "dev"
+  tags: admin
+
+- name: Synchronization of transaction-manager repo
+  synchronize:
+    src: "{{ transaction_manager_path }}"
+    dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
+  when: env is defined and env == "dev"
+  tags: tm
+
+- name: Synchronization of skale-watchdog repo
+  synchronize:
+    src: "{{ skale_watchdog_path }}"
+    dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
+  when: env is defined and env == "dev"
+  tags: watchdog
+
+- name: Synchronization of skale-node repo
+  synchronize:
+    src: "{{ skale_node_path }}"
+    dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
+  when: env is defined and env == "dev"
+  tags: skale-node
+
+- name: Synchronization of node-cli repo
+  synchronize:
+    src: "{{ skale_node_cli_path }}"
+    dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
+  when: env is defined and env == "dev"
+  tags: cli
+
+- name: Synchronization of bounty-agent repo
+  synchronize:
+    src: "{{ bounty_agent_path }}"
+    dest: "{{ base_path }}"
+    delete: yes
+    recursive: yes
+  when: env is defined and env == "dev"
+  tags: bounty
+
+- name: Replace skale-node docker-compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ base_path }}/skale-node/docker-compose.yml"
+  when: env is defined and env == "dev"

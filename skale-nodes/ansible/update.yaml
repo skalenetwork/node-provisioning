@@ -2,8 +2,12 @@
   hosts: nodes
   become: true
   roles:
-    - role: sources
-      tags: source
+    - role: sync
+      when: env is defined and env == "dev"
+      tags: sync
+
+    - role: config
+      tags: config
 
     - role: update
       tags: update
