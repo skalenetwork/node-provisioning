@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'fileutils'
+
 
 def number_or_nil(string)
   Integer(string || '')
@@ -19,14 +21,46 @@ RAM_SIZE = number_or_nil(ENV['RAM_SIZE'])
 CPUS = number_or_nil(ENV['CPUS'])
 VM_BASE_NAME = ENV['VM_BASE_NAME']
 BASE_IP = number_or_nil(ENV['BASE_IP'])
+BASE_DISK_PATH = ENV['BASE_DISK_PATH']
 
+
+VAGRANT_ROOT = File.dirname(File.expand_path(__FILE__))
+
+VAGRANT_DISKS_DIRECTORY = "disks"
+
+VAGRANT_CONTROLLER_NAME = "SCSI"
+VAGRANT_CONTROLLER_TYPE = "virtio-scsi"
+
+ext_disks = [
+  { :filename => "datadir", :size => DISK_SIZE, :port => 6 }
+]
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-    config.vm.box = "hashicorp/bionic64"
-    (1..NUM_OF_VMS).each do |i|
-        config.vm.define "node-#{i}" do |node|
-            node.vm.network "public_network", bridge: "eno1", ip: "#{SUBNET}.#{BASE_IP+i}"
-            node.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true, bridge: "eno1"
+    config.vm.box = "ubuntu/focal64"
+    (0..NUM_OF_VMS - 1).each do |i|
+
+        disk_dir = File.join("#{BASE_DISK_PATH}", "disks-#{i}")
+
+        config.trigger.before :up do |trigger|
+          trigger.name = "Create disks"
+          trigger.ruby do
+            unless File.directory?(disk_dir)
+              FileUtils.mkdir_p(disk_dir)
+            end
+            ext_disks.each do |disk|
+              disk_path = File.join(disk_dir, "#{disk[:filename]}-#{i}.vdi")
+              unless File.exist?(disk_path)
+                puts "Creating \"#{disk[:filename]}\" disk"
+                system("vboxmanage createmedium --filename #{disk_path} --size #{disk[:size] * 1024} --format VDI")
+              end
+            end
+          end
+        end
+
+        config.vm.define "#{VM_BASE_NAME}-#{i}" do |node|
+            node.vm.disk :disk, size: "100GB", primary: true
+            node.vm.network "public_network", bridge: "eno2", ip: "#{SUBNET}.#{BASE_IP+i}"
+            # node.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", id: "ssh", auto_correct: true, bridge: "eno2"
             node.vm.provision "shell" do |s|
                 ssh_pub_key = ""
                 if File.file?(PUB_KEY_PATH)
@@ -49,21 +83,52 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                   exit 0
                 SHELL
             end
-            file_for_disk = "./large_disk#{i}.vdi"
             node.vm.provider "virtualbox" do |v|
               v.memory = RAM_SIZE
               v.cpus = CPUS
               v.name = "#{VM_BASE_NAME}-#{i}"
               v.gui = false
-              unless File.exist?(file_for_disk)
-                   v.customize ['createhd', 
-                                '--filename', file_for_disk, 
-                                '--size', DISK_SIZE * 1024]
-                   v.customize ['storageattach', :id, 
-                                '--storagectl', 'SATA Controller', 
-                                '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_for_disk]
+               
+              # unless File.directory?(disk_dir)
+              #     v.customize [
+              #       "storagectl", :id, 
+              #       "--name", VAGRANT_CONTROLLER_NAME, 
+              #       "--add", VAGRANT_CONTROLLER_TYPE, 
+              #       "--hostiocache", "off"
+              #     ]
+              # end
+
+              ext_disks.each do |disk|
+                disk_path = File.join(disk_dir, "#{disk[:filename]}-#{i}.vdi")
+                unless File.exist?(disk_path)
+                  v.customize [
+                    'storageattach', :id, 
+                    '--storagectl', VAGRANT_CONTROLLER_NAME, 
+                    '--port', disk[:port], 
+                    '--device', 0, 
+                    '--type', 'hdd', 
+                    '--medium', disk_path
+                  ]
+                end
               end
-           end
+            end
+
+            node.trigger.after :destroy do |trigger|
+              trigger.name = "Cleanup operation"
+              trigger.ruby do
+                ext_disks.each do |disk|
+                  disk_path = File.join(disk_dir, "#{disk[:filename]}-#{i}.vdi")
+                   puts "Deleting #{disk_path} here"
+                  if File.exist?(disk_path)
+                    puts "Deleting \"#{disk[:filename]}\" disk"
+                    system("vboxmanage closemedium disk #{disk_path} --delete")
+                  end
+                end
+                if File.exist?(disk_dir)
+                  FileUtils.rmdir(disk_dir)
+                end
+              end
+            end
        end
     end
 end
