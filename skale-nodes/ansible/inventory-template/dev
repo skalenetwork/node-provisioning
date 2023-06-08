@@ -27,6 +27,8 @@ tg_chat_id=''
 monitoring_containers=''
 base_domain_name=''
 env_type=''
+sgx_version=''
+cert_mode='certbot/custom'
 
 ## dev variables (skip if env=test)
 
@@ -37,6 +39,9 @@ skale_node_cli_path=''
 
 
 # optional parameters
+
+email=
+do_token=
 
 ## skale-node
 
@@ -49,3 +54,7 @@ deploy_gas_price='2000000000' # 2 gwei
 
 aws_key=''
 aws_secret=''
+aws_region=''
+aws_keyname=''
+aws_instance_type=''
+aws_security_group=''

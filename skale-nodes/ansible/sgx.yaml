@@ -1,0 +1,8 @@
+- name: Setup sgx
+  hosts: sgx
+  become: true
+  roles:
+    - role: sgx
+      tags:
+        - sgx
+      when: sgx_version is defined

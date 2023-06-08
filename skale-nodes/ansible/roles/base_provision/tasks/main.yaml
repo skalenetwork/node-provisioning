@@ -1,5 +1,10 @@
-- name: Install aptitude
-  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
+- name: Add ssh keys
+  authorized_key:
+    user: ubuntu
+    state: present
+    key: "{{ lookup('file', '{{ item }}') }}"
+  with_fileglob: "ssh-keys/*"
+  tags: ssh
 
 - import_tasks: swap.yaml
   tags: swap
@@ -20,9 +25,6 @@
     value: "1000000000"
   tags: ulimits
 
-- name: Install aptitude
-  apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
-
 - name: Install packages
   apt: name={{ item }} update_cache=yes state=latest
   loop: [
@@ -30,46 +32,49 @@
     "ca-certificates",
     "curl",
     "software-properties-common",
-    "python3-pip",
     "virtualenv",
     "python3-setuptools",
     "python3-dev",
-    "iptables-persistent"
+    "iptables-persistent",
+    "python3-pip"
     ]
   tags: apt
+
+- import_tasks: docker.yaml
+  tags: docker
 
 - name: Update pip
   pip:
     name: pip
     state: latest
 
-- import_tasks: docker.yaml
-  tags:
-    docker
-
-- name: Install docker.py
+- name: Uninstall pyOpenSSL
   pip:
-    name: docker==4.2.0
-  tags:
-    pip
-
-- name: Install docker-compose
-  pip:
-    name: docker-compose==1.27.4
+    name: pyOpenSSL
+    state: absent
   tags:
     - pip
-    - docker-compose
+    - openssl
 
-- name: Add ssh keys
-  authorized_key:
-    user: ubuntu
-    state: present
-    key: "{{ lookup('file', '{{ item }}') }}"
+- name: Sync requirements to remote machine
+  copy:
+    src: files/remote-requirements.txt
+    dest: "{{ base_path }}/requirements.txt"
+  tags: pip
 
-  with_fileglob: "ssh-keys/*"
-  tags:
-    ssh
+- name: Install requirements
+  pip:
+    requirements: "{{ base_path }}/requirements.txt"
+  tags: pip
 
-- name: Sync time on host
+- name: Enable timedatectl
   shell: sudo timedatectl set-ntp on
   become: true
+  tags: ntp
+
+- name: Enable timesyncd service
+  systemd:
+    name: systemd-timesyncd
+    state: started
+  become: true
+  tags: ntp

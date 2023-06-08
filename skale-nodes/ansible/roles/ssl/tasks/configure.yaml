@@ -1,0 +1,17 @@
+- name: Set ssl folder
+  set_fact:
+    host_ssl: "{{ base_path }}/ssl/{{ inventory_hostname }}"
+
+- name: Upload SSL certificates to the node
+  command: "skale ssl upload -c {{ host_ssl }}/fullchain.pem -k {{ host_ssl }}/privkey.pem -f"
+  environment:
+    LC_ALL: "C.UTF-8"
+    LANG: "C.UTF-8"
+
+- name: Set domain name
+  command: "sudo skale node set-domain -d {{ domain }} --yes"
+  environment:
+    LC_ALL: "C.UTF-8"
+    LANG: "C.UTF-8"
+  tags:
+    domain

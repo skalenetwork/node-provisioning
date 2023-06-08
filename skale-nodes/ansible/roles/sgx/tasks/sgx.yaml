@@ -1,0 +1,50 @@
+- name: Save public ports
+  set_fact:
+    ports: ["1026", "1027", "1028", "1029", "1031"]
+
+- name: Save node ips
+  set_fact:
+    node_ips: "{{ node_ips|default([]) + [hostvars[item].ansible_host] }}"
+  loop: "{{ query('inventory_hostnames', 'nodes') }}"
+
+- name: show all the node hostnames
+  debug:
+    msg: "{{ node_ips }}"
+
+- name: Allow connection through essential sgx ports
+  ansible.builtin.iptables:
+    chain: INPUT
+    action: insert
+    protocol: tcp
+    destination_port: "{{ item.0 }}"
+    src_range: "{{ item.1 }}-{{ item.1 }}"
+    ctstate: NEW
+    syn: match
+    jump: ACCEPT
+    comment: "Allow SGX ports"
+  loop: "{{ ports|product(node_ips)|list }}"
+
+
+- name: Run/restart sgx container
+  community.docker.docker_container:
+    name: sgx
+    image: "skalenetwork/sgxwallet_release:{{ sgx_version }}"
+    container_default_behavior: compatibility
+    state: started
+    restart: yes
+    network_mode: host
+    restart_policy: unless-stopped
+    volumes:
+      - "{{ base_path }}/sgx-data:/usr/src/sdk/sgx_data"
+      - "/dev/urandom:/dev/random"
+    command: -s -y -d -e
+    log_driver: json-file
+    log_opt:
+        max-size: "10m"
+        max-file: "4"
+    devices:
+      - "/dev/isgx"
+    healthcheck:
+      test: ["CMD", "ls", "/dev/isgx"]
+  tags:
+    - sgx_container

@@ -1,0 +1,17 @@
+- name: Install Certbot
+  package: "name=certbot state=present"
+
+- name: Install Certbot
+  package: "name=python3-certbot-dns-digitalocean state=present"
+
+- name: Check if /usr/bin/certbot exists
+  stat:
+    path: /usr/bin/certbot
+  register: usr_bin_path
+
+- name: Add link in /usr/bin
+  file:
+    state: link
+    src: /usr/local/bin/certbot
+    dest: /usr/bin/certbot
+  when: not usr_bin_path.stat.exists

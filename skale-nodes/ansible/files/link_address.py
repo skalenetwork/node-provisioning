@@ -21,11 +21,16 @@ def main():
     print(ADDRESS)
     print(SIGNATURE)
     checksum_address = to_checksum_address(ADDRESS)
-    skale.validator_service.link_node_address(
-        node_address=checksum_address,
-        signature=SIGNATURE,
-        gas_price=skale.web3.eth.gasPrice * 60
+    validator_address = skale.wallet.address
+    linked = skale.validator_service.get_linked_addresses_by_validator_address(
+        validator_address
     )
+    if checksum_address not in linked:
+        skale.validator_service.link_node_address(
+            node_address=checksum_address,
+            signature=SIGNATURE,
+            gas_price=skale.web3.eth.gasPrice * 2
+        )
 
 
 if __name__ == '__main__':

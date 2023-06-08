@@ -1,0 +1,33 @@
+- name: Get sgx container status
+  command:
+    cmd: "docker ps -a --filter name=sgx"
+  register: sgx_status
+  tags: deb
+
+- debug:
+    msg: "{{ sgx_status.stdout_lines }}"
+  tags: deb
+
+- name: Cleanup sgx folder
+  file:
+    state: absent
+    path: "{{ base_path }}/sgx-data"
+  tags:
+    - sgx
+    - cleanup
+  when: cleanup is defined and cleanup
+
+
+- name: Create sgx folder
+  file:
+    state: directory
+    path: "{{ base_path }}/sgx-data"
+  tags: sgx
+
+- import_tasks: sgx_sim.yaml
+  tags: sgx_container
+  when: sgx_simulator is defined and sgx_simulator
+
+- import_tasks: sgx.yaml
+  tags: sgx_container
+  when: sgx_simulator is not defined or not sgx_simulator

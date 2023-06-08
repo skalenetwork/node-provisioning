@@ -1,0 +1,28 @@
+- name: Retrieve domain
+  community.digitalocean.digital_ocean_domain_record_info:
+    state: present
+    domain: "{{ base_domain_name }}"
+    oauth_token: "{{ do_token }}"
+    type: A
+  tags: retrieve_dns_record
+  register: records_info
+
+- name: set_fact when record is present
+  ansible.builtin.set_fact:
+    records: "{{ records_info.data.records| map(attribute='name') }}"
+    tags: retrieve_dns_record
+
+- name: Register ip address
+  set_fact:
+    ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
+
+- name: Add record
+  community.digitalocean.digital_ocean_domain_record:
+    state: present
+    name: "{{ inventory_hostname }}"
+    domain: "{{ base_domain_name }}"
+    oauth_token: "{{ do_token }}"
+    data: "{{ ip_address }}"
+    type: A
+  tags: add_dns_record
+  when: inventory_hostname not in records

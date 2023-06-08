@@ -1,0 +1,14 @@
+- name: Disable docker-lvmpy
+  systemd:
+    state: stopped
+    name: docker-lvmpy
+
+- name: Remove docker-lvmpy artifacts
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    - "/opt/docker/lvmpy"
+    - "/opt/docker-lvmpy"
+    - "/etc/docker-lvmpy"
+    - "/etc/systemd/system/docker-lvmpy.service"
