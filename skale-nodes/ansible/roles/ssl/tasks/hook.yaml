@@ -7,8 +7,8 @@
     content: |
       #!/usr/bin/env bash
       set -e
-      cp /etc/letsencrypt/live/{{ domain }}/fullchain.pem {{ base_path }}/skale-proxy/data/server.crt && \
-      cp /etc/letsencrypt/live/{{ domain }}/privkey.pem {{ base_path }}/skale-proxy/data/server.key && \
-      docker exec {{ nginx_container | default('proxy_nginx') }} nginx -s reload
+      cp /etc/letsencrypt/live/{{ domain }}/fullchain.pem {{ base_path }}/{{ domain }}/ssl/server.crt && \
+      cp /etc/letsencrypt/live/{{ domain }}/privkey.pem {{ base_path }}/{{ domain }}/ssl/server.key && \
+      skale ssl upload -c {{ base_path }}/ssl/{{ domain }}/server.crt -k {{ base_path }}/ssl/{{ domain }}/server.key
     dest: "{{ nginx_reload_hook }}"
     mode: "0750"
