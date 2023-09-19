@@ -40,7 +40,7 @@
 - name: Download backup archive
   fetch:
     src: "{{ (backup_files.files | sort(attribute='mtime', reverse=true) | first).path }}"
-    dest: "files/node-backup/{{ ip_address }}/"
+    dest: "files/node-backup/{{ inventory_hostname }}/backup.tar.gz"
     patterns: "skale-node*"
     flat: yes
 
