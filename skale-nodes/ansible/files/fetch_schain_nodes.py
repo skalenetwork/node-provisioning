@@ -17,6 +17,7 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import argparse
 import json
 import logging
 import os
@@ -57,17 +58,48 @@ def get_all_schains(skale):
     ]
 
 
+def get_schains_by_nodes(skale, schains):
+    schains_by_nodes = {}
+    for schain in schains:
+        nodes = get_nodes_by_schain(skale, schain)
+        for node in nodes:
+            ip = node['ip']
+            if ip in schains_by_nodes:
+                schains_by_nodes[ip].append(schain)
+            else:
+                schains_by_nodes[ip] = [schain]
+    return schains_by_nodes
+
+
+def get_nodes_by_schains(skale, schains):
+    return {
+        schain: get_nodes_by_schain(skale, schain)
+        for schain in schains
+    }
+
+
 def main():
     web3 = init_web3(ENDPOINT)
     wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
     skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
 
+    parser = argparse.ArgumentParser(
+        prog='FetchSchainsNodes',
+        description='Fetch node/schain info from mainnet'
+    )
+    parser.add_argument('-n', '--nodes', action='store_true')
+    parser.add_argument('-s', '--schains', action='store_true')
+
+    args = parser.parse_args()
+
     schains = get_all_schains(skale)
-    nodes_by_schains = {
-        schain: get_nodes_by_schain(skale, schain)
-        for schain in schains
-    }
-    print(json.dumps(nodes_by_schains))
+
+    if args.schains:
+        schains_by_nodes = get_schains_by_nodes(skale, schains)
+        print(json.dumps(schains_by_nodes))
+    else:
+        nodes_by_schains = get_nodes_by_schains(skale, schains)
+        print(json.dumps(nodes_by_schains))
 
 
 if __name__ == '__main__':

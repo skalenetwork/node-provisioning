@@ -4,7 +4,7 @@
 
   tasks:
     - name: Run fetch schain nodes script
-      script: fetch_schain_nodes.py
+      script: fetch_schain_nodes.py -n
       environment:
         ETH_PRIVATE_KEY: "{{ eth_private_key }}"
         ENDPOINT: "{{ endpoint }}"
