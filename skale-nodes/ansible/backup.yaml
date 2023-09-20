@@ -4,5 +4,5 @@
     - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
 
   roles:
-    - backup
+    - node_backup
 
