@@ -65,6 +65,7 @@ services:
       ENV_TYPE: ${ENV_TYPE}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
       ALLOWED_TS_DIFF: 10000
+      NO_CONTAINERS: ${NO_CONTAINERS}
     command: "python3 admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
