@@ -1,0 +1,5 @@
+- import_playbook: restore_node.yaml
+  vars:
+    no_containers: True
+
+- import_playbook: restore_schain.yaml
