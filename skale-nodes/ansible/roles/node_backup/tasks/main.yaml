@@ -2,9 +2,3 @@
   import_tasks:
     file: node.yaml
   tags: node
-
-- name: Backup schains
-  import_tasks:
-    file: schain.yaml
-  throttle: 1
-  tags: schain

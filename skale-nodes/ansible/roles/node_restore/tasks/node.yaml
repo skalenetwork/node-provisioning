@@ -1,0 +1,56 @@
+- debug: msg="{{ no_containers }}"
+
+- name: Lookup backupfile
+  delegate_to: localhost
+  find:
+    paths: "artifacts/node-backup/{{ inventory_hostname }}/"
+    patterns: "skale-node-backup*.tar.gz"
+  register: search_result
+
+- name: Latest backup debug
+  debug:
+    msg: "{{ search_result }}"
+
+- name: Get latest backup
+  set_fact:
+    backup_name: "{{ (search_result.files | sort(attribute='mtime'))[-1].path | basename }}"
+
+- name: Upload node backup file
+  copy:
+    src: "artifacts/node-backup/{{ inventory_hostname }}/{{ backup_name }}"
+    dest: "{{ base_path }}/backup.tar.gz"
+
+- name: Upload node init-env file
+  copy:
+    src: "artifacts/node-backup/{{ inventory_hostname }}/init-env"
+    dest: "{{ base_path }}/init-env"
+
+- name: Compose cmd for restoring from remote snapshot
+  set_fact:
+    cmd: "skale node restore {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
+
+- name: Compose cmd for restoring from local snapshot
+  set_fact:
+    cmd: "skale node restore {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
+
+- name: Add NO_CONTAINERS option
+  lineinfile:
+    path: "{{ base_path }}/init-env"
+    line: "NO_CONTAINERS=True"
+  when: no_containers is defined and no_containers == True
+
+- name: Run skale node restore
+  shell:
+    cmd: "skale node restore {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8
+    HOME_DIR: "{{ base_path }}"
+    tags: skale_restore
+
+- name: Remove NO_CONTAINERS option
+  lineinfile:
+    path: "{{ base_path }}/init-env"
+    line: "NO_CONTAINERS=True"
+    state: absent
+  when: no_containers is defined and no_containers == True
