@@ -65,7 +65,6 @@ services:
       ENV_TYPE: ${ENV_TYPE}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
       ALLOWED_TS_DIFF: 10000
-      NO_CONTAINERS: ${NO_CONTAINERS}
     command: "python3 admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
@@ -250,7 +249,7 @@ services:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.filesystem.mount-points-exclude=^/(mnt|dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+)($$|/)'
     network_mode: host
 
   filebeat:
