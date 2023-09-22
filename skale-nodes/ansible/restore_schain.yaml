@@ -4,7 +4,7 @@
 
   tasks:
     - name: Fetch nodes schains script
-      script: fetch_schain_nodes.py -s
+      script: fetch_node_schains.py
       environment:
         ETH_PRIVATE_KEY: "{{ eth_private_key }}"
         ENDPOINT: "{{ endpoint }}"
@@ -12,7 +12,7 @@
       args:
         executable: python3
       register: node_schains_out
-      tags: schain_nodes
+      tags: node_schains
 
     - name: Set schain_nodes variable
       set_fact:
