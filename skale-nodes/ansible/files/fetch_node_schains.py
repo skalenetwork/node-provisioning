@@ -58,10 +58,11 @@ def get_all_schains(skale):
     ]
 
 
-def get_schains_by_nodes(skale, schains):
+def get_schains_by_nodes(skale, schains, unique_nodes=False):
     schains_by_nodes = {}
     for schain in schains:
         nodes = get_nodes_by_schain(skale, schain)
+        nodes = [nodes[0]] if unique_nodes else nodes
         for node in nodes:
             ip = node['ip']
             if ip in schains_by_nodes:
@@ -71,13 +72,6 @@ def get_schains_by_nodes(skale, schains):
     return schains_by_nodes
 
 
-def get_nodes_by_schains(skale, schains):
-    return {
-        schain: get_nodes_by_schain(skale, schain)
-        for schain in schains
-    }
-
-
 def main():
     web3 = init_web3(ENDPOINT)
     wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
@@ -85,21 +79,20 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog='FetchSchainsNodes',
-        description='Fetch node/schain info from mainnet'
+        description='Fetch schains by node info from mainnet'
     )
-    parser.add_argument('-n', '--nodes', action='store_true')
-    parser.add_argument('-s', '--schains', action='store_true')
+    parser.add_argument('-u', '--unique', action='store_true')
 
     args = parser.parse_args()
 
     schains = get_all_schains(skale)
 
-    if args.schains:
-        schains_by_nodes = get_schains_by_nodes(skale, schains)
-        print(json.dumps(schains_by_nodes))
-    else:
-        nodes_by_schains = get_nodes_by_schains(skale, schains)
-        print(json.dumps(nodes_by_schains))
+    schains_by_nodes = get_schains_by_nodes(
+        skale,
+        schains,
+        unique_nodes=args.unique
+    )
+    print(json.dumps(schains_by_nodes, indent=4))
 
 
 if __name__ == '__main__':

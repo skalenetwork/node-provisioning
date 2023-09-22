@@ -1,0 +1,33 @@
+- name: Define snapshot_path
+  set_fact:
+    snapshot_path: "{{ base_path }}/.snapshot"
+  when: snapshot_path is not defined
+
+- name: Ensure snapshot path
+  file:
+    state: directory
+    path: "{{ snapshot_path }}"
+  become: true
+
+- name: Compose snapshot
+  script: "pack_subvolumes.py {{ schain }} {{ snapshot_path }}"
+  args:
+    executable: python3
+
+- name: Find snapshot files
+  find:
+    path: "{{ snapshot_path }}"
+  register: snapshot_files
+
+- name: Fetch snapshots
+  fetch:
+    src: "{{ (snapshot_files.files | sort(attribute='mtime', reverse=true) | first).path }}"
+    dest: "artifacts/schains-backup/"
+    patterns: "*.snap"
+    flat: yes
+
+- name: Cleanup backup directory
+  file:
+    state: absent
+    path: "{{ snapshot_path }}"
+  become: true
