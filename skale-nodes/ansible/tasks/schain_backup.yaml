@@ -20,11 +20,10 @@
   register: snapshot_files
 
 - name: Fetch snapshots
-  fetch:
+  synchronize:
+    mode: pull
     src: "{{ (snapshot_files.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "artifacts/schains-backup/"
-    patterns: "*.snap"
-    flat: yes
 
 - name: Cleanup backup directory
   file:
