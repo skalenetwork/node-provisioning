@@ -87,13 +87,19 @@ def get_subvolumes_from_folder(folder: str) -> bool:
     return subvolumes
 
 
-def umount(name):
+def umount(name: str) -> None:
     run_cmd(['umount', get_mountpoint(name)])
 
 
-def cleanup(name):
-    umount(name)
+def cleanup(name: str, was_mounted: bool) -> None:
+    if not was_mounted:
+        umount(name)
     shutil.rmtree(get_mountpoint(name))
+
+
+def is_mounted(name: str) -> bool:
+    mountpoint = get_mountpoint(name)
+    return os.path.ismount(mountpoint)
 
 
 def ensure_mountpoint(name: str) -> None:
@@ -134,12 +140,11 @@ def pack(result_path, subvolumes):
 def main():
     name = sys.argv[1]
     result_folder = sys.argv[2]
+    mounted = is_mounted(name)
     try:
         ensure_mountpoint(name)
         snapshot_folder, block_number = get_schains_snapshot_folder(name)
-        print(snapshot_folder, file=sys.stderr)
         subvolumes = get_subvolumes_from_folder(snapshot_folder)
-        print(subvolumes, file=sys.stderr)
         ensure_result_folder(result_folder)
         result_path = os.path.join(
             result_folder,
@@ -148,7 +153,7 @@ def main():
         pack(result_path, subvolumes)
 
     finally:
-        cleanup(name)
+        cleanup(name, was_mounted=mounted)
 
 
 if __name__ == '__main__':
