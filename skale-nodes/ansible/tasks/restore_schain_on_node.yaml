@@ -1,0 +1,28 @@
+- name: Lookup backupfile
+  delegate_to: localhost
+  find:
+    paths: "artifacts/schains-backup"
+    patterns: "{{ schain }}*.snap"
+  register: search_result
+
+- name: Latest backup debug
+  debug:
+    msg: "{{ search_result }}"
+
+- name: Get latest backup
+  set_fact:
+    backup_name: "{{ (search_result.files | sort(attribute='mtime'))[-1].path | basename }}"
+
+- name: Copy snapshot from localhost
+  copy:
+    src: "artifacts/schains-backup/{{ backup_name }}"
+    dest: "{{ base_path }}/{{ backup_name }}"
+
+- name: Run skale schains restore
+  shell:
+    cmd: "skale schains restore {{ schain }} {{ backup_name }}"
+
+- name: Cleanup backup archive
+  file:
+    state: absent
+    path: "{{ backup_name }}"

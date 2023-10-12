@@ -1,0 +1,7 @@
+- name: Restore schains on node
+  include: restore_schain_on_node.yaml
+  vars:
+    schain: "{{ schain_name }}"
+  loop_control:
+    loop_var: schain_name
+  loop: "{{ schains }}"

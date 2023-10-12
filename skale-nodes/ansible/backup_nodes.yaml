@@ -1,0 +1,6 @@
+- name: Backup node
+  hosts: nodes
+  vars:
+    - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
+  roles:
+    - node_backup

@@ -40,8 +40,14 @@
 - name: Download backup archive
   fetch:
     src: "{{ (backup_files.files | sort(attribute='mtime', reverse=true) | first).path }}"
-    dest: "files/node-backup/{{ ip_address }}/"
+    dest: "artifacts/node-backup/{{ inventory_hostname }}/"
     patterns: "skale-node*"
+    flat: yes
+
+- name: Download init-env
+  fetch:
+    src: "{{ base_path }}/init-env"
+    dest: "artifacts/node-backup/{{ inventory_hostname }}/init-env"
     flat: yes
 
 - name: Cleanup backup directory
