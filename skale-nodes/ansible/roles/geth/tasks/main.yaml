@@ -2,14 +2,14 @@
   file:
     state: directory
     path: "{{ base_path }}/geth-{{ item }}"
-  loop: ["signer", "executor"]
+  loop: ["signer"]
 
 
 - name: Save password
   copy:
     dest: "{{ base_path }}/geth-{{ item }}/.password"
     content: "{{ geth_password }}"
-  loop: ["signer", "executor"]
+  loop: ["signer"]
 
 
 - name: Set account container prefix
@@ -28,7 +28,7 @@
       - "{{ base_path }}/geth-{{ item }}:/data"
     entrypoint: [""]
     command: ["geth", "--datadir", "/data", "account", "new", "--password", "/data/.password"]
-  loop: ["signer", "executor"]
+  loop: ["signer"]
   register: account_cmd_output
 
 
@@ -36,7 +36,7 @@
   docker_container:
     name: "{{ account_container_prefix }}-{{ item }}"
     state: absent
-  loop: ["signer", "executor"]
+  loop: ["signer"]
 
 
 - name: Fetch node names
@@ -48,18 +48,19 @@
   set_fact:
     node_addresses: [
       "{{ account_cmd_output | json_query('results[0].container.Output') | regex_search('0x[a-zA-Z0-9]+')}}",
-      "{{ account_cmd_output | json_query('results[1].container.Output') | regex_search('0x[a-zA-Z0-9]+')}}"
     ]
 
+- name: Test
+  debug:
+    msg: "{{ node_addresses }}"
 
 - name: Instantiate genesis template
   template:
     src: "genesis.json.j2"
     dest: "{{ base_path }}/geth-{{ item }}/genesis.json"
   vars:
-    signer: "{{ node_addresses[1] }}"
-    executor: "{{ node_addresses[1] }}"
-  loop: ["signer", "executor"]
+    signer: "{{ node_addresses[0] }}"
+  loop: ["signer"]
 
 
 - name: Init geth nodes
@@ -71,49 +72,13 @@
     volumes:
       - "{{ base_path }}/geth-{{ item }}:/data"
     command: ["init", "--datadir", "/data", "/data/genesis.json"]
-  loop: ["signer", "executor"]
-
-
-- name: Setup boot-signer geth
-  docker_container:
-    name: "geth-{{ item }}"
-    image: "{{ geth_image }}"
-    state: started
-    network_mode: host
-    memory: 1GB
-    volumes:
-      - "{{ base_path }}/geth-{{ item }}:/data"
-    command: >
-      geth
-      --password /data/.password --verbosity 3
-      --networkid 151 --datadir /data/
-      --port 36481
-      --unlock {{ node_addresses[0] }}
-      --nat extip:127.0.0.1
-      --netrestrict 127.0.0.1/32
-      --mine
-      --miner.etherbase={{ node_addresses[0] }}
-      --miner.gaslimit 8000000
   loop: ["signer"]
 
 
-- name: Get boot record
-  community.docker.docker_container_exec:
-    container: "geth-{{ item }}"
-    command: "/usr/local/bin/geth attach --exec admin.nodeInfo.enr  /data/geth.ipc"
-  loop: ["signer"]
-  register: boot_record_output
-
-
-- name: Save boot record
-  set_fact:
-    boot_record: "{{ boot_record_output.results[0].stdout }}"
-
-
-- name: Setup geth executor container
+- name: Setup geth signer container
   docker_container:
     name: "geth-{{ item }}"
-    image: ethereum/client-go:alltools-v1.11.1
+    image: ethereum/client-go:alltools-v1.13.2
     state: started
     memory: 1GB
     network_mode: host
@@ -124,13 +89,12 @@
       --password /data/.password --verbosity 3 --miner.gaslimit 8000000
       --networkid 151 --datadir /data
       --authrpc.port 8552
-      --bootnodes {{ boot_record }}
       --http --http.vhosts=* --http.corsdomain="*"
       --netrestrict 127.0.0.1/32
       --http.api "admin,debug,miner,shh,txpool,personal,eth,net,web3" --http.addr "0.0.0.0" --http.port "1919"
       --mine
-      --unlock {{ node_addresses[1] }}
+      --unlock {{ node_addresses[0] }}
       --allow-insecure-unlock
-      --miner.etherbase={{ node_addresses[1] }}
+      --miner.etherbase={{ node_addresses[0] }}
       --ws  --ws.origins="*" --ws.addr="0.0.0.0" --ws.port "1920" --ws.api "personal,eth,net,web3"
-  loop: ["executor"]
+  loop: ["signer"]
