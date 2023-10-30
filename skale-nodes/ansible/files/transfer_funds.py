@@ -24,7 +24,7 @@ from skale import Skale
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
-from skale.transactions.tools import send_eth_with_skale
+from skale.utils.account_tools import send_eth
 from skale.utils.web3_utils import to_checksum_address
 
 
@@ -48,8 +48,7 @@ def init_web3_skale():
 def main():
     skale = init_web3_skale()
     address = to_checksum_address(ADDRESS)
-    wei_amount = skale.web3.toWei(AMOUNT, 'ether')
-    send_eth_with_skale(skale, address, wei_amount)
+    send_eth(skale.web3, skale.wallet, address, AMOUNT)
 
 
 if __name__ == "__main__":
