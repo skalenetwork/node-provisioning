@@ -1,0 +1,23 @@
+- name: Setup geth signer container
+  docker_container:
+    name: "geth-{{ item }}"
+    image: ethereum/client-go:alltools-v1.13.2
+    state: started
+    memory: 1GB
+    network_mode: host
+    volumes:
+      - "{{ base_path }}/geth-{{ item }}:/data"
+    command: >
+      geth
+      --password /data/.password --verbosity 3 --miner.gaslimit 8000000
+      --networkid 151 --datadir /data
+      --authrpc.port 8552
+      --http --http.vhosts=* --http.corsdomain="*"
+      --netrestrict 127.0.0.1/32
+      --http.api "admin,debug,miner,shh,txpool,personal,eth,net,web3" --http.addr "0.0.0.0" --http.port "1919"
+      --mine
+      --unlock {{ node_addresses[0] }}
+      --allow-insecure-unlock
+      --miner.etherbase={{ node_addresses[0] }}
+      --ws  --ws.origins="*" --ws.addr="0.0.0.0" --ws.port "1920" --ws.api "personal,eth,net,web3"
+  loop: ["signer"]

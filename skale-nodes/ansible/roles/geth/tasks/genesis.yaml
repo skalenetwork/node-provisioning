@@ -1,0 +1,30 @@
+- name: Fetch node names
+  set_fact:
+    node_names: "{{ account_cmd_output | json_query('results[*].container.Name') | replace('/{{ account_container_prefix }}-', '') }}"
+
+
+- name: Fetch node addresses
+  set_fact:
+    node_addresses: [
+      "{{ account_cmd_output | json_query('results[0].container.Output') | regex_search('0x[a-zA-Z0-9]+')}}",
+  ]
+
+- name: Instantiate genesis template
+  template:
+    src: "genesis.json.j2"
+    dest: "{{ base_path }}/geth-{{ item }}/genesis.json"
+  vars:
+    signer: "{{ node_addresses[0] }}"
+  loop: ["signer"]
+
+
+- name: Init geth nodes
+  docker_container:
+    image: "{{ geth_image }}"
+    auto_remove: true
+    name: "geth-{{ item }}-init"
+    entrypoint: ["geth"]
+    volumes:
+      - "{{ base_path }}/geth-{{ item }}:/data"
+    command: ["init", "--datadir", "/data", "/data/genesis.json"]
+  loop: ["signer"]
