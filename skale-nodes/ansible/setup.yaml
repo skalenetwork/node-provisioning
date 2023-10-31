@@ -14,3 +14,14 @@
 
     - role: init
       tags: init
+
+
+- name: Reconfigure firewall rules
+  hosts: geth
+  become: true
+  tasks:
+    - name: Configure geth iptables
+      import_role:
+        name: geth
+        tasks_from: firewall
+      tags: firewall

@@ -1,12 +1,15 @@
 - name: Get all container ids
-  command: "docker ps -aq"
+  command: 'docker ps -a -q --filter="name=skale_"'
   become: true
   register: containers_output
+  tags: containers_ids
+
 
 - name: Split containers ids output
   register: containers_output
   set_fact:
     containers_ids: "{{ containers_output.stdout.split('\n') }}"
+
 
 - name: Destroy admin container
   become: true
@@ -17,6 +20,7 @@
     keep_volumes: no
   tags: admin
 
+
 - name: Destroy all containers
   become: true
   docker_container:
@@ -26,15 +30,18 @@
     keep_volumes: no
   with_items: "{{ containers_ids | default([]) }}"
 
+
 - name: Prune docker
   command:
     cmd: "docker system prune -af"
+
 
 - name: Umount shared-space
   command:
     cmd: "umount /mnt/schains-shared-space"
   failed_when: False
   tags: umount
+
 
 - name: Register /mnt folders
   find:
@@ -44,6 +51,7 @@
   tags:
     - mounts
 
+
 - name: Cleanup /mnt dir
   file:
     path: "{{ item.path }}"
@@ -51,6 +59,7 @@
   loop: "{{ mnt_folders.files }}"
   tags:
     - mounts
+
 
 - name: Remove all data-dir volumes
   lvg:

@@ -13,7 +13,7 @@
   set_fact:
     source: "{{ node_ips|default([]) + [hostvars[item].ansible_host] }}"
   loop: "{{ query('inventory_hostnames', 'nodes') }}"
-  when: geth_subnet is not difined
+  when: geth_subnet is not defined
 
 
 - name: Allow connection through essential sgx ports
