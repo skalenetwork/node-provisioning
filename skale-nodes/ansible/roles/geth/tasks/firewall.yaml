@@ -1,0 +1,30 @@
+- name: Save public ports
+  set_fact:
+    ports: ["1919", "1920"]
+
+
+- name: Set source
+  set_fact:
+    source: ["{{ geth_subnet }}"]
+  when: geth_subnet is defined
+
+
+- name: Save node ips
+  set_fact:
+    source: "{{ node_ips|default([]) + [hostvars[item].ansible_host] }}"
+  loop: "{{ query('inventory_hostnames', 'nodes') }}"
+  when: geth_subnet is not defined
+
+
+- name: Allow connection through essential sgx ports
+  ansible.builtin.iptables:
+    chain: INPUT
+    action: insert
+    protocol: tcp
+    destination_port: "{{ item.0 }}"
+    source: "{{ item.1 }}"
+    ctstate: NEW
+    syn: match
+    jump: ACCEPT
+    comment: "Allow Geth rpc ports"
+  loop: "{{ ports|product(source)|list }}"

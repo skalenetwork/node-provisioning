@@ -26,7 +26,7 @@ from skale import Skale
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
-from skale.utils.account_tools import generate_account, send_ether
+from skale.utils.account_tools import generate_account, send_eth
 from skale.utils.contracts_provision.main import add_test_permissions
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
 
 def create_base_account_for_validator(validator_web3) -> dict:
     account_data = generate_account(validator_web3)
-    send_ether(web3, wallet, account_data['address'], ETH_AMOUNT)
+    send_eth(web3, wallet, account_data['address'], ETH_AMOUNT)
     return account_data
 
 
