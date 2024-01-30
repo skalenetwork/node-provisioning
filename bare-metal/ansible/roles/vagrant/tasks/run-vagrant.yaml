@@ -39,8 +39,8 @@
 
 - name: Switch user
   file:
-    owner: s3
-    group: s3
+    owner: "{{ ansible_ssh_user }}"
+    group: "{{ ansible_ssh_user }}"
     path: "{{ disk_dir }}"
   become: true
   tags: mount
