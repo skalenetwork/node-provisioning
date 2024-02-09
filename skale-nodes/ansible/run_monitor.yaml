@@ -1,9 +1,0 @@
-- name: Add script and service to host and then run
-  hosts: nodes
-  become: true
-  tasks:
-    - import_role:
-        name: side_monitor_script
-        tasks_from: copy_and_run_script
-  tags:
-    - start_script

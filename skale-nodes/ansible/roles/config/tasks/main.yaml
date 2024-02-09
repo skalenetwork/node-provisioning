@@ -66,6 +66,7 @@
   set_fact:
     env_options: |
       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
       ENDPOINT={{ endpoint }}
       ENFORCE_BTRFS='True'
       DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
