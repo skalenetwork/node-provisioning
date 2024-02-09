@@ -1,0 +1,21 @@
+- name: Save public ports
+  set_fact:
+    ports: ["9144", "9256"]
+
+- name: Save grafana ips
+  set_fact:
+    source: "{{ node_ips|default([]) + [hostvars[item].ansible_host] }}"
+  loop: "{{ query('inventory_hostnames', 'grafana') }}"
+
+- name: Allow connection through epxorter ports
+  ansible.builtin.iptables:
+    chain: INPUT
+    action: insert
+    protocol: tcp
+    destination_port: "{{ item.0 }}"
+    source: "{{ item.1 }}"
+    ctstate: NEW
+    syn: match
+    jump: ACCEPT
+    comment: "Allow net monitor ports for grafana"
+  loop: "{{ ports|product(source)|list }}"
