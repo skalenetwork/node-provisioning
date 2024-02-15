@@ -11,18 +11,17 @@
 - name: Add --catchup if needed
   set_fact:
     skale_cmd: "{{ skale_cmd }} --catchup"
-  when: sync_node is defined and sync_node == 'True' and catchup is defined and catchup == 'True'
+  when: sync_node is defined and sync_node and catchup is defined and catchup
 
 - name: Add --archive if needed
   set_fact:
     skale_cmd: "{{ skale_cmd }} --archive"
-  when: sync_node is defined and sync_node == 'True' and archive is defined and archive == 'True'
+  when: sync_node is defined and sync_node and archive is defined and archive
 
 - name: Add --historic-state if needed
   set_fact:
     skale_cmd: "{{ skale_cmd }} --historic-state"
-  when: sync_node is defined and sync_node == 'True' and historic_state is defined and historic_state == 'True'
-
+  when: sync_node is defined and sync_node and historic_state is defined and historic_state
 - name: Show skale_cmd
   debug:
     msg: "{{ skale_cmd }}"

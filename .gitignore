@@ -24,6 +24,7 @@ skale-nodes/ansible/ansible.cfg
 skale-nodes/ansible/sgx/ansible.cfg
 
 skale-nodes/ansible/files/base-key.txt
+skale-nodes/ansible/files/validator-key.txt
 skale-nodes/ansible/files/validator-id.txt
 
 skale-nodes/ansible/files/cert.pem

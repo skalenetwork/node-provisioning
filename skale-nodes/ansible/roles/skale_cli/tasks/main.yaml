@@ -18,10 +18,10 @@
   when: env is defined and env == "dev"
 
 
-- name: Add sync option
+- name: Add sync option to command
   set_fact:
     build_cmd: "{{ build_cmd }} sync"
-  when: env is defined and env == "dev" and sync_node is defined and sync_node == 'True'
+  when: env is defined and env == "dev" and sync_node is defined and sync_node
 
 
 - name: Build binary
@@ -35,9 +35,14 @@
   when: env is defined and env == "dev"
 
 
-- name: Copy executable to /usr/bin/local
+- name: Copy executable to /usr/bin/local for normal
   copy: remote_src=True src="{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64" dest=/usr/local/bin/skale
   when: env is defined and env == "dev"
+
+
+- name: Copy executable to /usr/bin/local for sync
+  copy: remote_src=True src="{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync" dest=/usr/local/bin/skale
+  when: env is defined and env == "dev" and sync_node is defined and sync_node
 
 
 - name: Remove builder container

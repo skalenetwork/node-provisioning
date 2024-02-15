@@ -16,7 +16,7 @@
   when: geth_subnet is not defined
 
 
-- name: Allow connection through essential sgx ports
+- name: Allow connection through geth rpc ports
   ansible.builtin.iptables:
     chain: INPUT
     action: insert

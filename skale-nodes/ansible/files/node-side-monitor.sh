@@ -27,12 +27,12 @@ process_names:
     name: "{{.ExeBase}}:{{.Matches.wsPort}}"
 ****
 
-docker run --rm -p 9256:9256 --privileged -v /proc:/host/proc -v `pwd`:/config ncabatoff/process-exporter --procfs /host/proc -config.path /config/process-exporter.yml&
+docker run --rm -p 9256:9256 --privileged -v /proc:/host/proc -v `pwd`:/config --name pexporter ncabatoff/process-exporter --procfs /host/proc -config.path /config/process-exporter.yml&
 
 make_grok_input () {
   local IMAGES=($(docker ps --no-trunc --format '{{.ID}} {{.Image}}'    | grep 'schain' | cut -d ' ' -f 1))
   local  NAMES=($(docker ps --no-trunc --format '{{.Image}} {{.Names}}' | grep 'schain' | cut -d ' ' -f 2-))
-  
+
   # create symlinks
   mkdir log_links 2>/dev/null
   cd log_links
@@ -42,7 +42,7 @@ make_grok_input () {
     ln -s /var/lib/docker/containers/${IMAGES[$I]} ${NAMES[$I]} 2>/dev/null
   done
   cd ..
-  
+
   local INPUT="  type: file
   readall: false
   fail_on_missing_logfile: false

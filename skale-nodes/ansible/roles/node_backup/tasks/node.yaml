@@ -23,7 +23,7 @@
     path: "{{ base_path }}/sgx-data"
     dest: "{{ backup_path }}/sgx-data-{{ ansible_date_time.epoch }}.tar.gz"
     format: gz
-  when: local_sgx_sim is defined and local_sgx_sim == "true"
+  when: local_sgx_sim is defined and local_sgx_sim
   become: true
 
 - name: Turn on the node back
