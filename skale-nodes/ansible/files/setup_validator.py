@@ -39,7 +39,7 @@ ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 ETH_AMOUNT = float(os.getenv('ETH_AMOUNT'))
 MIN_DELEGATION_AMOUNT = int(os.getenv('MIN_DELEGATION_AMOUNT'))
 COMMISSION_RATE = int(os.getenv('COMMISSION_RATE'))
-BASE_KEY_FILEPATH = os.path.join(BASE_DIR, 'base-key.txt')
+BASE_KEY_FILEPATH = os.path.join(BASE_DIR, 'validator-key.txt')
 VALIDATOR_ID_FILEPATH = os.path.join(BASE_DIR, 'validator-id.txt')
 
 NODES_NUMBER = int(os.getenv('NODES_NUMBER'))

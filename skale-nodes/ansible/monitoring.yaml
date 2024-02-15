@@ -1,0 +1,6 @@
+- name: Deploy monitoring services
+  hosts: monitoring
+  become: true
+  roles:
+    - role: monitoring
+      tags: monitoring

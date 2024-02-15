@@ -59,7 +59,7 @@
       ENV_TYPE="{{ env_type }}"
       DISABLE_IMA="{{ disable_ima }}"
 
-  when: sync_node is not defined or sync_node != True
+  when: sync_node is not defined or not sync_node
   tags: env
 
 - name: Set env options sync node
@@ -75,7 +75,7 @@
       MANAGER_CONTRACTS_ABI_URL={{ manager_contracts }}
       IMA_CONTRACTS_ABI_URL={{ ima_contracts }}
       DISK_MOUNTPOINT={{ block_device }}
-  when: sync_node is defined and sync_node == True
+  when: sync_node is defined and sync_node
 
 - name: Show env
   debug:
