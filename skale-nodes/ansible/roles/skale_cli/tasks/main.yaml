@@ -14,13 +14,13 @@
 
 - name: Set build command
   set_fact:
-    build_cmd: "scripts/build.sh test test"
-  when: env is defined and env == "dev"
+    build_cmd: "scripts/build.sh test test normal"
+  when: env is defined and env == "dev" and sync_node is not defined or not sync_node
 
 
 - name: Add sync option to command
   set_fact:
-    build_cmd: "{{ build_cmd }} sync"
+    build_cmd: "scripts/build.sh test test sync"
   when: env is defined and env == "dev" and sync_node is defined and sync_node
 
 
@@ -37,7 +37,7 @@
 
 - name: Copy executable to /usr/bin/local for normal
   copy: remote_src=True src="{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64" dest=/usr/local/bin/skale
-  when: env is defined and env == "dev"
+  when: env is defined and env == "dev" and (sync_node is not defined or not sync_node)
 
 
 - name: Copy executable to /usr/bin/local for sync
