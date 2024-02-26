@@ -1,4 +1,4 @@
-- name: Get all container ids
+- name: Get all skale container ids
   command: 'docker ps -a -q --filter="name=skale_"'
   become: true
   register: containers_output
