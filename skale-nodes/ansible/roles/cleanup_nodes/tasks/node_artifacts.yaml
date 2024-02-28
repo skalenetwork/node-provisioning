@@ -6,7 +6,6 @@
   with_items:
     - "{{ base_path }}/.skale"
     - "{{ base_path }}/init-env"
-  tags: dotskale
 
 - name: Remove node artifacts from /var and /etc
   file:
@@ -20,7 +19,6 @@
   file:
     path: "/usr/local/bin/skale"
     state: absent
-  tags: cli_bin
 
 - name: Remove iptables rules
   ansible.builtin.iptables:
