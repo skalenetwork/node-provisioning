@@ -1,11 +1,6 @@
 - name: Cleanup contracts
   hosts: 127.0.0.1
   connection: local
-  serial: 1
-  roles:
-    - role: cleanup_contracts
-      tags: cleanup_contracts
-
   roles:
     - role: cleanup_artifacts
       tags: cleanup_artifacts

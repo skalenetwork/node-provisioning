@@ -1,7 +1,7 @@
-- name: Register node 
+- name: Register node
   hosts: nodes
+  serial: 1
   become: true
   roles:
     - role: register
-      tags: 
-        - register
+      tags: register

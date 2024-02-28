@@ -1,7 +1,7 @@
 - name: Setup geth signer container
   docker_container:
-    name: "geth-{{ item }}"
-    image: ethereum/client-go:alltools-v1.13.2
+    name: "geth"
+    image: "{{ geth_image }}"
     state: started
     memory: 1GB
     network_mode: host
