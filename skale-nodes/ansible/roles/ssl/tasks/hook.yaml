@@ -7,8 +7,8 @@
     content: |
       #!/usr/bin/env bash
       set -e
-      cp /etc/letsencrypt/live/{{ domain }}/fullchain.pem {{ base_path }}/{{ domain }}/ssl/server.crt && \
-      cp /etc/letsencrypt/live/{{ domain }}/privkey.pem {{ base_path }}/{{ domain }}/ssl/server.key && \
+      cp /etc/letsencrypt/live/{{ domain }}/fullchain.pem {{ base_path }}/ssl/{{ domain }}/server.crt && \
+      cp /etc/letsencrypt/live/{{ domain }}/privkey.pem {{ base_path }}/ssl/{{ domain }}/server.key && \
       skale ssl upload -c {{ base_path }}/ssl/{{ domain }}/server.crt -k {{ base_path }}/ssl/{{ domain }}/server.key
     dest: "{{ nginx_reload_hook }}"
     mode: "0750"
