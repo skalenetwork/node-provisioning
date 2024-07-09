@@ -1,0 +1,10 @@
+- name: Upload snapshot to AWS s3
+  hosts: archive
+  gather_facts: false
+
+  tasks:
+    - name: Upload snapshot to s3
+      include_role:
+        name: aws
+        tasks_from: snapshot
+      tags: snapshot_upload

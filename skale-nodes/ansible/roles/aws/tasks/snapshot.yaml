@@ -1,0 +1,5 @@
+- name: Upload snapshot file
+  community.aws.s3_sync:
+    bucket: "{{ snapshot_bucket }}"
+    file_root: "{{ snapshot_filepath }}"
+  tags: snapshot_upload
