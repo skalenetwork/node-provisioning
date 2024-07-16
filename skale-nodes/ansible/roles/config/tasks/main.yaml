@@ -58,6 +58,8 @@
       DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
       ENV_TYPE="{{ env_type }}"
       DISABLE_IMA="{{ disable_ima }}"
+      INFLUX_URL="{{ influx_url }}"
+      TELEGRAF="{{ telegraf }}"
 
   when: sync_node is not defined or not sync_node
   tags: env
@@ -75,6 +77,8 @@
       MANAGER_CONTRACTS_ABI_URL={{ manager_contracts }}
       IMA_CONTRACTS_ABI_URL={{ ima_contracts }}
       DISK_MOUNTPOINT={{ block_device }}
+      INFLUX_URL="{{ influx_url }}"
+      TELEGRAF="{{ telegraf }}"
   when: sync_node is defined and sync_node
 
 - name: Show env

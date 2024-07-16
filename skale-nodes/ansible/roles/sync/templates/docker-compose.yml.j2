@@ -48,10 +48,6 @@ services:
       SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
       ENDPOINT: ${ENDPOINT}
       IMA_ENDPOINT: ${IMA_ENDPOINT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_PORT: ${DB_PORT}
       SKALE_DIR_HOST: ${SKALE_DIR}
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
@@ -65,6 +61,8 @@ services:
       ENV_TYPE: ${ENV_TYPE}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
       ALLOWED_TS_DIFF: 10000
+      TELEGRAF: "${TELEGRAF}"
+      INFLUX_URL: "${INFLUX_URL}"
     command: "python3 admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
