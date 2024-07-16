@@ -1,0 +1,5 @@
+- name: Run backup for schains snapshot_path
+  include: schain_backup.yaml
+  vars:
+    schain: "{{ item }}"
+  loop: "{{ schains }}"

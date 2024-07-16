@@ -1,0 +1,4 @@
+- name: Backup node
+  import_tasks:
+    file: node.yaml
+  tags: node

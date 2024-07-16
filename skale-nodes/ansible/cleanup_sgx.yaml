@@ -1,0 +1,7 @@
+- name: Cleanup sgx
+  hosts: sgx
+  become: true
+  roles:
+    - name: Remove all sgx skale software from the machines
+      role: cleanup_sgx
+      tags: cleanup

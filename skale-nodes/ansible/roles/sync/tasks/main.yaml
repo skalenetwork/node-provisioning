@@ -57,3 +57,9 @@
     src: docker-compose.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose.yml"
   when: env is defined and env == "dev"
+
+- name: Replace skale-node docker-compose-sync file
+  template:
+    src: docker-compose-sync.yml.j2
+    dest: "{{ base_path }}/skale-node/docker-compose-sync.yml"
+  when: env is defined and env == "dev" and sync_node is defined and sync_node

@@ -1,0 +1,6 @@
+- name: Deploy node side monitor scrupt
+  hosts: nodes
+  become: true
+  roles:
+    - role: net_monitor
+      tags: net_monitor

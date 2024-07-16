@@ -1,0 +1,55 @@
+- name: Check genesis.json
+  stat:
+    path: "{{ base_path }}/geth-{{ item }}/genesis.json"
+  loop: ["signer"]
+  register: genesis_stat
+
+
+- name: Set genesis_exists
+  set_fact:
+    genesis_exists: "{{ genesis_stat.results[0].stat.exists }}"
+
+
+- name: Assert that genesis does not exists
+  assert:
+    that: "{{ not genesis_exists }}"
+
+- name: Create geth dir
+  file:
+    state: directory
+    path: "{{ base_path }}/geth-{{ item }}"
+  loop: ["signer"]
+
+
+- name: Save password
+  copy:
+    dest: "{{ base_path }}/geth-{{ item }}/.password"
+    content: "{{ geth_password }}"
+  loop: ["signer"]
+
+
+- name: Set account container prefix
+  set_fact:
+    account_container_prefix: geth-account
+
+
+- name: Create account
+  docker_container:
+    image: "{{ geth_image }}"
+    name: "{{ account_container_prefix }}-{{ item }}"
+    network_mode: host
+    detach: false
+    output_logs: true
+    volumes:
+      - "{{ base_path }}/geth-{{ item }}:/data"
+    entrypoint: [""]
+    command: ["geth", "--datadir", "/data", "account", "new", "--password", "/data/.password"]
+  loop: ["signer"]
+  register: account_cmd_output
+
+
+- name: Cleanup intermediary containers
+  docker_container:
+    name: "{{ account_container_prefix }}-{{ item }}"
+    state: absent
+  loop: ["signer"]

@@ -1,7 +1,7 @@
 - name: Get validator private key
   run_once: yes
   set_fact:
-    validator_private_key: "{{ lookup('file', 'files/base-key.txt') }}"
+    validator_private_key: "{{ lookup('file', 'files/validator-key.txt') }}"
 
 - name: Link address to validator
   run_once: yes

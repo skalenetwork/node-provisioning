@@ -28,7 +28,7 @@
 - name: Run/restart sgx container
   community.docker.docker_container:
     name: sgx
-    image: "skalenetwork/sgxwallet_release:{{ sgx_version }}"
+    image: "skalenetwork/sgxwallet:{{ sgx_version }}"
     container_default_behavior: compatibility
     state: started
     restart: yes

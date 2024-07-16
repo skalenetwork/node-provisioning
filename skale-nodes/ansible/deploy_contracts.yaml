@@ -1,4 +1,4 @@
-- name: Deploy SM contracts
+- name: Deploy mainnet contracts
   hosts: 127.0.0.1
   connection: local
   roles:

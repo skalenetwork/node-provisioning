@@ -1,0 +1,73 @@
+- name: Set grafana and prometheus host base directories
+  set_fact:
+    grafana_path: "{{ base_path }}/monitoring/grafana"
+    prom_path: "{{ base_path }}/monitoring/prom"
+
+
+- name: Create base directories
+  file:
+    state: directory
+    path: "{{ item.0 }}/{{ item.1 }}"
+    mode: u+rwx,g+rwx,o+rwx
+  loop: "{{ [grafana_path, prom_path] | product(['config', 'data']) | list }}"
+
+
+- name: Set metirics ports
+  set_fact:
+    ports: ["9144", "9256", "9100", "8080"]
+
+
+- name: Save node ips
+  set_fact:
+    node_ips: "{{ node_ips|default([]) + [hostvars[item].ansible_host] }}"
+  loop: "{{ query('inventory_hostnames', 'nodes') }}"
+
+
+- name: Save prometheus config
+  set_fact:
+    prometheus_config: |
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+
+      scrape_configs:
+        - job_name: net-monitor
+          scrape_interval: 5s
+          static_configs:
+            - targets: {{ node_ips| product(ports) | map("join", ":") | list }}
+
+
+- name: Save prometheus config
+  copy:
+    content: "{{ prometheus_config }}"
+    dest: "{{ prom_path }}/config/prometheus.yml"
+
+
+- name: Setup prometheus container
+  docker_container:
+    name: "prom"
+    image: bitnami/prometheus:2.49.1
+    ports: 9090
+    state: started
+    memory: 1GB
+    network_mode: host
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    volumes:
+      - "{{ prom_path }}/data:/prometheus"
+      - "{{ prom_path }}/config:/etc/prometheus"
+
+
+- name: Setup grafana container
+  docker_container:
+    name: "grafana"
+    image: grafana/grafana:10.0.3
+    ports: 3000
+    state: started
+    memory: 2GB
+    network_mode: host
+    volumes:
+      - "{{ grafana_path }}/data:/opt/grafana/data"

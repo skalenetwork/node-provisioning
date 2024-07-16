@@ -1,0 +1,43 @@
+- name: Lookup backupfile
+  delegate_to: localhost
+  find:
+    paths: "artifacts/node-backup/{{ inventory_hostname }}/"
+    patterns: "skale-node-backup*.tar.gz"
+  register: search_result
+
+- name: Latest backup debug
+  debug:
+    msg: "{{ search_result }}"
+
+- name: Get latest backup
+  set_fact:
+    backup_name: "{{ (search_result.files | sort(attribute='mtime'))[-1].path | basename }}"
+
+- name: Upload node backup file
+  copy:
+    src: "artifacts/node-backup/{{ inventory_hostname }}/{{ backup_name }}"
+    dest: "{{ base_path }}/backup.tar.gz"
+
+- name: Upload node init-env file
+  copy:
+    src: "artifacts/node-backup/{{ inventory_hostname }}/init-env"
+    dest: "{{ base_path }}/init-env"
+
+- name: Compose regular cmd
+  set_fact:
+    cmd: "skale node restore {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
+  when: config_only is not defined or not config_only
+
+- name: Compose cmd with config only
+  set_fact:
+    cmd: "skale node restore --config-only {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
+  when: config_only is defined and config_only
+
+- name: Run skale node restore
+  shell:
+    cmd: "{{ cmd }}"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8
+    HOME_DIR: "{{ base_path }}"
+    tags: skale_restore
