@@ -12,11 +12,8 @@
   file:
     state: absent
     path: "{{ base_path }}/sgx-data"
-  tags:
-    - sgx
-    - cleanup
-  when: cleanup is defined and cleanup
-
+  when: cleanup_sgx is defined and cleanup_sgx
+  tags: sgx
 
 - name: Create sgx folder
   file:

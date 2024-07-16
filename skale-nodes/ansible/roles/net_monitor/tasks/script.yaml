@@ -6,8 +6,6 @@
 - name: Make the node-side-monitor.sh executable
   ansible.builtin.file:
     path: "{{ base_path }}/node-side-monitor.sh"
-    owner: root
-    group: root
     mode: '755'
 
 - name: Run a node-side-monitor.sh script

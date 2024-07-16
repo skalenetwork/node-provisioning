@@ -1,17 +1,7 @@
-- name: Restore node from AMI
-  hosts: nodes
-  gather_facts: false
+- import_playbook: restore_node.yaml
   vars:
-    - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
-  vars_files:
-    - "files/node-backup/{{ ip_address }}/aws_info"
+    config_only: True
 
-  tasks:
-    - name: Restore AWS from AMI
-      include_role:
-        name: aws
-        tasks_from: restore
-        apply:
-          tags: aws
-      tags:
-        aws
+- import_playbook: restore_schain.yaml
+
+- import_playbook: update.yaml

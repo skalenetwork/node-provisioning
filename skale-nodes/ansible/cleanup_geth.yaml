@@ -1,0 +1,7 @@
+- name: Cleanup geth
+  hosts: geth
+  become: true
+  roles:
+    - name: Remove all geth software from the machines
+      role: cleanup_geth
+      tags: cleanup

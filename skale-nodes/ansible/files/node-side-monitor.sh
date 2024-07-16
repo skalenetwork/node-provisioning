@@ -27,12 +27,12 @@ process_names:
     name: "{{.ExeBase}}:{{.Matches.wsPort}}"
 ****
 
-docker run --rm -p 9256:9256 --privileged -v /proc:/host/proc -v `pwd`:/config ncabatoff/process-exporter --procfs /host/proc -config.path /config/process-exporter.yml&
+docker run --rm -p 9256:9256 --privileged -v /proc:/host/proc -v `pwd`:/config --name pexporter ncabatoff/process-exporter --procfs /host/proc -config.path /config/process-exporter.yml&
 
 make_grok_input () {
   local IMAGES=($(docker ps --no-trunc --format '{{.ID}} {{.Image}}'    | grep 'schain' | cut -d ' ' -f 1))
   local  NAMES=($(docker ps --no-trunc --format '{{.Image}} {{.Names}}' | grep 'schain' | cut -d ' ' -f 2-))
-  
+
   # create symlinks
   mkdir log_links 2>/dev/null
   cd log_links
@@ -42,7 +42,7 @@ make_grok_input () {
     ln -s /var/lib/docker/containers/${IMAGES[$I]} ${NAMES[$I]} 2>/dev/null
   done
   cd ..
-  
+
   local INPUT="  type: file
   readall: false
   fail_on_missing_logfile: false
@@ -71,7 +71,7 @@ metrics:
 - type: gauge
   name: logs_BLOCK_COMMIT
   help: Block committed in bin-consensus
-  match: '%{C_PREFIX_BLOCK}:BLOCK_COMMIT: PRPSR:%{NUMBER:proposer}:BID: %{NUMBER:block_id}'
+  match: '%{C_PREFIX_BLOCK}:BLOCK_COMMITED: PRPSR:%{NUMBER:proposer}:BID: %{NUMBER:block_id}'
   value: '{{.block_id}}'
   labels:
     node_id: '{{.node_id}}'
@@ -141,19 +141,32 @@ metrics:
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 - type: gauge
   name: logs_imported
-  help: Number of txns block
+  help: Number of txns in block
   match: '%{TIME_PREFIX}Successfully imported %{NUMBER} of %{NUMBER:num} transactions'
   value: '{{.num}}'
   labels:
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 - type: counter
   name: logs_queued
-  help: Queued vaguely legit-looking transaction
+  help: Transaction added to Transaction Queue
   match: '%{TIME_PREFIX}Queued vaguely legit-looking transaction'
   value: '1'
   labels:
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
-
+- type: counter
+  name: logs_requests
+  help: JSON-RPC Requests counter
+  match: '%{TIME_PREFIX}%{URI} >>> %{GREEDYDATA}'
+  value: '1'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: counter
+  name: logs_PARTIAL
+  help: PARTIAL catch-up
+  match: '%{TIME_PREFIX}PARTIAL'
+  value: '1'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 server:
   port: ${PORT}
 ********************************************

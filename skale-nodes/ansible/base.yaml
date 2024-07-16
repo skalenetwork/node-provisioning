@@ -1,5 +1,5 @@
 - name: Setup skale node
-  hosts: nodes,sgx
+  hosts: all
   become: true
   roles:
     - role: base_provision

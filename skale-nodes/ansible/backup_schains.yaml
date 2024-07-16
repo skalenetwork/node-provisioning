@@ -1,0 +1,37 @@
+- name: Fetch schain nodes script
+  hosts: localhost
+  serial: True
+
+  tasks:
+    - name: Run fetch schain nodes script
+      script: fetch_node_schains.py -u
+      environment:
+        ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+        ENDPOINT: "{{ endpoint }}"
+        BASE_DIR: "files"
+      args:
+        executable: python3
+      register: schain_node_out
+      tags: node_schains
+
+    - name: Set schain_node variable
+      set_fact:
+        node_schains: "{{ schain_node_out.stdout | from_json }}"
+
+- name: Compose and save snapshots
+  hosts: nodes
+  serial: True
+  tasks:
+    - name: Set ip address
+      set_fact:
+        ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
+
+    - name: Set node schains
+      set_fact:
+        node_schains: "{{ hostvars['localhost'].node_schains }}"
+
+    - name: Make snapshot
+      include: tasks/schains_backup.yaml
+      vars:
+        schains: "{{ node_schains[ip_address] }}"
+      when: ip_address in node_schains

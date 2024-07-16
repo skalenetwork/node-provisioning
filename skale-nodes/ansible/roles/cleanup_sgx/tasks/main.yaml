@@ -1,0 +1,28 @@
+- name: Destroy sgx container
+  become: true
+  docker_container:
+    name: "sgx"
+    state: absent
+    force_kill: yes
+    keep_volumes: no
+  tags: sgx
+  when: sgx_simulator is not defined or not sgx_simulator
+
+- name: Destroy sgx container
+  become: true
+  docker_container:
+    name: "sgx_sim"
+    state: absent
+    force_kill: yes
+    keep_volumes: no
+  tags: sgx
+  when: sgx_simulator is defined and sgx_simulator
+
+- name: Remove sgx-data directory
+  become: true
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ base_path }}/sgx-data"
+  tags: sgx

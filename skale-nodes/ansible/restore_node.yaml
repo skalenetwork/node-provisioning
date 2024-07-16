@@ -1,0 +1,8 @@
+- name: Restore node from backup tarball
+  hosts: nodes
+  vars:
+    - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
+
+  roles:
+    - role: node_restore
+      tags: restore_node

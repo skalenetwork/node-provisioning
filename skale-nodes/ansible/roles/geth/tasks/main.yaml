@@ -1,0 +1,8 @@
+- import_tasks: account.yaml
+  tags: account
+
+- import_tasks: genesis.yaml
+  tags: genesis
+
+- import_tasks: container.yaml
+  tags: container
