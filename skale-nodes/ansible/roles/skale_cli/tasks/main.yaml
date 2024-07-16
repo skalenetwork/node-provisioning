@@ -5,6 +5,13 @@
   when: env is defined and env == "dev"
 
 
+- name: Remove old binary builder image
+  community.docker.docker_image:
+    name: "node-cli-builder"
+    state: absent
+  when: env is defined and env == "dev"
+
+
 - name: Build binary builder image
   community.docker.docker_image_build:
     name: "node-cli-builder"

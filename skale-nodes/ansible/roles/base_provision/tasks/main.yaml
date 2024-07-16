@@ -51,17 +51,6 @@
     - pip
     - openssl
 
-- name: Sync requirements to remote machine
-  copy:
-    src: files/remote-requirements.txt
-    dest: "{{ base_path }}/requirements.txt"
-  tags: pip
-
-- name: Install requirements
-  pip:
-    requirements: "{{ base_path }}/requirements.txt"
-  tags: pip
-
 - name: Enable timedatectl
   shell: sudo timedatectl set-ntp on
   become: true

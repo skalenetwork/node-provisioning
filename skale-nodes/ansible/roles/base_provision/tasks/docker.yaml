@@ -2,16 +2,22 @@
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
-  tags:
-    - docker
+
 
 - name: Add docker repository
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu bionic stable
     state: present
-  tags:
-    - docker
+
 
 - name: Update apt and install docker-ce
   apt: update_cache=yes name=docker-ce state=latest
-  tags: docker
+
+
+- name: Install docker-compose
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64"
+    dest: "/usr/local/bin/docker-compose"
+    mode: "0744"
+    checksum: "sha512:8237edeb7855475c02a38f7738fba3ac854b6fb42d621bcde2348c20c5762e453cf9ce2175df470f72fe00ef11fc4e0cea196586f4427750b8ff4a6915a46bc3"
+  tags: docker-compose

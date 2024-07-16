@@ -1,0 +1,27 @@
+- name: Setup skale node
+  hosts: archive
+  become: true
+  roles:
+    - role: sync
+      tags: sync
+      when: env is defined and env == "dev"
+
+    - role: skale_cli
+      tags: cli
+
+    - role: config
+      tags: config
+
+    - role: init
+      tags: init
+
+
+- name: Reconfigure firewall rules
+  hosts: geth
+  become: true
+  tasks:
+    - name: Configure geth iptables
+      import_role:
+        name: geth
+        tasks_from: firewall
+      tags: firewall
