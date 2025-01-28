@@ -62,3 +62,10 @@
     state: started
   become: true
   tags: ntp
+
+- name: Disable IPv6 in UFW configuration
+  ansible.builtin.replace:
+    path: /etc/default/ufw
+    regexp: '^IPV6=yes'
+    replace: 'IPV6=no'
+    backup: yes
