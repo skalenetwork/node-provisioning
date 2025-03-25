@@ -20,7 +20,7 @@
 import logging
 import os
 
-from skale import Skale
+from skale import SkaleManager
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
@@ -31,29 +31,28 @@ init_default_logger()
 
 BASE_DIR = os.getenv('BASE_DIR')
 ENDPOINT = os.getenv('ENDPOINT')
-ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
+MANAGER_CONTRACTS = os.getenv('MANAGER_CONTRACTS')
 ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 SKALE_AMOUNT = float(os.getenv('SKALE_AMOUNT'))
 ETH_AMOUNT = float(os.getenv('ETH_AMOUNT'))
 
 web3 = init_web3(ENDPOINT)
 wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
-skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
+skale = SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
 
 
 def save_wallet_info(i, account):
-    filepath = os.path.join(BASE_DIR, f'wallet.txt')
+    filepath = os.path.join(BASE_DIR, 'wallet.txt')
     with open(filepath, 'w') as outfile:
         logger.info(f'Saving info to {filepath}')
-        outfile.write(account["private_key"])
+        outfile.write(account['private_key'])
 
 
 def prepare_wallet():
-    accounts = generate_accounts(skale, skale.wallet, 1,
-                                 SKALE_AMOUNT, ETH_AMOUNT, True)
+    accounts = generate_accounts(skale, skale.wallet, 1, SKALE_AMOUNT, ETH_AMOUNT, True)
     for i, account in enumerate(accounts):
         save_wallet_info(i, account)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     prepare_wallet()

@@ -4,15 +4,13 @@
     path: "{{ playbook_dir}}/files/node-info/"
   tags: node_info_cleanup
 
-
 - name: Cleanup group_vars/all from contracts links
   lineinfile:
     state: absent
     regexp: "{{ item }}"
     path: "{{ playbook_dir }}/group_vars/all"
-  loop: ["^sm_url", "^ima_url"]
+  loop: ["^sm_address", "^ima_address"]
   tags: group_vars_cleanup
-
 
 - name: Find all abis
   find:
@@ -20,19 +18,16 @@
     patterns: ["*.json"]
   register: abi_files
 
-
 - name: Cleanup contract abis
   file:
     state: absent
     path: "{{ item.path }}"
   loop: "{{ abi_files.files }}"
 
-
 - name: Cleanup manager manifests
   file:
     state: absent
     path: "{{ playbook_dir }}/../../helper-scripts/contracts_data/openzeppelin"
-
 
 - name: Cleanup ima manifests
   file:

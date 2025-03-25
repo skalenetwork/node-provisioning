@@ -1,7 +1,7 @@
 import logging
 import os
 
-from skale import Skale
+from skale import SkaleManager
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
@@ -11,12 +11,12 @@ init_default_logger()
 
 BASE_DIR = os.getenv('BASE_DIR')
 ENDPOINT = os.getenv('ENDPOINT')
-ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
+MANAGER_CONTRACTS = os.getenv('MANAGER_CONTRACTS')
 ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 
 web3 = init_web3(ENDPOINT)
 wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
-skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
+skale = SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
 
 
 def remove_active_nodes():
@@ -27,10 +27,7 @@ def remove_active_nodes():
 def get_all_schains_names(skale):
     schains_ids = skale.schains_internal.get_all_schains_ids()
     print(schains_ids)
-    names = [
-        skale.schains.get(sid).get('name')
-        for sid in schains_ids
-    ]
+    names = [skale.schains.get(sid).get('name') for sid in schains_ids]
     return names
 
 
@@ -45,5 +42,5 @@ def cleanup():
     remove_active_nodes()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     cleanup()

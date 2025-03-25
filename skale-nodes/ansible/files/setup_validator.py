@@ -22,7 +22,7 @@ import os
 import random
 import string
 
-from skale import Skale
+from skale import SkaleManager
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
@@ -34,7 +34,7 @@ init_default_logger()
 
 BASE_DIR = os.getenv('BASE_DIR')
 ENDPOINT = os.getenv('ENDPOINT')
-ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
+MANAGER_CONTRACTS = os.getenv('MANAGER_CONTRACTS')
 ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 ETH_AMOUNT = float(os.getenv('ETH_AMOUNT'))
 MIN_DELEGATION_AMOUNT = int(os.getenv('MIN_DELEGATION_AMOUNT'))
@@ -46,7 +46,7 @@ NODES_NUMBER = int(os.getenv('NODES_NUMBER'))
 
 web3 = init_web3(ENDPOINT)
 wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
-skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
+skale = SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
 
 
 def create_base_account_for_validator(validator_web3) -> dict:
@@ -55,10 +55,9 @@ def create_base_account_for_validator(validator_web3) -> dict:
     return account_data
 
 
-def create_skale_for_validator(account_dict, validator_web3) -> Skale:
-    validator_skale = Skale(
-        ENDPOINT, ABI_FILEPATH,
-        Web3Wallet(account_dict['private_key'], validator_web3)
+def create_skale_for_validator(account_dict, validator_web3) -> SkaleManager:
+    validator_skale = SkaleManager(
+        ENDPOINT, MANAGER_CONTRACTS, Web3Wallet(account_dict['private_key'], validator_web3)
     )
     return validator_skale
 
@@ -66,15 +65,14 @@ def create_skale_for_validator(account_dict, validator_web3) -> Skale:
 def create_validator(name):
     validator_web3 = init_web3(ENDPOINT)
     validator_base_account = create_base_account_for_validator(validator_web3)
-    validator_skale = create_skale_for_validator(validator_base_account,
-                                                 validator_web3)
+    validator_skale = create_skale_for_validator(validator_base_account, validator_web3)
 
     tx_res = validator_skale.validator_service.register_validator(
         name=name,
         description=f'Validator for node {name}',
         fee_rate=COMMISSION_RATE,
         min_delegation_amount=MIN_DELEGATION_AMOUNT,
-        wait_for=True
+        wait_for=True,
     )
     tx_res.raise_for_status()
 
@@ -85,8 +83,7 @@ def create_validator(name):
 
 def whitelist_validator(validator_id):
     if not skale.validator_service._is_authorized_validator(validator_id):
-        tx_res = skale.validator_service._enable_validator(validator_id,
-                                                           wait_for=True)
+        tx_res = skale.validator_service._enable_validator(validator_id, wait_for=True)
         tx_res.raise_for_status()
 
 
@@ -99,10 +96,7 @@ def setup_validator():
     vid, pkey = create_validator(name)
 
     whitelist_validator(vid)
-    skale.constants_holder._set_msr(
-        new_msr=0,
-        wait_for=True
-    )
+    skale.constants_holder._set_msr(new_msr=0, wait_for=True)
     with open(BASE_KEY_FILEPATH, 'w') as pkey_file:
         pkey_file.write(pkey)
     with open(VALIDATOR_ID_FILEPATH, 'w') as vid_file:
@@ -114,5 +108,5 @@ def main():
     setup_validator()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

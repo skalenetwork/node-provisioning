@@ -1,10 +1,10 @@
-  # - name: Get block device from lvm-block-device file created by terraform
-  #   shell: cat "{{ base_path }}/lvm-block-device"
-  #   register: block_device
+# - name: Get block device from lvm-block-device file created by terraform
+#   shell: cat "{{ base_path }}/lvm-block-device"
+#   register: block_device
 
 - name: Set SM download URL
   set_fact:
-    manager_contracts: "{{ sm_url }}"
+    manager_contracts: "{{ sm_address }}"
   when: manager_contracts is undefined
   tags: contracts
 
@@ -16,7 +16,7 @@
 
 - name: Set IMA download URL
   set_fact:
-    ima_contracts: "{{ ima_url }}"
+    ima_contracts: "{{ ima_address }}"
   when: ima_contracts is undefined
   tags: contracts
 
@@ -46,8 +46,8 @@
       IMA_ENDPOINT="{{ ima_endpoint }}"
       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
-      MANAGER_CONTRACTS_ABI_URL="{{ manager_contracts }}"
-      IMA_CONTRACTS_ABI_URL="{{ ima_contracts }}"
+      MANAGER_CONTRACTS="{{ manager_contracts }}"
+      IMA_CONTRACTS="{{ ima_contracts }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
       DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
       DISK_MOUNTPOINT="{{ block_device }}"
@@ -74,8 +74,8 @@
       DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
       ENV_TYPE="{{ env_type }}"
       SCHAIN_NAME="{{ schain_name }}"
-      MANAGER_CONTRACTS_ABI_URL={{ manager_contracts }}
-      IMA_CONTRACTS_ABI_URL={{ ima_contracts }}
+      MANAGER_CONTRACTS={{ manager_contracts }}
+      IMA_CONTRACTS={{ ima_contracts }}
       DISK_MOUNTPOINT={{ block_device }}
       INFLUX_URL="{{ influx_url }}"
       TELEGRAF="{{ telegraf }}"
