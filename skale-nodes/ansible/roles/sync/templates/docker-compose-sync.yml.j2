@@ -31,6 +31,8 @@ services:
       ENV_TYPE: ${ENV_TYPE}
       SCHAIN_NAME: ${SCHAIN_NAME}
       SYNC_NODE: "True"
+      MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
+      IMA_CONTRACTS: ${IMA_CONTRACTS}
     command: "python3 sync_node.py"
     volumes:
       - /var/run/skale:/var/run/skale
