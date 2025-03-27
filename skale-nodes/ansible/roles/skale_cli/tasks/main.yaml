@@ -15,6 +15,7 @@
 - name: Build binary builder image
   community.docker.docker_image_build:
     name: "node-cli-builder"
+    network: host
     path: "{{ base_path }}/node-cli"
   when: env is defined and env == "dev"
 
