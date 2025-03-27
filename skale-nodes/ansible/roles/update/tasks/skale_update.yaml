@@ -1,6 +1,6 @@
 - name: Run skale node update
   shell:
-    cmd: "skale node update {{ base_path }}/init-env --yes --pull-config all"
+    cmd: "skale node update {{ base_path }}/init-env --yes --pull-config all --unsafe"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
@@ -10,7 +10,7 @@
 
 - name: Run skale sync node update
   shell:
-    cmd: "skale sync-node update {{ base_path }}/init-env --yes"
+    cmd: "skale sync-node update {{ base_path }}/init-env --yes --unsafe"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
