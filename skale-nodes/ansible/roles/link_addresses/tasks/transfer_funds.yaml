@@ -5,6 +5,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ADDRESS: "{{ lookup('file', '{{ item }}').split()[0].strip() }}"
     ENDPOINT: "{{ endpoint }}"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
     BASE_DIR: "files"
     AMOUNT: 0.2
   args:

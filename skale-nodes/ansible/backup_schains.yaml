@@ -8,6 +8,7 @@
       environment:
         ETH_PRIVATE_KEY: "{{ eth_private_key }}"
         ENDPOINT: "{{ endpoint }}"
+        MANAGER_CONTRACTS: "{{ manager_contracts }}"
         BASE_DIR: "files"
       args:
         executable: python3

@@ -21,6 +21,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MIN_DELEGATION_AMOUNT: "0"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
     COMMISSION_RATE: "1"
     NODES_NUMBER: "{{ hosts|length }}"
   args:
