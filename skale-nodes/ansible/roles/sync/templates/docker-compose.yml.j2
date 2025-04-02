@@ -19,6 +19,7 @@ services:
     build:
       context: "{{ base_path }}/transaction-manager"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     tty: true
     environment:
@@ -36,6 +37,7 @@ services:
     build:
       context: "{{ base_path }}/skale-admin"
       dockerfile: Dockerfile
+      network: host
     cpu_shares: 192
     network_mode: host
     tty: true
@@ -83,6 +85,7 @@ services:
     build:
       context: "{{ base_path }}/skale-admin"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     tty: true
     cap_add:
@@ -127,6 +130,7 @@ services:
     build:
       context: "{{ base_path }}/skale-admin"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     tty: true
     environment:
@@ -158,6 +162,7 @@ services:
     build:
       context: "{{ base_path }}/bounty-agent"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     environment:
       SGX_SERVER_URL: ${SGX_SERVER_URL}
@@ -182,6 +187,7 @@ services:
     build:
       context: "{{ base_path }}/skale-watchdog"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     environment:
       FLASK_APP_PORT: 3010
