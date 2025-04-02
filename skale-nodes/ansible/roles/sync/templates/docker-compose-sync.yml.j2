@@ -19,6 +19,7 @@ services:
     image: "skale-admin:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-admin"
+      network: host
       dockerfile: Dockerfile
     network_mode: host
     tty: true
