@@ -1,19 +1,12 @@
-- name: Set SM download URL
+- name: Set Skale Manager contract address
   set_fact:
-    manager_contracts: "{{ sm_url }}"
+    manager_contracts: "{{ sm_address }}"
   when: manager_contracts is undefined
 
-- name: Crash if no SM ABIs URL provided
-  fail: 
+- name: Crash if no Skale Manager contract address provided
+  fail:
     msg: manager_contracts is undefined
   when: manager_contracts is undefined
-
-- name: Download contracts to the local machine
-  get_url:
-      url: "{{ manager_contracts }}"
-      dest: "files/manager.json"
-      mode: 0644
-      validate_certs: false
 
 - name: Set hosts
   set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
@@ -28,6 +21,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MIN_DELEGATION_AMOUNT: "0"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
     COMMISSION_RATE: "1"
     NODES_NUMBER: "{{ hosts|length }}"
   args:

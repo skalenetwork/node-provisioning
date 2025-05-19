@@ -20,7 +20,7 @@
 import os
 import logging
 
-from skale import Skale
+from skale import SkaleManager
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
@@ -30,7 +30,7 @@ from skale.utils.web3_utils import to_checksum_address
 
 BASE_DIR = os.getenv('BASE_DIR')
 ENDPOINT = os.getenv('ENDPOINT')
-ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
+MANAGER_CONTRACTS = os.getenv('MANAGER_CONTRACTS')
 ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 ADDRESS = os.getenv('ADDRESS')
 AMOUNT = float(os.getenv('AMOUNT'))
@@ -42,7 +42,7 @@ init_default_logger()
 def init_web3_skale():
     web3 = init_web3(ENDPOINT)
     wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
-    return Skale(ENDPOINT, ABI_FILEPATH, wallet)
+    return SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
 
 
 def main():
@@ -51,5 +51,5 @@ def main():
     send_eth(skale.web3, skale.wallet, address, AMOUNT)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

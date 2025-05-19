@@ -65,6 +65,8 @@ services:
       ALLOWED_TS_DIFF: 10000
       TELEGRAF: "${TELEGRAF}"
       INFLUX_URL: "${INFLUX_URL}"
+      MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
+      IMA_CONTRACTS: ${IMA_CONTRACTS}
     command: "python3 admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
@@ -116,6 +118,8 @@ services:
       ENV_TYPE: ${ENV_TYPE}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
       ALLOWED_TS_DIFF: 10000
+      MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
+      IMA_CONTRACTS: ${IMA_CONTRACTS}
     command: "gunicorn app:app -c gunicorn.conf.py"
     volumes:
       - /var/run/skale:/var/run/skale
@@ -176,6 +180,8 @@ services:
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
       ALLOWED_TS_DIFF: 10000
+      MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
+      IMA_CONTRACTS: ${IMA_CONTRACTS}
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data

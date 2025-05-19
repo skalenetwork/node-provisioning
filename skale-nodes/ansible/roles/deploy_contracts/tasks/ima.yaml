@@ -9,36 +9,9 @@
   tags:
     - deploy_ima
 
-- name: Generate random string
-  set_fact:
-    random_str: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=15') }}"
-  tags:
-    - upload_ima
-
-- name: Upload IMA ABI to S3
-  aws_s3:
-    aws_access_key: "{{ aws_key }}"
-    aws_secret_key: "{{ aws_secret }}"
-    bucket: "skale-abis"
-    src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/ima.json"
-    object: 'ima-abi-{{ ima_tag }}-{{ random_str }}.json'
-    region: 'eu-central-1'
-    mode: put
-    permission: "public-read"
-  tags:
-    - upload_ima
-  register: url_output
-
-- name: Format download URL
-  shell:  echo "{{ url_output.url }}" | cut -f1 -d"?"
-  register: ima_url
-  tags:
-    - upload_ima
-
-- name: Show ABIs download URL
-  debug:
-   msg: >-
-      ABIs download URL: {{ ima_url.stdout }}
+- name: Get SM Contract Address
+  shell: "jq -r '.message_proxy_mainnet_address' {{ playbook_dir }}/../../helper-scripts/contracts_data/ima.json"
+  register: ima_address
   tags:
     - upload_ima
 
@@ -46,8 +19,8 @@
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
     insertafter: EOF
-    regexp: '^ima_url:'
-    line: "ima_url: {{ ima_url.stdout }}"
+    regexp: "^ima_address:"
+    line: "ima_address: {{ ima_address.stdout }}"
     state: present
   tags:
     - upload_ima

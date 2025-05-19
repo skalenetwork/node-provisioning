@@ -22,7 +22,7 @@ import json
 import logging
 import os
 
-from skale import Skale
+from skale import SkaleManager
 from skale.wallets import Web3Wallet
 from skale.utils.helper import ip_from_bytes
 from skale.utils.web3_utils import init_web3
@@ -31,23 +31,20 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = os.getenv('BASE_DIR')
 ENDPOINT = os.getenv('ENDPOINT')
-ABI_FILEPATH = os.path.join(BASE_DIR, 'manager.json')
+MANAGER_CONTRACTS = os.getenv('MANAGER_CONTRACTS')
 ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 
 
 def dropped_irrelevant(node_data):
-    return {
-        'name': node_data['name'],
-        'ip': ip_from_bytes(node_data['ip'])
-    }
+    return {'name': node_data['name'], 'ip': ip_from_bytes(node_data['ip'])}
 
 
 def get_nodes_by_schain(skale, schain):
     node_ids = skale.schains_internal.get_node_ids_for_schain(schain)
-    return sorted([
-        dropped_irrelevant(skale.nodes.get(nid))
-        for nid in node_ids
-    ], key=lambda node: node['name'])
+    return sorted(
+        [dropped_irrelevant(skale.nodes.get(nid)) for nid in node_ids],
+        key=lambda node: node['name'],
+    )
 
 
 def get_all_schains(skale):
@@ -75,11 +72,10 @@ def get_schains_by_nodes(skale, schains, unique_nodes=False):
 def main():
     web3 = init_web3(ENDPOINT)
     wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
-    skale = Skale(ENDPOINT, ABI_FILEPATH, wallet)
+    skale = SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
 
     parser = argparse.ArgumentParser(
-        prog='FetchSchainsNodes',
-        description='Fetch schains by node info from mainnet'
+        prog='FetchSchainsNodes', description='Fetch schains by node info from mainnet'
     )
     parser.add_argument('-u', '--unique', action='store_true')
 
@@ -87,11 +83,7 @@ def main():
 
     schains = get_all_schains(skale)
 
-    schains_by_nodes = get_schains_by_nodes(
-        skale,
-        schains,
-        unique_nodes=args.unique
-    )
+    schains_by_nodes = get_schains_by_nodes(skale, schains, unique_nodes=args.unique)
     print(json.dumps(schains_by_nodes, indent=4))
 
 
