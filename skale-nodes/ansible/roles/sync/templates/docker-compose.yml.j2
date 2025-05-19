@@ -19,6 +19,7 @@ services:
     build:
       context: "{{ base_path }}/transaction-manager"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     tty: true
     environment:
@@ -36,6 +37,7 @@ services:
     build:
       context: "{{ base_path }}/skale-admin"
       dockerfile: Dockerfile
+      network: host
     cpu_shares: 192
     network_mode: host
     tty: true
@@ -48,10 +50,6 @@ services:
       SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
       ENDPOINT: ${ENDPOINT}
       IMA_ENDPOINT: ${IMA_ENDPOINT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_PORT: ${DB_PORT}
       SKALE_DIR_HOST: ${SKALE_DIR}
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
@@ -65,11 +63,14 @@ services:
       ENV_TYPE: ${ENV_TYPE}
       DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
       ALLOWED_TS_DIFF: 10000
+      TELEGRAF: "${TELEGRAF}"
+      INFLUX_URL: "${INFLUX_URL}"
     command: "python3 admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
+      - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
     healthcheck:
       test: ["CMD", "python3", "healthchecks/admin.py"]
       interval: 1m
@@ -84,6 +85,7 @@ services:
     build:
       context: "{{ base_path }}/skale-admin"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     tty: true
     cap_add:
@@ -119,6 +121,7 @@ services:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
+      - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
 
   celery:
     <<: *skale_base
@@ -127,6 +130,7 @@ services:
     build:
       context: "{{ base_path }}/skale-admin"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     tty: true
     environment:
@@ -158,6 +162,7 @@ services:
     build:
       context: "{{ base_path }}/bounty-agent"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     environment:
       SGX_SERVER_URL: ${SGX_SERVER_URL}
@@ -182,6 +187,7 @@ services:
     build:
       context: "{{ base_path }}/skale-watchdog"
       dockerfile: Dockerfile
+      network: host
     network_mode: host
     environment:
       FLASK_APP_PORT: 3010

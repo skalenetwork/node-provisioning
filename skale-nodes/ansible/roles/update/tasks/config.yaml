@@ -1,7 +1,7 @@
 - name: Sync docker-compose.yml
   synchronize:
-    src: "{{ base_path }}/skale-node/docker-compose.yml"
-    dest: "{{ base_path }}/.skale/config/docker-compose.yml"
+    src: "{{ base_path }}/skale-node/docker-compose-sync.yml"
+    dest: "{{ base_path }}/.skale/config/docker-compose-sync.yml"
   delegate_to: "{{ inventory_hostname }}"
 
 - name: Sync containers.json

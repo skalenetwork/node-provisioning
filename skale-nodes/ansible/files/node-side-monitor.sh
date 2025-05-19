@@ -25,6 +25,10 @@ process_names:
     cmdline:
     - --ws-port (?P<wsPort>\d+)
     name: "{{.ExeBase}}:{{.Matches.wsPort}}"
+  - exe:
+    - telegraf
+    cmdline:
+    - --watch-config notify
 ****
 
 docker run --rm -p 9256:9256 --privileged -v /proc:/host/proc -v `pwd`:/config --name pexporter ncabatoff/process-exporter --procfs /host/proc -config.path /config/process-exporter.yml&

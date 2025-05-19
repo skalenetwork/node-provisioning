@@ -2,6 +2,8 @@
   set_fact:
     grafana_path: "{{ base_path }}/monitoring/grafana"
     prom_path: "{{ base_path }}/monitoring/prom"
+    influx_path: "{{ base_path }}/monitoring/influx"
+    vm_path: "{{ base_path }}/monitoring/vm"
 
 
 - name: Create base directories
@@ -9,7 +11,7 @@
     state: directory
     path: "{{ item.0 }}/{{ item.1 }}"
     mode: u+rwx,g+rwx,o+rwx
-  loop: "{{ [grafana_path, prom_path] | product(['config', 'data']) | list }}"
+  loop: "{{ [grafana_path, prom_path, influx_path, vm_path] | product(['config', 'data']) | list }}"
 
 
 - name: Set metirics ports
@@ -36,11 +38,57 @@
           static_configs:
             - targets: {{ node_ips| product(ports) | map("join", ":") | list }}
 
+        - job_name: telegraf
+          scrape_interval: 5s
+          static_configs:
+            - targets: ['10.3.155.127:9279']
+
+
+- name: Save grafana config
+  set_fact:
+    grafana_config: |
+      [plugins]
+        allow_loading_unsigned_plugins = victoriametrics-datasource
+
 
 - name: Save prometheus config
   copy:
     content: "{{ prometheus_config }}"
     dest: "{{ prom_path }}/config/prometheus.yml"
+
+
+- name: Save influx config
+  set_fact:
+    influx_config: |
+      query-concurrency = 20
+      query-queue-size = 15
+      session-length = 120
+      http-bind-address = ":2359"
+      database = "metrics"
+
+
+- name: Save VM config
+  set_fact:
+    vm_config: |
+      database = "metrics"
+
+
+- name: Save grafana config
+  copy:
+    content: "{{ grafana_config }}"
+    dest: "{{ grafana_path }}/config/grafana.ini"
+
+
+- name: Save influx config
+  copy:
+    content: "{{ influx_config }}"
+    dest: "{{ influx_path }}/config/config.toml"
+
+
+- name: Save influx config
+  copy:
+    content: "{{ vm_config }}"
+    dest: "{{ vm_path }}/config/config.toml"
 
 
 - name: Setup prometheus container
@@ -61,6 +109,35 @@
       - "{{ prom_path }}/config:/etc/prometheus"
 
 
+- name: Setup influxdb container
+  docker_container:
+    name: "influx"
+    image: influxdb:2.7.5
+    ports: 2359
+    state: started
+    memory: 2GB
+    network_mode: host
+    volumes:
+      - "{{ influx_path }}/data:/var/lib/influxdb2"
+      - "{{ influx_path }}/config:/etc/influxdb2"
+    env:
+      INFLUXD_CONFIG_PATH: "/etc/influxdb2/config.toml"
+
+
+- name: Setup vm container
+  docker_container:
+    image: victoriametrics/victoria-metrics
+    name: vm
+    state: started
+    ports: 8428
+    state: started
+    network_mode: host
+    memory: 1GB
+    volumes:
+      - "{{ vm_path }}/data:/victoria-metrics-data"
+        # - "{{ vm_path }}/config:/victoria-metrics-data"
+
+
 - name: Setup grafana container
   docker_container:
     name: "grafana"
@@ -69,5 +146,8 @@
     state: started
     memory: 2GB
     network_mode: host
+    command:
+      - '--config=/etc/grafana/grafana.ini'
     volumes:
       - "{{ grafana_path }}/data:/opt/grafana/data"
+      - "{{ grafana_path }}/config:/etc/grafana"
