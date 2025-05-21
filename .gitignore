@@ -55,3 +55,4 @@ bare-metal/ansible/files/restart_vm*
 bare-metal/ansible/conf*
 
 skale-nodes/ansible/group_vars/all
+skale-nodes/ansible/roles/base_provision/files/files/authorized_keys

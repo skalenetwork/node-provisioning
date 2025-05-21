@@ -20,7 +20,7 @@
     path: "{{ playbook_dir }}/group_vars/all"
     insertafter: EOF
     regexp: "^ima_address:"
-    line: "ima_address: {{ ima_address.stdout }}"
+    line: 'ima_address: "{{ ima_address.stdout }}"'
     state: present
   tags:
     - upload_ima

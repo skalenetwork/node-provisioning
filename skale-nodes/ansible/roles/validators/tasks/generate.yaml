@@ -1,6 +1,6 @@
 - name: Set Skale Manager contract address
   set_fact:
-    manager_contracts: "{{ sm_address }}"
+    manager_contracts: "{{ sm_address.stdout }}"
   when: manager_contracts is undefined
 
 - name: Crash if no Skale Manager contract address provided

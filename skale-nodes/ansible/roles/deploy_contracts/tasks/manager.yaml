@@ -32,6 +32,6 @@
     path: "{{ playbook_dir }}/group_vars/all"
     insertafter: EOF
     regexp: "^sm_address:"
-    line: "sm_address: {{ sm_address.stdout }}"
+    line: 'sm_address: "{{ sm_address.stdout }}"'
     state: present
   tags: upload_sm
