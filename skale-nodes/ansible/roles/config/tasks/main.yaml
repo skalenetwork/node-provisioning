@@ -1,7 +1,3 @@
-# - name: Get block device from lvm-block-device file created by terraform
-#   shell: cat "{{ base_path }}/lvm-block-device"
-#   register: block_device
-
 - name: Set Skale Manager contract address
   set_fact:
     manager_contracts: "{{ sm_address }}"
@@ -31,7 +27,22 @@
     sgx_url: "https://{{ hostvars['sgx0'].ansible_host }}:1026"
   when: sgx_url is not defined or sgx_url == ''
 
-- name: Set env options
+- name: Set env options for Mirage node
+  set_fact:
+    env_options: |
+      MANAGER_CONTRACTS="{{ manager_contracts }}"
+      IMA_CONTRACTS="{{ ima_contracts }}"
+      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      ENDPOINT="{{ endpoint }}"
+      DISK_MOUNTPOINT="{{ block_device }}"
+      SGX_SERVER_URL="{{ sgx_url }}"
+      ENV_TYPE="{{ env_type }}"
+      FILEBEAT_HOST="{{ filebeat_host }}"
+      ENFORCE_BTRFS='False'
+  when: node_type is defined and node_type == "mirage"
+  tags: env
+
+- name: Set env options for regular SKALE node
   set_fact:
     env_options: |
       ENDPOINT="{{ endpoint }}"
@@ -52,11 +63,12 @@
       DISABLE_IMA="{{ disable_ima }}"
       INFLUX_URL="{{ influx_url }}"
       TELEGRAF="{{ telegraf }}"
-
-  when: sync_node is not defined or not sync_node
+  when:
+    - (node_type is not defined or node_type != "mirage")
+    - (sync_node is not defined or not sync_node)
   tags: env
 
-- name: Set env options sync node
+- name: Set env options for SKALE sync node
   set_fact:
     env_options: |
       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
@@ -71,7 +83,10 @@
       DISK_MOUNTPOINT={{ block_device }}
       INFLUX_URL="{{ influx_url }}"
       TELEGRAF="{{ telegraf }}"
-  when: sync_node is defined and sync_node
+  when:
+    - (node_type is not defined or node_type != "mirage")
+    - (sync_node is defined and sync_node)
+  tags: env
 
 - name: Show env
   debug:
