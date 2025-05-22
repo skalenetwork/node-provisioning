@@ -2,6 +2,7 @@
   systemd:
     state: stopped
     name: docker-lvmpy
+  when: node_type is not defined or node_type != "mirage"
 
 - name: Remove docker-lvmpy artifacts
   file:
@@ -12,3 +13,4 @@
     - "/opt/docker-lvmpy"
     - "/etc/docker-lvmpy"
     - "/etc/systemd/system/docker-lvmpy.service"
+  when: node_type is not defined or node_type != "mirage"
