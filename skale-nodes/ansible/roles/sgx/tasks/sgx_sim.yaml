@@ -10,8 +10,8 @@
     volumes:
       - "{{ base_path }}/sgx-data:/usr/src/sdk/sgx_data"
       - "/dev/urandom:/dev/random"
-    command: -s -y -d -V
+    command: -s -y -d -V -b
     log_driver: json-file
     log_opt:
-        max-size: "10m"
-        max-file: "4"
+      max-size: "10m"
+      max-file: "4"

@@ -7,6 +7,16 @@
     - "{{ base_path }}/.skale"
     - "{{ base_path }}/init-env"
 
+- name: Unmount schains directory
+  ansible.builtin.mount:
+    path: /var/lib/skale/schains
+    state: unmounted
+
+- name: Remove schains directory
+  file:
+    path: /var/lib/skale/schains
+    state: absent
+
 - name: Remove node artifacts from /var and /etc
   file:
     path: "{{ item }}"
@@ -24,4 +34,4 @@
   ansible.builtin.iptables:
     chain: "{{ item }}"
     flush: yes
-  with_items:  [ 'INPUT', 'FORWARD', 'OUTPUT' ]
+  with_items: ["INPUT", "FORWARD", "OUTPUT"]
