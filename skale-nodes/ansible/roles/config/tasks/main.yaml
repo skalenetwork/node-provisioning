@@ -1,6 +1,6 @@
 - name: Set Skale Manager contract address
   set_fact:
-    manager_contracts: "{{ sm_address }}"
+    manager_contracts: "{{ hostvars['localhost']['sm_address'] }}"
   when: manager_contracts is undefined
   tags: contracts
 
