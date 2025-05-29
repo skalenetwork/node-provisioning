@@ -4,7 +4,7 @@
 
 - name: Run mirage boot register
   command:
-    cmd: "{{ cli_command_name }} boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
+    cmd: "{{ node_type }} boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
@@ -12,7 +12,7 @@
 
 - name: Run skale node register
   command:
-    cmd: "{{ cli_command_name }} node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000 --domain {{ ip_address }}.{{ base_domain_name }}"
+    cmd: "{{ node_type }} node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000 --domain {{ ip_address }}.{{ base_domain_name }}"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8

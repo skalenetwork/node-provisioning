@@ -18,7 +18,7 @@
     msg: "{{ validator_id }}"
 
 - name: Get wallet info output
-  command: "sudo {{ cli_command_name }} wallet info -f json"
+  command: "sudo {{ node_type }} wallet info -f json"
   register: wallet_cmd_result
   environment:
     LC_ALL: "C.UTF-8"
