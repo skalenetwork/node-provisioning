@@ -8,10 +8,10 @@
   tags: sgx
   when: sgx_simulator is not defined or not sgx_simulator
 
-- name: Destroy sgx container
+- name: Destroy sgx-sim container
   become: true
   docker_container:
-    name: "sgx_sim"
+    name: "sgx-sim"
     state: absent
     force_kill: yes
     keep_volumes: no
