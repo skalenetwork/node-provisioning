@@ -12,7 +12,7 @@
 
 - name: Set IMA contract address
   set_fact:
-    ima_contracts: "{{ ima_address }}"
+    ima_contracts: "{{ hostvars['localhost']['ima_address'] }}"
   when: ima_contracts is undefined
   tags: contracts
 
