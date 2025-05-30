@@ -9,18 +9,24 @@
   tags:
     - deploy_ima
 
-- name: Get SM Contract Address
+- name: Get IMA Contract Address
   shell: "jq -r '.message_proxy_mainnet_address' {{ playbook_dir }}/../../helper-scripts/contracts_data/ima.json"
-  register: ima_address
+  register: ima_address_output
+  changed_when: false
   tags:
     - upload_ima
+
+- name: Save IMA Contract Address to variable
+  set_fact:
+    ima_address: "{{ ima_address_output.stdout }}"
+  tags: upload_ima
 
 - name: Save IMA URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
     insertafter: EOF
     regexp: "^ima_address:"
-    line: 'ima_address: "{{ ima_address.stdout }}"'
+    line: 'ima_address: "{{ ima_address }}"'
     state: present
   tags:
     - upload_ima
