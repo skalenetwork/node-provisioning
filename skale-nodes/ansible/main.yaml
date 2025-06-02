@@ -1,4 +1,4 @@
-#- import_playbook: base.yaml
+- import_playbook: base.yaml
 #- import_playbook: geth.yaml
 - import_playbook: deploy_contracts.yaml
 - import_playbook: sgx_sim.yaml
