@@ -4,7 +4,9 @@
     url: "{{ mirage_cli_url }}"
     dest: "/usr/local/bin/mirage"
     mode: "0755"
-  when: node_type == "mirage"
+  when:
+    - node_type == "mirage"
+    - build_type == "git"
   tags: binary
 
 # --- Logic for SKALE Nodes ---
