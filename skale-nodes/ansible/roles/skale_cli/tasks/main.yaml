@@ -7,13 +7,6 @@
   when: node_type == "mirage"
   tags: binary
 
-- name: Register mirage command path and name
-  set_fact:
-    cli_executable_path: "/usr/local/bin/mirage"
-    cli_command_name: "mirage"
-  when: node_type == "mirage"
-  tags: binary
-
 # --- Logic for SKALE Nodes ---
 - name: Makedir dist (for SKALE CLI build)
   file:
@@ -107,11 +100,4 @@
   when:
     - node_type == "skale"
     - build_type == "git"
-  tags: binary
-
-- name: Register skale command path and name
-  set_fact:
-    cli_executable_path: "/usr/local/bin/skale"
-    cli_command_name: "skale"
-  when: node_type == "skale"
   tags: binary
