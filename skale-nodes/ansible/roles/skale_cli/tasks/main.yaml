@@ -5,7 +5,7 @@
     dest: "/usr/local/bin/mirage"
     mode: "0755"
   when:
-    - node_type == "mirage"
+    - node_type == "mirage_boot"
     - build_type == "git"
   tags: binary
 

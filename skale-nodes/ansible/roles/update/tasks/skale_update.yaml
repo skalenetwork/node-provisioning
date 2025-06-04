@@ -5,7 +5,7 @@
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
     HOME_DIR: "{{ base_path }}"
-  when: node_type == "mirage"
+  when: node_type == "mirage_boot"
   tags: skale_update
 
 - name: Run Skale node update

@@ -5,10 +5,10 @@
 - name: Compose register command
   set_fact:
     node_register_command: >-
-      {% if node_type == "mirage" %}
-      {{ node_type }} boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 --domain {{ inventory_hostname }}.{{ base_domain_name }}
-      {% else %}
-      {{ node_type }} node register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 --domain {{ inventory_hostname }}.{{ base_domain_name }}
+      {% if node_type == "mirage_boot" %}
+      mirage boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}
+      {% elif node_type == "skale" %}
+      skale node register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}
       {% endif %}
 
 - name: Run node register command

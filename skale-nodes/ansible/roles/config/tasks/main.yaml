@@ -39,7 +39,7 @@
       ENV_TYPE="{{ env_type }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
       ENFORCE_BTRFS='False'
-  when: node_type == "mirage"
+  when: node_type == "mirage_boot"
   tags: env
 
 - name: Set env options for regular SKALE node

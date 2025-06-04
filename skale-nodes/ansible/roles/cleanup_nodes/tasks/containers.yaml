@@ -46,7 +46,7 @@
     force_kill: yes
     keep_volumes: no
   tags: admin
-  when: node_type == "mirage"
+  when: node_type == "mirage_boot"
 
 - name: Destroy mirage admin container
   become: true
@@ -56,7 +56,7 @@
     force_kill: yes
     keep_volumes: no
   tags: admin
-  when: node_type == "mirage"
+  when: node_type == "mirage_boot"
 
 - name: Destroy all containers
   become: true

@@ -1,7 +1,7 @@
 - name: Define cmd for mirage boot node
   set_fact:
     cli_full_command: "{{ node_type }} boot init {{ base_path }}/init-env"
-  when: node_type == "mirage"
+  when: node_type == "mirage_boot"
 
 - name: Define cmd for regular SKALE node
   set_fact:
