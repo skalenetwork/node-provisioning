@@ -2,18 +2,18 @@
   set_fact:
     ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
 
-- name: Run mirage boot register
-  command:
-    cmd: "{{ node_type }} boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-  when: node_type == "mirage"
+- name: Compose register command
+  set_fact:
+    node_register_command: >-
+      {% if node_type == "mirage" %}
+      {{ node_type }} boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 --domain {{ inventory_hostname }}.{{ base_domain_name }}
+      {% else %}
+      {{ node_type }} node register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 --domain {{ inventory_hostname }}.{{ base_domain_name }}
+      {% endif %}
 
-- name: Run skale node register
+- name: Run node register command
   command:
-    cmd: "{{ node_type }} node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000 --domain {{ ip_address }}.{{ base_domain_name }}"
+    cmd: "{{ node_register_command }}
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
-  when: node_type == "skale"
