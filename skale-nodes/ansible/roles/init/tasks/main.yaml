@@ -1,27 +1,27 @@
 - name: Define cmd for mirage boot node
   set_fact:
     cli_full_command: "{{ node_type }} boot init {{ base_path }}/init-env"
-  when: node_type is defined and node_type == "mirage"
+  when: node_type == "mirage"
 
 - name: Define cmd for regular SKALE node
   set_fact:
     cli_full_command: "{{ node_type }} node init {{ base_path }}/init-env"
   when:
-    - node_type is not defined or node_type != "mirage"
+    - node_type == "skale"
     - sync_node is not defined or not sync_node
 
 - name: Define cmd for SKALE sync node
   set_fact:
     cli_full_command: "{{ node_type }} sync-node init {{ base_path }}/init-env"
   when:
-    - node_type is not defined or node_type != "mirage"
+    - node_type == "skale"
     - sync_node is defined and sync_node
 
 - name: Add --catchup if needed (SKALE sync node)
   set_fact:
     cli_full_command: "{{ cli_full_command }} --catchup"
   when:
-    - node_type is not defined or node_type != "mirage"
+    - node_type == "skale"
     - sync_node is defined and sync_node
     - catchup is defined and catchup
 
@@ -29,7 +29,7 @@
   set_fact:
     cli_full_command: "{{ cli_full_command }} --archive"
   when:
-    - node_type is not defined or node_type != "mirage"
+    - node_type == "skale"
     - sync_node is defined and sync_node
     - archive is defined and archive
 
@@ -37,7 +37,7 @@
   set_fact:
     cli_full_command: "{{ cli_full_command }} --historic-state"
   when:
-    - node_type is not defined or node_type != "mirage"
+    - node_type == "skale"
     - sync_node is defined and sync_node
     - historic_state is defined and historic_state
 

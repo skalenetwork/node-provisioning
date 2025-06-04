@@ -4,7 +4,7 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
+  when: build_type == "source"
   tags: admin
 
 - name: Synchronization of transaction-manager repo
@@ -13,7 +13,7 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
+  when: build_type == "source"
   tags: tm
 
 - name: Synchronization of skale-watchdog repo
@@ -22,7 +22,7 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
+  when: build_type == "source"
   tags: watchdog
 
 - name: Synchronization of skale-node repo
@@ -31,7 +31,7 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
+  when: build_type == "source"
   tags: skale-node
 
 - name: Synchronization of node-cli repo
@@ -40,7 +40,7 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
+  when: build_type == "source"
   tags: cli
 
 - name: Synchronization of bounty-agent repo
@@ -49,17 +49,17 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
+  when: build_type == "source"
   tags: bounty
 
 - name: Replace skale-node docker-compose file
   template:
     src: docker-compose.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose.yml"
-  when: env is defined and env == "dev"
+  when: build_type == "source"
 
 - name: Replace skale-node docker-compose-sync file
   template:
     src: docker-compose-sync.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose-sync.yml"
-  when: env is defined and env == "dev" and sync_node is defined and sync_node
+  when: build_type == "source" and sync_node is defined and sync_node

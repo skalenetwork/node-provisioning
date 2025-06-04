@@ -31,7 +31,7 @@
 - name: Determine signature command based on node_type
   set_fact:
     get_signature_command: >-  # Using >- for multi-line in YAML, processed by Jinja
-      {% if node_type is defined and node_type == "mirage" %}
+      {% if node_type == "mirage" %}
       sudo {{ node_type }} boot signature {{ validator_id }}
       {% else %}
       sudo {{ node_type }} node signature {{ validator_id }}

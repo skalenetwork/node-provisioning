@@ -8,7 +8,7 @@
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
-  when: node_type is defined and node_type == "mirage"
+  when: node_type == "mirage"
 
 - name: Run skale node register
   command:
@@ -16,4 +16,4 @@
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
-  when: node_type is not defined or node_type != "mirage"
+  when: node_type == "skale"

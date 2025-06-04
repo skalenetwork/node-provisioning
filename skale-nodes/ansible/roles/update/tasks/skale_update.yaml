@@ -5,7 +5,7 @@
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
     HOME_DIR: "{{ base_path }}"
-  when: node_type is defined and node_type == "mirage"
+  when: node_type == "mirage"
   tags: skale_update
 
 - name: Run Skale node update
@@ -16,7 +16,7 @@
     LC_ALL: en_US.utf-8
     HOME_DIR: "{{ base_path }}"
   when:
-    - (node_type is not defined or node_type != "mirage")
+    - node_type == "skale"
     - (sync_node is not defined or not sync_node)
   tags: skale_update
 
@@ -28,6 +28,6 @@
     LC_ALL: en_US.utf-8
     HOME_DIR: "{{ base_path }}"
   when:
-    - (node_type is not defined or node_type != "mirage")
+    - node_type == "skale"
     - (sync_node is defined and sync_node)
   tags: skale_update

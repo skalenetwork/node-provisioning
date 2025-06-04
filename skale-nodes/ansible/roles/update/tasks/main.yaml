@@ -1,6 +1,6 @@
 - name: Update configs
   import_tasks: config.yaml
-  when: env is defined and env == "dev"
+  when: build_type == "source"
 
 - name: Skale node update
   import_tasks: skale_update.yaml
