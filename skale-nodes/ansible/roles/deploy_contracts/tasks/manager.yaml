@@ -24,7 +24,13 @@
 
 - name: Get SM Contract Address
   shell: "jq -r '.skale_manager_address' {{ playbook_dir }}/../../helper-scripts/contracts_data/manager.json"
-  register: sm_address
+  register: sm_address_output
+  changed_when: false
+  tags: upload_sm
+
+- name: Save SM Contract Address to variable
+  set_fact:
+    sm_address: "{{ sm_address_output.stdout }}"
   tags: upload_sm
 
 - name: Save SM URL to group vars
@@ -32,6 +38,6 @@
     path: "{{ playbook_dir }}/group_vars/all"
     insertafter: EOF
     regexp: "^sm_address:"
-    line: "sm_address: {{ sm_address.stdout }}"
+    line: 'sm_address: "{{ sm_address }}"'
     state: present
   tags: upload_sm

@@ -2,7 +2,7 @@
   set_fact:
     node_info_dir: "files/node-info"
 
-- name:  Create foder for nodes addresses info
+- name: Create folder for nodes addresses info
   file:
     path: "{{ node_info_dir }}"
     state: directory
@@ -13,10 +13,12 @@
   set_fact:
     validator_id: "{{ lookup('file', 'files/validator-id.txt') }}"
 
-- debug: msg="{{ validator_id }}"
+- name: Show Validator Id
+  debug:
+    msg: "{{ validator_id }}"
 
-- name: Get skale wallet info output
-  command: "sudo skale wallet info -f json"
+- name: Get wallet info output
+  command: "sudo {{ node_type }} wallet info -f json"
   register: wallet_cmd_result
   environment:
     LC_ALL: "C.UTF-8"
@@ -26,12 +28,23 @@
   set_fact:
     wallet_data: "{{ wallet_cmd_result.stdout | to_json | from_json }}"
 
+- name: Determine signature command based on node_type
+  set_fact:
+    get_signature_command: >-  # Using >- for multi-line in YAML, processed by Jinja
+      {% if node_type is defined and node_type == "mirage" %}
+      sudo {{ node_type }} boot signature {{ validator_id }}
+      {% else %}
+      sudo {{ node_type }} node signature {{ validator_id }}
+      {% endif %}
+
 - name: Get node signature
-  command: "sudo skale node signature {{ validator_id }}"
+  command: "{{ get_signature_command }}"
   register: signature_cmd_result
-  environment:
-    LC_ALL: "C.UTF-8"
-    LANG: "C.UTF-8"
+  changed_when: false
+
+- name: Display node signature
+  debug:
+    msg: "{{ signature_cmd_result.stdout }}"
 
 - name: Get wallet data from json
   set_fact:

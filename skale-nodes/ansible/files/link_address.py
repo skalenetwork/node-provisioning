@@ -17,16 +17,17 @@ def main():
     web3 = init_web3(ENDPOINT)
     wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
     skale = SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
-    print(ETH_PRIVATE_KEY)
-    print(ADDRESS)
-    print(SIGNATURE)
+    print(f'PK: {ETH_PRIVATE_KEY}')
+    print(f'Node address: {ADDRESS}')
+    print(f'Signature: {SIGNATURE}')
     checksum_address = to_checksum_address(ADDRESS)
+    signature_bytes = web3.to_bytes(hexstr=SIGNATURE)
     validator_address = skale.wallet.address
     linked = skale.validator_service.get_linked_addresses_by_validator_address(validator_address)
     if checksum_address not in linked:
         skale.validator_service.link_node_address(
             node_address=checksum_address,
-            signature=SIGNATURE,
+            signature=signature_bytes,
             gas_price=skale.web3.eth.gas_price * 2,
         )
 

@@ -1,19 +1,33 @@
-- name: Run skale node update
+- name: Run Mirage node update
+  shell:
+    cmd: "mirage boot update {{ base_path }}/init-env --yes"
+  environment:
+    LANG: en_US.utf-8
+    LC_ALL: en_US.utf-8
+    HOME_DIR: "{{ base_path }}"
+  when: node_type is defined and node_type == "mirage"
+  tags: skale_update
+
+- name: Run Skale node update
   shell:
     cmd: "skale node update {{ base_path }}/init-env --yes --pull-config all --unsafe"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
     HOME_DIR: "{{ base_path }}"
-  when: sync_node is not defined or not sync_node
+  when:
+    - (node_type is not defined or node_type != "mirage")
+    - (sync_node is not defined or not sync_node)
   tags: skale_update
 
-- name: Run skale sync node update
+- name: Run Skale sync node update
   shell:
     cmd: "skale sync-node update {{ base_path }}/init-env --yes --unsafe"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
     HOME_DIR: "{{ base_path }}"
-  when: sync_node is defined and sync_node
+  when:
+    - (node_type is not defined or node_type != "mirage")
+    - (sync_node is defined and sync_node)
   tags: skale_update

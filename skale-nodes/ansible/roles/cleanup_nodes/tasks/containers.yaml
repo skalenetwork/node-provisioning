@@ -3,12 +3,10 @@
   become: true
   register: containers_output
 
-
 - name: Split monitoring container ids output
   register: containers_output
   set_fact:
     monitoring_container_ids: "{{ containers_output.stdout.split('\n') }}"
-
 
 - name: Destroy monitoring container ids
   become: true
@@ -19,21 +17,18 @@
     keep_volumes: no
   with_items: "{{ monitoring_container_ids | default([]) }}"
 
-
 - name: Get all container ids
-  command: 'docker ps -a -q --filter="name=skale_"'
+  command: 'docker ps -a -q --filter="name=skale_" --filter="name=mirage_"'
   become: true
   register: containers_output
   tags: containers_ids
-
 
 - name: Split containers ids output
   register: containers_output
   set_fact:
     skale_container_ids: "{{ containers_output.stdout.split('\n') }}"
 
-
-- name: Destroy admin container
+- name: Destroy skale admin container
   become: true
   docker_container:
     name: "skale_admin"
@@ -41,7 +36,27 @@
     force_kill: yes
     keep_volumes: no
   tags: admin
+  when: node_type is not defined or node_type != "mirage"
 
+- name: Destroy mirage boot admin container
+  become: true
+  docker_container:
+    name: "mirage_boot_admin"
+    state: absent
+    force_kill: yes
+    keep_volumes: no
+  tags: admin
+  when: node_type is defined and node_type == "mirage"
+
+- name: Destroy mirage admin container
+  become: true
+  docker_container:
+    name: "mirage_admin"
+    state: absent
+    force_kill: yes
+    keep_volumes: no
+  tags: admin
+  when: node_type is defined and node_type == "mirage"
 
 - name: Destroy all containers
   become: true
@@ -52,18 +67,15 @@
     keep_volumes: no
   with_items: "{{ skale_container_ids | default([]) }}"
 
-
 - name: Prune docker
   command:
     cmd: "docker system prune -af"
-
 
 - name: Umount shared-space
   command:
     cmd: "umount /mnt/schains-shared-space"
   failed_when: False
   tags: umount
-
 
 - name: Register /mnt folders
   find:
@@ -73,7 +85,6 @@
   tags:
     - mounts
 
-
 - name: Cleanup /mnt dir
   file:
     path: "{{ item.path }}"
@@ -81,7 +92,6 @@
   loop: "{{ mnt_folders.files }}"
   tags:
     - mounts
-
 
 - name: Remove all data-dir volumes
   lvg:
