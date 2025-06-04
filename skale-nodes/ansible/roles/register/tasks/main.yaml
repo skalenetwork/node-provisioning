@@ -13,7 +13,7 @@
 
 - name: Run node register command
   command:
-    cmd: "{{ node_register_command }}
+    cmd: "{{ node_register_command }}"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
