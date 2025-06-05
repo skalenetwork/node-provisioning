@@ -8,7 +8,7 @@
       {% elif node_type == "skale" %}
         {% if sync_node | default(false) | bool %}
       skale sync-node
-        {% else %} {# if sync_node is not defined or false}
+        {% else %} {# if sync_node is not defined or false #}
       skale node
         {% endif %}
       {% else %}
