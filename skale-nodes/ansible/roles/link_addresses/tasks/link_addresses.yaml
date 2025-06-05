@@ -11,7 +11,7 @@
     ADDRESS: "{{ lookup('file', '{{ item }}').split()[0].strip() }}"
     SIGNATURE: "{{ lookup('file', '{{ item }}').split()[1].strip() }}"
     ENDPOINT: "{{ endpoint }}"
-    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    MANAGER_CONTRACTS: "{{ hostvars['localhost']['sm_address'] }}"
     BASE_DIR: "files"
   args:
     executable: python3
