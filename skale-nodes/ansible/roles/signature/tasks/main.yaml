@@ -17,8 +17,17 @@
   debug:
     msg: "{{ validator_id }}"
 
+- name: Determine wallet info command
+  set_fact:
+    wallet_info_command: >-  # Using >- for multi-line in YAML, processed by Jinja
+      {% if node_type == "mirage_boot" or node_type == "mirage" %}
+      sudo mirage wallet info -f json
+      {% else %}
+      sudo skale wallet info -f json
+      {% endif %}
+
 - name: Get wallet info output
-  command: "sudo {{ node_type }} wallet info -f json"
+  command: "{{ wallet_info_command }}"
   register: wallet_cmd_result
   environment:
     LC_ALL: "C.UTF-8"
@@ -32,9 +41,9 @@
   set_fact:
     get_signature_command: >-  # Using >- for multi-line in YAML, processed by Jinja
       {% if node_type == "mirage_boot" %}
-      sudo {{ node_type }} boot signature {{ validator_id }}
-      {% else %}
-      sudo {{ node_type }} node signature {{ validator_id }}
+      sudo mirage boot signature {{ validator_id }}
+      {% elif node_type == "skale" %}
+      sudo skale node signature {{ validator_id }}
       {% endif %}
 
 - name: Get node signature
