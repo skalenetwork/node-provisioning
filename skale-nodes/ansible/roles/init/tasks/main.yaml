@@ -17,8 +17,8 @@
 
 - name: Fail if command action prefix could not be determined
   fail:
-    msg: "Cannot determine init command prefix for node_type='{{ node_type }}' and sync_node='{{ sync_node | default(false) }}'"
-  when: _command_action_prefix | length == 0 # Finish playbook if prefix is empty
+    msg: "Cannot determine init command prefix because node_type is unknown"
+  when: _command_action_prefix | length == 0
 
 - name: Set the full CLI init command
   set_fact:
