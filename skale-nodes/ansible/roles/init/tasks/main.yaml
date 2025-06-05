@@ -1,21 +1,29 @@
-- name: Define cmd for mirage boot node
+- name: Determine init command action prefix based on node_type and sync_node
   set_fact:
-    cli_full_command: "{{ node_type }} boot init {{ base_path }}/init-env"
-  when: node_type == "mirage_boot"
+    _command_action_prefix: >-  
+      {% if node_type == "mirage_boot" %}
+      mirage boot
+      {% elif node_type == "mirage" %}
+      mirage node
+      {% elif node_type == "skale" %}
+        {% if sync_node | default(false) | bool %}
+      skale sync-node
+        {% else %} {# if sync_node is not defined or false}
+      skale node
+        {% endif %}
+      {% else %}
+      "" {# if node_type is unknown #}
+      {% endif %}
 
-- name: Define cmd for regular SKALE node
-  set_fact:
-    cli_full_command: "{{ node_type }} node init {{ base_path }}/init-env"
-  when:
-    - node_type == "skale"
-    - sync_node is not defined or not sync_node
+- name: Fail if command action prefix could not be determined
+  fail:
+    msg: "Cannot determine init command prefix for node_type='{{ node_type }}' and sync_node='{{ sync_node | default(false) }}'"
+  when: _command_action_prefix | length == 0 # Finish playbook if prefix is empty
 
-- name: Define cmd for SKALE sync node
+- name: Set the full CLI init command
   set_fact:
-    cli_full_command: "{{ node_type }} sync-node init {{ base_path }}/init-env"
-  when:
-    - node_type == "skale"
-    - sync_node is defined and sync_node
+    cli_full_command: "{{ _command_action_prefix }} init {{ base_path }}/init-env"
+
 
 - name: Add --catchup if needed (SKALE sync node)
   set_fact:
@@ -55,4 +63,3 @@
 - name: Pause to make sure skale-admin exchange certs with sgx server
   pause:
     seconds: 120
-  tags: init
