@@ -7,9 +7,18 @@
     node_register_command: >-
       {% if node_type == "mirage_boot" %}
       mirage boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}
+      {% elif node_type == "mirage" %}
+      mirage node register --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}      
       {% elif node_type == "skale" %}
       skale node register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}
+      {% else %}
+      "" {# if node_type is unknown #}      
       {% endif %}
+
+- name: Fail if node register command is empty
+  fail:
+    msg: "Cannot determine node register command because node_type is unknown"
+  when: node_register_command | length == 0
 
 - name: Run node register command
   command:
