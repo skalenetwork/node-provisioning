@@ -2,10 +2,11 @@ version: '3.4'
 
 services:
   base: &skale_base
-    image: kubernetes/pause
+    image: rancher/pause:3.6
     restart: unless-stopped
     labels:
       com.skale.prefix: "node"
+    cpu_shares: 128
     logging:
       driver: "json-file"
       options:
@@ -25,7 +26,6 @@ services:
     environment:
       SGX_URL: ${SGX_SERVER_URL}
       ENDPOINT: ${ENDPOINT}
-      ALLOWED_TS_DIFF: 10000
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -45,11 +45,9 @@ services:
       - NET_ADMIN
       - NET_RAW
     environment:
-      TM_URL: http://127.0.0.1:3008
       SGX_SERVER_URL: ${SGX_SERVER_URL}
       SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
       ENDPOINT: ${ENDPOINT}
-      IMA_ENDPOINT: ${IMA_ENDPOINT}
       SKALE_DIR_HOST: ${SKALE_DIR}
       TG_API_KEY: ${TG_API_KEY}
       TG_CHAT_ID: ${TG_CHAT_ID}
@@ -59,14 +57,14 @@ services:
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
       MAX_ALLOWED_LOG_TIME_DIFF: 600
-      DISABLE_IMA: ${DISABLE_IMA}
       ENV_TYPE: ${ENV_TYPE}
-      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
-      ALLOWED_TS_DIFF: 10000
-      TELEGRAF: "${TELEGRAF}"
-      INFLUX_URL: "${INFLUX_URL}"
+      ALLOWED_TS_DIFF: 300
+      PULL_CONFIG_FOR_SCHAIN: ${PULL_CONFIG_FOR_SCHAIN}
+      TELEGRAF: ${TELEGRAF}
+      INFLUX_URL: ${INFLUX_URL}
       MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
       IMA_CONTRACTS: ${IMA_CONTRACTS}
+
     command: "python3 admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
@@ -94,15 +92,9 @@ services:
       - NET_ADMIN
       - NET_RAW
     environment:
-      TM_URL: http://127.0.0.1:3008
       SGX_SERVER_URL: ${SGX_SERVER_URL}
       SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
       ENDPOINT: ${ENDPOINT}
-      IMA_ENDPOINT: ${IMA_ENDPOINT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_PORT: ${DB_PORT}
       FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
       FLASK_APP_PORT: 3007
       FLASK_APP_HOST: "127.0.0.1"
@@ -116,8 +108,7 @@ services:
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
       ENV_TYPE: ${ENV_TYPE}
-      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
-      ALLOWED_TS_DIFF: 10000
+      ALLOWED_TS_DIFF: 300
       MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
       IMA_CONTRACTS: ${IMA_CONTRACTS}
     command: "gunicorn app:app -c gunicorn.conf.py"
@@ -172,14 +163,10 @@ services:
       SGX_SERVER_URL: ${SGX_SERVER_URL}
       SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
       ENDPOINT: ${ENDPOINT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_PORT: ${DB_PORT}
       DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
       DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
       DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      ALLOWED_TS_DIFF: 10000
+      ALLOWED_TS_DIFF: 300
       MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
       IMA_CONTRACTS: ${IMA_CONTRACTS}
     volumes:
@@ -196,13 +183,14 @@ services:
       network: host
     network_mode: host
     environment:
+      ALLOWED_TS_DIFF: 300
       FLASK_APP_PORT: 3010
       FLASK_APP_HOST: "127.0.0.1"
       FLASK_DEBUG_MODE: "False"
 
   nginx:
     <<: *skale_base
-    image: nginx:1.19.6
+    image: nginx:1.20.2
     container_name: skale_nginx
     network_mode: host
     depends_on:
@@ -220,14 +208,15 @@ services:
 
   advisor:
     <<: *skale_base
+    image: gcr.io/cadvisor/cadvisor-amd64:v0.50.0
     container_name: monitor_cadvisor
-    image: google/cadvisor:latest
     cpu_shares: 128
     network_mode: host
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
 
   node-exporter:
@@ -256,4 +245,5 @@ services:
     volumes:
       - ${SKALE_DIR}/node_data/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker:/var/lib/docker:ro
+      - /var/log/docker-lvmpy:/var/log/docker-lvmpy:ro
       - /var/run/skale:/var/run/skale
