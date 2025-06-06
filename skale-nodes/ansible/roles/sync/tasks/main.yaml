@@ -4,7 +4,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: build_type == "source"
   tags: admin
 
 - name: Synchronization of transaction-manager repo
@@ -22,7 +21,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: build_type == "source"
   tags: watchdog
 
 - name: Synchronization of skale-node repo
@@ -31,7 +29,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: build_type == "source"
   tags: skale-node
 
 - name: Synchronization of node-cli repo
@@ -40,7 +37,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: build_type == "source"
   tags: cli
 
 - name: Synchronization of bounty-agent repo
@@ -50,7 +46,6 @@
     delete: yes
     recursive: yes
   when:
-    - build_type == "source"
     - node_type == "skale"
   tags: bounty
 
@@ -59,7 +54,6 @@
     src: docker-compose.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose.yml"
   when:
-    - build_type == "source"
     - node_type == "skale"
 
 - name: Replace mirage-node docker-compose-mirage file
@@ -67,7 +61,6 @@
     src: docker-compose-mirage.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose-mirage.yml"
   when:
-    - build_type == "source"
     - node_type == "mirage_boot"
 
 - name: Replace skale-node docker-compose-sync file
@@ -75,6 +68,5 @@
     src: docker-compose-sync.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose-sync.yml"
   when:
-    - build_type == "source"
     - node_type == "skale"
     - sync_node is defined and sync_node
