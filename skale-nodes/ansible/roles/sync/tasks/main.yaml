@@ -49,17 +49,32 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: build_type == "source"
+  when:
+    - build_type == "source"
+    - node_type == "skale"
   tags: bounty
 
 - name: Replace skale-node docker-compose file
   template:
     src: docker-compose.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose.yml"
-  when: build_type == "source"
+  when:
+    - build_type == "source"
+    - node_type == "skale"
+
+- name: Replace mirage-node docker-compose-mirage file
+  template:
+    src: docker-compose-mirage.yml.j2
+    dest: "{{ base_path }}/skale-node/docker-compose-mirage.yml"
+  when:
+    - build_type == "source"
+    - node_type == "mirage_boot"
 
 - name: Replace skale-node docker-compose-sync file
   template:
     src: docker-compose-sync.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose-sync.yml"
-  when: build_type == "source" and sync_node is defined and sync_node
+  when:
+    - build_type == "source"
+    - node_type == "skale"
+    - sync_node is defined and sync_node
