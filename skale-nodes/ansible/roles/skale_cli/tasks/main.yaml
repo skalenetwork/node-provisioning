@@ -1,4 +1,16 @@
-# --- Logic for Mirage Nodes ---
+# --- Download binary ---
+
+- name: Download skale_cli from spaces (SKALE CLI)
+  get_url:
+    url: "{{ skale_cli_url }}"
+    dest: "/usr/local/bin/skale"
+    force: yes
+    mode: "0755"
+  when:
+    - node_type == "skale"
+    - build_type == "git"
+  tags: binary
+
 - name: Download mirage_cli from spaces
   get_url:
     url: "{{ mirage_cli_url }}"
@@ -9,13 +21,14 @@
     - build_type == "git"
   tags: binary
 
-# --- Logic for SKALE Nodes ---
+
+# --- Build binary from source ---
+
 - name: Makedir dist (for SKALE CLI build)
   file:
     state: directory
     path: "{{ base_path }}/node-cli/dist"
   when:
-    - node_type == "skale"
     - build_type == "source"
 
 - name: Remove old binary builder image (for SKALE CLI build)
@@ -23,7 +36,6 @@
     name: "node-cli-builder"
     state: absent
   when:
-    - node_type == "skale"
     - build_type == "source"
 
 - name: Build binary builder image (for SKALE CLI build)
@@ -32,7 +44,6 @@
     network: host
     path: "{{ base_path }}/node-cli"
   when:
-    - node_type == "skale"
     - build_type == "source"
 
 - name: Set build command (for SKALE CLI - regular)
@@ -43,6 +54,15 @@
     - build_type == "source"
     - sync_node is not defined or not sync_node
 
+- name: Set build command (for Mirage CLI)
+  set_fact:
+    build_cmd: "scripts/build.sh test test mirage"
+  when:
+    - node_type == "mirage_boot" or node_type == "mirage"
+    - build_type == "source"
+    - sync_node is not defined or not sync_node
+
+
 - name: Add sync option to command (for SKALE CLI - sync)
   set_fact:
     build_cmd: "scripts/build.sh test test sync"
@@ -51,7 +71,7 @@
     - build_type == "source"
     - sync_node is defined and sync_node
 
-- name: Build binary (for SKALE CLI)
+- name: Build binary
   docker_container:
     image: node-cli-builder
     name: node-cli-builder
@@ -60,10 +80,9 @@
       - "{{ base_path }}/node-cli/dist:/app/dist"
     command: "{{ build_cmd }}"
   when:
-    - node_type == "skale"
     - build_type == "source"
 
-- name: Copy executable to /usr/bin/local for normal (SKALE CLI)
+- name: Copy executable to /usr/bin/local for normal SKALE CLI
   copy:
     remote_src: True
     src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
@@ -74,7 +93,19 @@
     - build_type == "source"
     - (sync_node is not defined or not sync_node)
 
-- name: Copy executable to /usr/bin/local for sync (SKALE CLI)
+- name: Copy executable to /usr/bin/local for normal Mirage CLI
+  copy:
+    remote_src: True
+    src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
+    dest: /usr/local/bin/mirage
+    mode: "0755"
+  when:
+    - (node_type == "mirage" or node_type == "mirage_boot")
+    - build_type == "source"
+    - (sync_node is not defined or not sync_node)
+
+
+- name: Copy executable to /usr/bin/local for sync SKALE CLI
   copy:
     remote_src: True
     src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
@@ -90,16 +121,4 @@
     state: absent
     name: node-cli-builder
   when:
-    - node_type == "skale"
     - build_type == "source"
-
-- name: Download skale_cli from spaces (SKALE CLI)
-  get_url:
-    url: "{{ skale_cli_url }}"
-    dest: "/usr/local/bin/skale"
-    force: yes
-    mode: "0755"
-  when:
-    - node_type == "skale"
-    - build_type == "git"
-  tags: binary
