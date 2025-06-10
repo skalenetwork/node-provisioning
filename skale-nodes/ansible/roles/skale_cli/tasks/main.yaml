@@ -11,7 +11,7 @@
     - build_type == "git"
   tags: binary
 
-- name: Download mirage_cli from spaces
+- name: Download mirage_cli from spaces (Mirage CLI)
   get_url:
     url: "{{ mirage_cli_url }}"
     dest: "/usr/local/bin/mirage"
@@ -25,21 +25,21 @@
 
 # --- Build binary from source ---
 
-- name: Makedir dist (for SKALE CLI build)
+- name: Makedir dist for CLI build
   file:
     state: directory
     path: "{{ base_path }}/node-cli/dist"
   when:
     - build_type == "source"
 
-- name: Remove old binary builder image (for SKALE CLI build)
+- name: Remove old binary builder image
   community.docker.docker_image:
     name: "node-cli-builder"
     state: absent
   when:
     - build_type == "source"
 
-- name: Build binary builder image (for SKALE CLI build)
+- name: Build binary builder image
   community.docker.docker_image_build:
     name: "node-cli-builder"
     network: host
@@ -47,30 +47,31 @@
   when:
     - build_type == "source"
 
-- name: Set build command (for SKALE CLI - regular)
-  set_fact:
-    build_cmd: "scripts/build.sh test test normal"
-  when:
-    - node_type == "skale"
-    - build_type == "source"
-    - sync_node is not defined or not sync_node
+- name: Determine build command based on node type
+  block:
+    - name: Set build target based on node_type and sync_node
+      set_fact:
+        _build_target: >-
+          {% set sync = sync_node | default(false) | bool %}
+          {% if node_type in ['mirage', 'mirage_boot'] and not sync %}
+          mirage
+          {% elif node_type == 'skale' and sync %}
+          sync
+          {% elif node_type == 'skale' and not sync %}
+          normal
+          {% else %}
+          ""
+          {% endif %}
 
-- name: Set build command (for Mirage CLI)
-  set_fact:
-    build_cmd: "scripts/build.sh test test mirage"
-  when:
-    - node_type == "mirage_boot" or node_type == "mirage"
-    - build_type == "source"
-    - sync_node is not defined or not sync_node
+    - name: Fail if build target could not be determined
+      fail:
+        msg: "Could not determine build target for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+      when: _build_target | length == 0
 
-
-- name: Add sync option to command (for SKALE CLI - sync)
-  set_fact:
-    build_cmd: "scripts/build.sh test test sync"
-  when:
-    - node_type == "skale"
-    - build_type == "source"
-    - sync_node is defined and sync_node
+    - name: Set the full build command
+      set_fact:
+        build_cmd: "scripts/build.sh test test {{ _build_target }}"
+  when: build_type == "source"
 
 - name: Build binary
   docker_container:
@@ -117,7 +118,7 @@
     - build_type == "source"
     - sync_node is defined and sync_node
 
-- name: Remove builder container (for SKALE CLI)
+- name: Remove builder container
   docker_container:
     state: absent
     name: node-cli-builder
