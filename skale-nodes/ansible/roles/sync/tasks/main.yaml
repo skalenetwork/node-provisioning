@@ -12,7 +12,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: build_type == "source"
   tags: tm
 
 - name: Synchronization of skale-watchdog repo
