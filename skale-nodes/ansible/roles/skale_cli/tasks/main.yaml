@@ -15,6 +15,7 @@
   get_url:
     url: "{{ mirage_cli_url }}"
     dest: "/usr/local/bin/mirage"
+    force: yes
     mode: "0755"
   when:
     - node_type == "mirage_boot"
