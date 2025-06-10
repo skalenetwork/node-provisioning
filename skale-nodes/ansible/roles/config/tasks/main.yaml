@@ -52,7 +52,7 @@
       FILEBEAT_HOST="{{ filebeat_host }}"
       MANAGER_CONTRACTS="{{ manager_contracts }}"
       IMA_CONTRACTS="{{ ima_contracts }}"
-      CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
+      CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
       DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
       DISK_MOUNTPOINT="{{ block_device }}"
       SGX_SERVER_URL="{{ sgx_url }}"
