@@ -84,39 +84,39 @@
   when:
     - build_type == "source"
 
-- name: Copy executable to /usr/bin/local for normal SKALE CLI
-  copy:
-    remote_src: True
-    src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
-    dest: /usr/local/bin/skale
-    mode: "0755"
-  when:
-    - node_type == "skale"
-    - build_type == "source"
-    - (sync_node is not defined or not sync_node)
+- name: Copy source-built executable based on node type
+  block:
+    - name: Determine source and destination paths for the executable
+      set_fact:
+        executable_paths: "{{ executable_paths_logic | from_yaml }}"
+      vars:
+        executable_paths_logic: |
+          {% set sync = sync_node | default(false) | bool %}
+          {% if node_type in ['mirage', 'mirage_boot'] and not sync %}
+          src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
+          dest: "/usr/local/bin/mirage"
+          {% elif node_type == 'skale' and sync %}
+          src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
+          dest: "/usr/local/bin/skale"
+          {% elif node_type == 'skale' and not sync %}
+          src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
+          dest: "/usr/local/bin/skale"
+          {% else %}
+          {}
+          {% endif %}
 
-- name: Copy executable to /usr/bin/local for normal Mirage CLI
-  copy:
-    remote_src: True
-    src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
-    dest: /usr/local/bin/mirage
-    mode: "0755"
-  when:
-    - (node_type == "mirage" or node_type == "mirage_boot")
-    - build_type == "source"
-    - (sync_node is not defined or not sync_node)
+    - name: Fail if executable paths could not be determined
+      fail:
+        msg: "Could not determine which executable to copy for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+      when: executable_paths | length == 0
 
-
-- name: Copy executable to /usr/bin/local for sync SKALE CLI
-  copy:
-    remote_src: True
-    src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
-    dest: /usr/local/bin/skale
-    mode: "0755"
-  when:
-    - node_type == "skale"
-    - build_type == "source"
-    - sync_node is defined and sync_node
+    - name: Copy the correct executable to /usr/local/bin
+      copy:
+        remote_src: true
+        src: "{{ executable_paths.src }}"
+        dest: "{{ executable_paths.dest }}"
+        mode: "0755"
+  when: build_type == "source"
 
 - name: Remove builder container
   docker_container:
