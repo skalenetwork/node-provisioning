@@ -1,33 +1,32 @@
-- name: Run Mirage node update
-  shell:
-    cmd: "mirage boot update {{ base_path }}/init-env --yes"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-    HOME_DIR: "{{ base_path }}"
-  when: node_type == "mirage_boot"
-  tags: skale_update
+- name: Update node based on its type
+  block:
+    - name: Determine the correct update command
+      set_fact:
+        update_cmd: >-
+          {% set sync = sync_node | default(false) | bool %}
+          {% if node_type == 'mirage_boot' %}
+          mirage boot update {{ base_path }}/init-env --yes
+          {% elif node_type == 'skale' and sync %}
+          skale sync-node update {{ base_path }}/init-env --yes --unsafe
+          {% elif node_type == 'skale' and not sync %}
+          skale node update {{ base_path }}/init-env --yes --pull-config all --unsafe
+          {% else %}
+          ""
+          {% endif %}
 
-- name: Run Skale node update
-  shell:
-    cmd: "skale node update {{ base_path }}/init-env --yes --pull-config all --unsafe"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-    HOME_DIR: "{{ base_path }}"
-  when:
-    - node_type == "skale"
-    - (sync_node is not defined or not sync_node)
-  tags: skale_update
+    - name: Fail if update command could not be determined
+      fail:
+        msg: "Could not determine update command for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+      when: update_cmd | length == 0
 
-- name: Run Skale sync node update
-  shell:
-    cmd: "skale sync-node update {{ base_path }}/init-env --yes --unsafe"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-    HOME_DIR: "{{ base_path }}"
-  when:
-    - node_type == "skale"
-    - (sync_node is defined and sync_node)
+    - debug:
+        msg: "{{ update_cmd }}"
+
+    - name: Run the determined node update command
+      shell:
+        cmd: "{{ update_cmd }}"
+      environment:
+        LANG: en_US.utf-8
+        LC_ALL: en_US.utf-8
+        HOME_DIR: "{{ base_path }}"
   tags: skale_update
