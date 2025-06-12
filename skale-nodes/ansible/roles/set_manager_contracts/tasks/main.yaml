@@ -1,9 +1,9 @@
 - name: Set Skale Manager contract address
   set_fact:
     manager_contracts: "{{ hostvars['localhost']['sm_address'] }}"
-  when: manager_contracts is undefined
+  when: (manager_contracts | default('')) | length == 0
 
 - name: Crash if no Skale Manager contract address provided
   fail:
-    msg: manager_contracts is undefined
-  when: manager_contracts is undefined
+    msg: manager_contracts is undefined or empty
+  when: (manager_contracts | default('')) | length == 0

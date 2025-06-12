@@ -1,3 +1,7 @@
+- name: Set Skale Manager contract address
+  import_role:
+    name: set_manager_contracts
+
 - name: Transfer funds to node wallets
   run_once: yes
   script: transfer_funds.py
@@ -5,7 +9,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ADDRESS: "{{ lookup('file', '{{ item }}').split()[0].strip() }}"
     ENDPOINT: "{{ endpoint }}"
-    MANAGER_CONTRACTS: "{{ hostvars['localhost']['sm_address'] }}"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
     BASE_DIR: "files"
     AMOUNT: 0.2
   args:

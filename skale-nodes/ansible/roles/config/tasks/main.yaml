@@ -1,14 +1,6 @@
 - name: Set Skale Manager contract address
-  set_fact:
-    manager_contracts: "{{ hostvars['localhost']['sm_address'] }}"
-  when: manager_contracts is undefined
-  tags: contracts
-
-- name: Crash if no Skale Manager contract address provided
-  fail:
-    msg: manager_contracts is undefined
-  when: manager_contracts is undefined
-  tags: contracts
+  import_role:
+    name: set_manager_contracts
 
 - name: Set IMA contract address
   set_fact:
