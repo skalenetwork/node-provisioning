@@ -33,7 +33,6 @@
       MANAGER_CONTRACTS="{{ manager_contracts }}"
       IMA_CONTRACTS="{{ ima_contracts }}"
       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
-      CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
       ENDPOINT="{{ endpoint }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
       DISK_MOUNTPOINT="{{ block_device }}"
