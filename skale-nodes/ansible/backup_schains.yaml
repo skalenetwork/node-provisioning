@@ -8,7 +8,7 @@
       environment:
         ETH_PRIVATE_KEY: "{{ eth_private_key }}"
         ENDPOINT: "{{ endpoint }}"
-        MANAGER_CONTRACTS: "{{ manager_contracts }}"
+        MANAGER_CONTRACTS: "{{ hostvars['localhost']['sm_address'] }}"
         BASE_DIR: "files"
       args:
         executable: python3

@@ -1,5 +1,3 @@
-# TODO: get 'manager_contracts' variable from group_vars/all
-
 - name: Transfer funds to node wallets
   run_once: yes
   script: transfer_funds.py
@@ -7,7 +5,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ADDRESS: "{{ lookup('file', '{{ item }}').split()[0].strip() }}"
     ENDPOINT: "{{ endpoint }}"
-    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    MANAGER_CONTRACTS: "{{ hostvars['localhost']['sm_address'] }}"
     BASE_DIR: "files"
     AMOUNT: 0.2
   args:

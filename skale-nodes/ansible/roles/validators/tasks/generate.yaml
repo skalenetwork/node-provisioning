@@ -1,12 +1,11 @@
-- name: Set Skale Manager contract address
-  set_fact:
-    manager_contracts: "{{ hostvars['localhost']['sm_address'] }}"
-  when: manager_contracts is undefined
-
-- name: Crash if no Skale Manager contract address provided
-  fail:
-    msg: manager_contracts is undefined
-  when: manager_contracts is undefined
+- name: Assert that Skale Manager contract address is defined on localhost
+  assert:
+    that:
+      - hostvars['localhost']['sm_address'] is defined
+      - hostvars['localhost']['sm_address'] | length > 0
+    fail_msg: "Required variable 'sm_address' is not defined on localhost or is empty."
+    quiet: yes
+  tags: contracts
 
 - name: Set hosts
   set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
@@ -21,7 +20,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MIN_DELEGATION_AMOUNT: "0"
-    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    MANAGER_CONTRACTS: "{{ hostvars['localhost']['sm_address'] }}"
     COMMISSION_RATE: "1"
     NODES_NUMBER: "{{ hosts|length }}"
   args:
