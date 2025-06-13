@@ -1,3 +1,11 @@
+- name: Propagate manager_contracts to nodes
+  hosts: nodes
+  gather_facts: no
+  tasks:
+    - name: Set manager_contracts fact for each node
+      set_fact:
+        manager_contracts: "{{ hostvars['localhost']['manager_contracts'] | default(manager_contracts, true) }}"
+
 - name: Setup skale node
   hosts: nodes
   become: true
