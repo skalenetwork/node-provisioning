@@ -3,10 +3,6 @@
   serial: True
 
   tasks:
-    - name: Set Skale Manager contract address
-      import_role:
-        name: set_manager_contracts
-
     - name: Run fetch schain nodes script
       script: fetch_node_schains.py -u
       environment:

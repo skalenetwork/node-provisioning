@@ -1,7 +1,3 @@
-- name: Set Skale Manager contract address
-  import_role:
-    name: set_manager_contracts
-
 - name: Set IMA contract address
   set_fact:
     ima_contracts: "{{ hostvars['localhost']['ima_address'] }}"

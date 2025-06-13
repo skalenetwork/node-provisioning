@@ -3,10 +3,6 @@
   set_fact:
     validator_private_key: "{{ lookup('file', 'files/validator-key.txt') }}"
 
-- name: Set Skale Manager contract address
-  import_role:
-    name: set_manager_contracts
-
 - name: Link address to validator
   run_once: yes
   script: link_address.py

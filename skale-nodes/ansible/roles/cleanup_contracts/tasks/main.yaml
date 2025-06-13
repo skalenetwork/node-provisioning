@@ -1,7 +1,3 @@
-- name: Set Skale Manager contract address
-  import_role:
-    name: set_manager_contracts
-
 - name: Cleanup contracts
   script: cleanup_contracts.py
   run_once: yes

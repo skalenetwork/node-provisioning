@@ -1,7 +1,3 @@
-- name: Set Skale Manager contract address
-  import_role:
-    name: set_manager_contracts
-
 - name: Set hosts
   set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
   with_dict: "{{ hostvars }}"
