@@ -18,15 +18,15 @@
 
 - name: Save IMA Contract Address to variable
   set_fact:
-    ima_address: "{{ ima_address_output.stdout }}"
+    ima_contracts: "{{ ima_address_output.stdout }}"
   tags: upload_ima
 
 - name: Save IMA URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
     insertafter: EOF
-    regexp: "^ima_address:"
-    line: 'ima_address: "{{ ima_address }}"'
+    regexp: "^ima_contracts:"
+    line: 'ima_contracts: "{{ ima_contracts }}"'
     state: present
   tags:
     - upload_ima
