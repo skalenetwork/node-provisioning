@@ -24,9 +24,6 @@
     node_commands:
       mirage_boot: "sudo mirage wallet info -f json"
       skale: "sudo skale wallet info -f json"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
   when: node_type in node_commands
   register: wallet_info_cmd
   changed_when: false
@@ -46,9 +43,6 @@
     node_commands:
       mirage_boot: "sudo mirage boot signature {{ validator_id }}"
       skale: "sudo skale node signature {{ validator_id }}"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
   when: node_type in node_commands
   register: get_signature_cmd
   changed_when: false

@@ -25,8 +25,5 @@
     - name: Run the determined node update command
       shell:
         cmd: "{{ update_cmd }}"
-      environment:
-        LANG: en_US.utf-8
-        LC_ALL: en_US.utf-8
         HOME_DIR: "{{ base_path }}"
   tags: skale_update

@@ -26,9 +26,6 @@
       mirage_boot: "mirage boot"
       mirage: "mirage node"
       skale: "{{ 'skale sync-node' if (sync_node | default(false) | bool) else 'skale node' }}"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
   when: node_type in command_prefixes
   register: init_cmd
 
