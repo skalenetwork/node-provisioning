@@ -1,28 +1,17 @@
-- name: Register ip address
-  set_fact:
-    ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
-
-- name: Compose register command
-  set_fact:
-    node_register_command: >-
-      {% if node_type == "mirage_boot" %}
-      mirage boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}
-      {% elif node_type == "mirage" %}
-      mirage node register --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}      
-      {% elif node_type == "skale" %}
-      skale node register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}
-      {% else %}
-      "" {# if node_type is unknown #}      
-      {% endif %}
-
-- name: Fail if node register command is empty
-  fail:
-    msg: "Cannot determine node register command because node_type is unknown"
-  when: node_register_command | length == 0
-
-- name: Run node register command
+- name: Register node
   command:
-    cmd: "{{ node_register_command }}"
+    cmd: "{{ node_commands[node_type] }}"
+  vars:
+    node_commands:
+      mirage_boot: "mirage boot register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
+      mirage: "mirage node register --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
+      skale: "skale node register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
+  when: node_type in node_commands
+  register: register_cmd
+
+- name: Show register command output
+  debug:
+    msg: "{{ register_cmd.stdout }}"
