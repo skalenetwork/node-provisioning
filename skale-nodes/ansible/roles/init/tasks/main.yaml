@@ -1,41 +1,10 @@
-- name: Determine init command action prefix based on node_type and sync_node
+- name: Set sync_flags based on sync_node and catchup status
   set_fact:
-    _command_action_prefix: >-  
-      {% if node_type == "mirage_boot" %}
-      mirage boot
-      {% elif node_type == "mirage" %}
-      mirage node
-      {% elif node_type == "skale" %}
-        {% if sync_node | default(false) | bool %}
-      skale sync-node
-        {% else %} {# if sync_node is not defined or false #}
-      skale node
-        {% endif %}
-      {% else %}
-      "" {# if node_type is unknown #}
-      {% endif %}
-
-- name: Fail if command action prefix could not be determined
-  fail:
-    msg: "Cannot determine init command prefix because node_type is unknown"
-  when: _command_action_prefix | length == 0
-
-- name: Set the full CLI init command
-  set_fact:
-    cli_full_command: "{{ _command_action_prefix }} init {{ base_path }}/init-env"
-
-
-- name: Add --catchup if needed (SKALE sync node)
-  set_fact:
-    cli_full_command: "{{ cli_full_command }} --catchup"
-  when:
-    - node_type == "skale"
-    - sync_node is defined and sync_node
-    - catchup is defined and catchup
+    sync_flags: "{{ '--catchup' if (sync_node | default(false) | bool) and (catchup | default(false) | bool) else '' }}"
 
 - name: Add --archive if needed (SKALE sync node)
   set_fact:
-    cli_full_command: "{{ cli_full_command }} --archive"
+    sync_flags: "{{ sync_flags }} --archive"
   when:
     - node_type == "skale"
     - sync_node is defined and sync_node
@@ -43,22 +12,29 @@
 
 - name: Add --historic-state if needed (SKALE sync node)
   set_fact:
-    cli_full_command: "{{ cli_full_command }} --historic-state"
+    sync_flags: "{{ sync_flags }} --historic-state"
   when:
     - node_type == "skale"
     - sync_node is defined and sync_node
     - historic_state is defined and historic_state
 
-- name: Show cli_full_command
-  debug:
-    msg: "{{ cli_full_command }}"
-
-- name: Execute cli_full_command
+- name: Build and execute init command
   command:
-    cmd: "{{ cli_full_command }}"
+    cmd: "{{ command_prefixes[node_type] }} init {{ base_path }}/init-env {{ sync_flags }}"
+  vars:
+    command_prefixes:
+      mirage_boot: "mirage boot"
+      mirage: "mirage node"
+      skale: "{{ 'skale sync-node' if (sync_node | default(false) | bool) else 'skale node' }}"
   environment:
     LANG: en_US.utf-8
     LC_ALL: en_US.utf-8
+  when: node_type in command_prefixes
+  register: init_cmd
+
+- name: Show init command output
+  debug:
+    msg: "{{ init_cmd.stdout }}"
 
 - name: Pause to make sure skale-admin exchange certs with sgx server
   pause:
