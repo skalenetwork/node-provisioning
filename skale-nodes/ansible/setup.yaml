@@ -5,6 +5,10 @@
     - name: Set manager_contracts fact for each node
       set_fact:
         manager_contracts: "{{ hostvars['localhost']['manager_contracts'] | default(manager_contracts, true) }}"
+    - name: Crash if no SM contract address/alias provided
+      fail:
+        msg: manager_contracts is undefined
+      when: manager_contracts is undefined
 
 - name: Setup skale node
   hosts: nodes
