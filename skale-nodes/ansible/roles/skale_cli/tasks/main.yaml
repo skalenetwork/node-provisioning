@@ -47,31 +47,27 @@
   when:
     - build_type == "source"
 
-- name: Determine build command based on node type
+- name: Determine and set build command based on node type
+  when: build_type == "source"
   block:
-    - name: Set build target based on node_type and sync_node
+    - name: Determine build target from map
       set_fact:
-        _build_target: >-
-          {% set sync = sync_node | default(false) | bool %}
-          {% if node_type in ['mirage', 'mirage_boot'] and not sync %}
-          mirage
-          {% elif node_type == 'skale' and sync %}
-          sync
-          {% elif node_type == 'skale' and not sync %}
-          normal
-          {% else %}
-          ""
-          {% endif %}
+        _build_target: "{{ build_targets[node_type ~ '_' ~ (sync_node | default(false) | bool | lower)] | default('') }}"
+      vars:
+        build_targets:
+          skale_false: "normal"
+          skale_true: "sync"
+          mirage_false: "mirage"
+          mirage_boot_false: "mirage"
 
-    - name: Fail if build target could not be determined
+    - name: Fail if build target is unknown
       fail:
-        msg: "Could not determine build target for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+        msg: "Unsupported combination: node_type={{ node_type }}, sync_node={{ sync_node | default('not defined') }}"
       when: _build_target | length == 0
 
-    - name: Set the full build command
+    - name: Set full build command
       set_fact:
         build_cmd: "scripts/build.sh test test {{ _build_target }}"
-  when: build_type == "source"
 
 - name: Build binary
   docker_container:
@@ -88,22 +84,22 @@
   block:
     - name: Determine source and destination paths for the executable
       set_fact:
-        executable_paths: "{{ executable_paths_logic | from_yaml }}"
+        executable_paths: "{{ path_map[lookup_key] | default({}) }}"
       vars:
-        executable_paths_logic: |
-          {% set sync = sync_node | default(false) | bool %}
-          {% if node_type in ['mirage', 'mirage_boot'] and not sync %}
-          src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
-          dest: "/usr/local/bin/mirage"
-          {% elif node_type == 'skale' and sync %}
-          src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
-          dest: "/usr/local/bin/skale"
-          {% elif node_type == 'skale' and not sync %}
-          src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
-          dest: "/usr/local/bin/skale"
-          {% else %}
-          {}
-          {% endif %}
+        lookup_key: "{{ node_type }}_{{ (sync_node | default(false)) | bool | lower }}"
+        path_map:
+          mirage_false:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
+            dest: "/usr/local/bin/mirage"
+          mirage_boot_false:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
+            dest: "/usr/local/bin/mirage"
+          skale_true:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
+            dest: "/usr/local/bin/skale"
+          skale_false:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
+            dest: "/usr/local/bin/skale"
 
     - name: Fail if executable paths could not be determined
       fail:
