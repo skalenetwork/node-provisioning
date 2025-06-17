@@ -1,0 +1,13 @@
+- name: Migrate Mirage boot node to regular Mirage node
+  hosts: nodes
+  become: true
+  roles:
+    - role: sync
+      when: build_type == "source"
+      tags: sync
+
+    - role: config
+      tags: config
+
+    - role: mirage_migrate
+      tags: mirage_migrate
