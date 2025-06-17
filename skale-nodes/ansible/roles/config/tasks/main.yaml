@@ -15,7 +15,7 @@
     sgx_url: "https://{{ hostvars['sgx0'].ansible_host }}:1026"
   when: sgx_url is not defined or sgx_url == ''
 
-- name: Set env options for Mirage node
+- name: Set env options for Mirage boot node
   set_fact:
     env_options: |
       MANAGER_CONTRACTS="{{ manager_contracts }}"
@@ -29,6 +29,20 @@
       FILEBEAT_HOST="{{ filebeat_host }}"
       ENFORCE_BTRFS='False'
   when: node_type == "mirage_boot"
+  tags: env
+
+- name: Set env options for regular Mirage node
+  set_fact:
+    env_options: |
+      MIRAGE_CONTRACTS="{{ manager_contracts }}"
+      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      BOOT_ENDPOINT="{{ boot_endpoint }}"
+      CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
+      SGX_SERVER_URL="{{ sgx_url }}"
+      DISK_MOUNTPOINT="{{ block_device }}"
+      ENV_TYPE="{{ env_type }}"
+      FILEBEAT_HOST="{{ filebeat_host }}"
+  when: node_type == "mirage"
   tags: env
 
 - name: Set env options for regular SKALE node
