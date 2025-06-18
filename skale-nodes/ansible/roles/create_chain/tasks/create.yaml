@@ -1,0 +1,11 @@
+- name: Execute create_chain script
+  script: create_chain.py
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    CHAIN_NAME: "{{ chain_name }}"
+  args:
+    executable: python3
+  tags: create_chain

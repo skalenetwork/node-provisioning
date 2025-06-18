@@ -1,0 +1,8 @@
+- name: Create chain on SKALE or Mirage nodes
+  hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: Create chain
+      import_role:
+        name: create_chain
+        tasks_from: create
