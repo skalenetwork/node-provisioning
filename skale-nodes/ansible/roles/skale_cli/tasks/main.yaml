@@ -50,15 +50,18 @@
 - name: Determine and set build command based on node type
   when: build_type == "source"
   block:
-    - name: Determine build target from map
+    - name: Determine build target from map with readable keys
       set_fact:
-        _build_target: "{{ build_targets[node_type ~ '_' ~ (sync_node | default(false) | bool | lower)] | default('') }}"
+        _build_target: "{{ build_target_map[lookup_key] | default('') }}"
       vars:
-        build_targets:
-          skale_false: "normal"
-          skale_true: "sync"
-          mirage_false: "mirage"
-          mirage_boot_false: "mirage"
+        base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
+        lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
+        build_target_map:
+          mirage_normal: "mirage"
+          # mirage_sync: "mirage_sync"
+          skale_normal: "normal"
+          skale_sync: "sync"
 
     - name: Fail if build target is unknown
       fail:
@@ -81,30 +84,33 @@
     - build_type == "source"
 
 - name: Copy source-built executable based on node type
+  when: build_type == "source"
   block:
     - name: Determine source and destination paths for the executable
       set_fact:
         executable_paths: "{{ path_map[lookup_key] | default({}) }}"
       vars:
-        lookup_key: "{{ node_type }}_{{ (sync_node | default(false)) | bool | lower }}"
+        base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
+        lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
         path_map:
-          mirage_false:
+          mirage_normal:
             src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
             dest: "/usr/local/bin/mirage"
-          mirage_boot_false:
-            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
-            dest: "/usr/local/bin/mirage"
-          skale_true:
-            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
-            dest: "/usr/local/bin/skale"
-          skale_false:
+          mirage_sync:
+            src: "" # TODO: replace it with correct path "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage-sync"
+            dest: "" # TODO: replace it with correct path "/usr/local/bin/mirage"
+          skale_normal:
             src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
+            dest: "/usr/local/bin/skale"
+          skale_sync:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
             dest: "/usr/local/bin/skale"
 
     - name: Fail if executable paths could not be determined
       fail:
         msg: "Could not determine which executable to copy for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
-      when: executable_paths | length == 0
+      when: executable_paths | length == 0 or executable_paths.src == ""
 
     - name: Copy the correct executable to /usr/local/bin
       copy:
@@ -112,7 +118,6 @@
         src: "{{ executable_paths.src }}"
         dest: "{{ executable_paths.dest }}"
         mode: "0755"
-  when: build_type == "source"
 
 - name: Remove builder container
   docker_container:
