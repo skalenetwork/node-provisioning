@@ -1,26 +1,22 @@
 # --- Download binary ---
 
-- name: Download skale_cli from spaces (SKALE CLI)
+- name: Download the correct binary based on node type
+  when: build_type == "git"
+  tags: binary
   get_url:
-    url: "{{ skale_cli_url }}"
-    dest: "/usr/local/bin/skale"
+    url: "{{ download_map[base_node_type].url }}"
+    dest: "{{ download_map[base_node_type].dest }}"
     force: yes
     mode: "0755"
-  when:
-    - node_type == "skale"
-    - build_type == "git"
-  tags: binary
-
-- name: Download mirage_cli from spaces (Mirage CLI)
-  get_url:
-    url: "{{ mirage_cli_url }}"
-    dest: "/usr/local/bin/mirage"
-    force: yes
-    mode: "0755"
-  when:
-    - node_type == "mirage_boot"
-    - build_type == "git"
-  tags: binary
+  vars:
+    base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+    download_map:
+      skale:
+        url: "{{ skale_cli_url }}"
+        dest: "/usr/local/bin/skale"
+      mirage:
+        url: "{{ mirage_cli_url }}"
+        dest: "/usr/local/bin/mirage"
 
 
 # --- Build binary from source ---
