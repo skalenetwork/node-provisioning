@@ -48,7 +48,7 @@ make_grok_input () {
   cd ..
 
   local INPUT="  type: file
-  readall: false
+  readall: true
   fail_on_missing_logfile: false
   paths:"
   for I in ${NAMES[@]}
@@ -57,6 +57,7 @@ make_grok_input () {
   done
   echo "$INPUT"
 }
+
 
 create_grok_yml () {
 INPUT="$INPUT" PORT=9144 PATTERNS="$PATTERNS" envsubst >grok-exporter.yml <<********************************************
@@ -73,10 +74,19 @@ input:
 ${INPUT}
 metrics:
 - type: gauge
-  name: logs_BLOCK_COMMIT
+  name: logs_BLOCK_COMMITED
   help: Block committed in bin-consensus
   match: '%{C_PREFIX_BLOCK}:BLOCK_COMMITED: PRPSR:%{NUMBER:proposer}:BID: %{NUMBER:block_id}'
   value: '{{.block_id}}'
+  labels:
+    node_id: '{{.node_id}}'
+    proposer: '{{.proposer}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: counter
+  name: logs_PRPSR
+  help: Total number of proposals sent by each proposer
+  match: '%{C_PREFIX_BLOCK}:BLOCK_COMMITED: PRPSR:%{NUMBER:proposer}:BID: %{NUMBER:block_id}'
+  value: 1
   labels:
     node_id: '{{.node_id}}'
     proposer: '{{.proposer}}'
@@ -107,9 +117,9 @@ metrics:
     node_id: '{{.node_id}}'
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 - type: gauge
-  name: logs_decided
+  name: logs_BLOCK_DECIDED
   help: 1 bin-cons ended OK
-  match: '%{C_PREFIX_BLOCK}:Decided value: %{NUMBER:value} for blockid:%{NUMBER:block_id} proposer:%{NUMBER:proposer}'
+  match: '%{C_PREFIX_BLOCK}:BLOCK_DECIDED: PRPSR:%{NUMBER:proposer}:BID: %{NUMBER:block_id}'
   value: '{{.block_id}}'
   labels:
     proposer: '{{.proposer}}'
@@ -196,3 +206,40 @@ do
     ./grok_exporter-*/grok_exporter -config grok-exporter.yml&
   fi
 done
+
+
+# INPUT=$(make_grok_input)
+# PATTERNS=$(echo grok_exporter*/patterns)
+
+# echo "Running initial full log scan to initialize metrics..."
+# export INPUT PATTERNS
+# INPUT="$INPUT" PORT=9144 PATTERNS="$PATTERNS" create_grok_yml
+# sed -i 's/readall: false/readall: true/' grok-exporter.yml
+
+# ./grok_exporter-*/grok_exporter -config grok-exporter.yml &
+# GROK_PID=$!
+# sleep 300 
+# kill $GROK_PID
+# echo "Initial scan done."
+
+# INPUT=$(make_grok_input)
+# INPUT="$INPUT" PORT=9144 PATTERNS="$PATTERNS" create_grok_yml
+
+# sudo iptables -I INPUT -p tcp --dport 9144 -j ACCEPT
+
+# ./grok_exporter-*/grok_exporter -config grok-exporter.yml &
+# trap "killall grok_exporter; killall -r process-expor" EXIT
+
+# while true
+# do
+#   sleep 5
+#   NEW_INPUT=$(make_grok_input)
+#   if [ "$NEW_INPUT" != "$INPUT" ]
+#   then
+#     echo "Restarting grok-exporter due to container change.."
+#     INPUT="$NEW_INPUT"
+#     INPUT="$INPUT" PORT=9144 PATTERNS="$PATTERNS" create_grok_yml
+#     killall grok_exporter
+#     ./grok_exporter-*/grok_exporter -config grok-exporter.yml &
+#   fi
+# done
