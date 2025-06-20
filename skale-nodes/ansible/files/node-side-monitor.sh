@@ -181,6 +181,62 @@ metrics:
   value: '1'
   labels:
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_CWT
+  help: Consensus Wait Time
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER:cwt_value}'
+  value: '{{.cwt_value}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_TLWT
+  help: Transaction Latency Wait Time
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER:cwt_value}:TLWT:%{NUMBER:tlwt}'
+  value: '{{.tlwt}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_SBPT
+  help: SBPT metric
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER:cwt_value}:TLWT:%{NUMBER:tlwt}:SBPT:%{NUMBER:sbpt}'
+  value: '{{.sbpt}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_BITE
+  help: BITE metric
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER:cwt_value}:TLWT:%{NUMBER:tlwt}:SBPT:%{NUMBER:sbpt}:BITE_DECRYPTED_TXS:%{NUMBER:bite_decrypted_txs}'
+  value: '{{.bite_decrypted_txs}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_BCT
+  help: Block Commit Time (ms)
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER:bct}:BFST:%{NUMBER}:PST:%{NUMBER}'
+  value: '{{.bct}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_BFST
+  help: Block Finalization Stage Time (ms)
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER}:BFST:%{NUMBER:bfst}:PST:%{NUMBER}'
+  value: '{{.bfst}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_PST
+  help: Proposal Stage Time (ms)
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER}:BFST:%{NUMBER}:PST:%{NUMBER:pst}'
+  value: '{{.pst}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 server:
   port: ${PORT}
 ********************************************
@@ -206,40 +262,3 @@ do
     ./grok_exporter-*/grok_exporter -config grok-exporter.yml&
   fi
 done
-
-
-# INPUT=$(make_grok_input)
-# PATTERNS=$(echo grok_exporter*/patterns)
-
-# echo "Running initial full log scan to initialize metrics..."
-# export INPUT PATTERNS
-# INPUT="$INPUT" PORT=9144 PATTERNS="$PATTERNS" create_grok_yml
-# sed -i 's/readall: false/readall: true/' grok-exporter.yml
-
-# ./grok_exporter-*/grok_exporter -config grok-exporter.yml &
-# GROK_PID=$!
-# sleep 300 
-# kill $GROK_PID
-# echo "Initial scan done."
-
-# INPUT=$(make_grok_input)
-# INPUT="$INPUT" PORT=9144 PATTERNS="$PATTERNS" create_grok_yml
-
-# sudo iptables -I INPUT -p tcp --dport 9144 -j ACCEPT
-
-# ./grok_exporter-*/grok_exporter -config grok-exporter.yml &
-# trap "killall grok_exporter; killall -r process-expor" EXIT
-
-# while true
-# do
-#   sleep 5
-#   NEW_INPUT=$(make_grok_input)
-#   if [ "$NEW_INPUT" != "$INPUT" ]
-#   then
-#     echo "Restarting grok-exporter due to container change.."
-#     INPUT="$NEW_INPUT"
-#     INPUT="$INPUT" PORT=9144 PATTERNS="$PATTERNS" create_grok_yml
-#     killall grok_exporter
-#     ./grok_exporter-*/grok_exporter -config grok-exporter.yml &
-#   fi
-# done
