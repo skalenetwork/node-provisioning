@@ -48,7 +48,7 @@ make_grok_input () {
   cd ..
 
   local INPUT="  type: file
-  readall: false
+  readall: true
   fail_on_missing_logfile: false
   paths:"
   for I in ${NAMES[@]}
@@ -57,6 +57,7 @@ make_grok_input () {
   done
   echo "$INPUT"
 }
+
 
 create_grok_yml () {
 INPUT="$INPUT" PORT=9144 PATTERNS="$PATTERNS" envsubst >grok-exporter.yml <<********************************************
@@ -73,10 +74,19 @@ input:
 ${INPUT}
 metrics:
 - type: gauge
-  name: logs_BLOCK_COMMIT
+  name: logs_BLOCK_COMMITED
   help: Block committed in bin-consensus
   match: '%{C_PREFIX_BLOCK}:BLOCK_COMMITED: PRPSR:%{NUMBER:proposer}:BID: %{NUMBER:block_id}'
   value: '{{.block_id}}'
+  labels:
+    node_id: '{{.node_id}}'
+    proposer: '{{.proposer}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: counter
+  name: logs_PRPSR
+  help: Total number of proposals sent by each proposer
+  match: '%{C_PREFIX_BLOCK}:BLOCK_COMMITED: PRPSR:%{NUMBER:proposer}:BID: %{NUMBER:block_id}'
+  value: 1
   labels:
     node_id: '{{.node_id}}'
     proposer: '{{.proposer}}'
@@ -107,9 +117,9 @@ metrics:
     node_id: '{{.node_id}}'
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 - type: gauge
-  name: logs_decided
+  name: logs_BLOCK_DECIDED
   help: 1 bin-cons ended OK
-  match: '%{C_PREFIX_BLOCK}:Decided value: %{NUMBER:value} for blockid:%{NUMBER:block_id} proposer:%{NUMBER:proposer}'
+  match: '%{C_PREFIX_BLOCK}:BLOCK_DECIDED: PRPSR:%{NUMBER:proposer}:BID: %{NUMBER:block_id}'
   value: '{{.block_id}}'
   labels:
     proposer: '{{.proposer}}'
@@ -170,6 +180,62 @@ metrics:
   match: '%{TIME_PREFIX}PARTIAL'
   value: '1'
   labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_CWT
+  help: Consensus Wait Time
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER:cwt_value}'
+  value: '{{.cwt_value}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_TLWT
+  help: Transaction Latency Wait Time
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER:cwt_value}:TLWT:%{NUMBER:tlwt}'
+  value: '{{.tlwt}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_SBPT
+  help: SBPT metric
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER:cwt_value}:TLWT:%{NUMBER:tlwt}:SBPT:%{NUMBER:sbpt}'
+  value: '{{.sbpt}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_BITE
+  help: BITE metric
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER:cwt_value}:TLWT:%{NUMBER:tlwt}:SBPT:%{NUMBER:sbpt}:BITE_DECRYPTED_TXS:%{NUMBER:bite_decrypted_txs}'
+  value: '{{.bite_decrypted_txs}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_BCT
+  help: Block Commit Time (ms)
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER:bct}:BFST:%{NUMBER}:PST:%{NUMBER}'
+  value: '{{.bct}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_BFST
+  help: Block Finalization Stage Time (ms)
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER}:BFST:%{NUMBER:bfst}:PST:%{NUMBER}'
+  value: '{{.bfst}}'
+  labels:
+    node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_PST
+  help: Proposal Stage Time (ms)
+  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER}:BFST:%{NUMBER}:PST:%{NUMBER:pst}'
+  value: '{{.pst}}'
+  labels:
+    node_id: '{{.node_id}}'
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 server:
   port: ${PORT}
