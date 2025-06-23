@@ -36,5 +36,6 @@
 - name: Run skale node restore
   shell:
     cmd: "{{ cmd }}"
+  environment:
     HOME_DIR: "{{ base_path }}"
-    tags: skale_restore
+  tags: skale_restore
