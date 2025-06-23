@@ -34,7 +34,7 @@
 - name: Set env options for regular Mirage node
   set_fact:
     env_options: |
-      MIRAGE_CONTRACTS="{{ manager_contracts }}"
+      MIRAGE_CONTRACTS="{{ mirage_contracts }}"
       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
       BOOT_ENDPOINT="{{ boot_endpoint }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
