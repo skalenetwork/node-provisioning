@@ -1,0 +1,17 @@
+- name: Deploy Mirage manager contracts (this may take a while, logs - {{ playbook_dir }}/logs/mirage-deploy.log)
+  shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_mirage.sh 2>&1 | tee {{ playbook_dir }}/logs/mirage-deploy.log
+  run_once: yes
+  environment:
+    MIRAGE_TAG: "{{ mirage_tag }}"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    MAINNET_ENDPOINT: "{{ endpoint }}"
+    ENDPOINT: "{{ mirage_endpoint }}"
+    CHAIN_NAME: "{{ chain_name }}"
+    TARGET: "{{ manager_contracts }}"
+  tags: deploy_mirage
+
+- name: Copy Mirage ABI
+  copy:
+    src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/mirage.json"
+    dest: "{{ playbook_dir }}/../../helper-scripts/contracts_data/mirageManagerComponents.json"
+  tags: upload_mirage
