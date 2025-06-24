@@ -60,7 +60,7 @@
     src: docker-compose-mirage.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose-mirage.yml"
   when:
-    - node_type == "mirage_boot"
+    - node_type in ['mirage_boot', 'mirage']
 
 - name: Replace skale-node docker-compose-sync file
   template:
