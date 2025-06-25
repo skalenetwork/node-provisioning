@@ -15,3 +15,29 @@
     src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/mirage.json"
     dest: "{{ playbook_dir }}/../../helper-scripts/contracts_data/mirageManagerComponents.json"
   tags: upload_mirage
+
+- name: Ensure group vars all
+  file:
+    state: touch
+    path: "{{ playbook_dir }}/group_vars/all"
+  tags: upload_mirage
+
+- name: Get Mirage Contract Address
+  shell: "jq -r '.Committee' {{ playbook_dir }}/../../helper-scripts/contracts_data/mirage.json"
+  register: mm_address_output
+  changed_when: false
+  tags: upload_mirage
+
+- name: Save Mirage Contract Address to variable
+  set_fact:
+    mirage_contracts: "{{ mm_address_output.stdout }}"
+  tags: upload_mirage
+
+- name: Save Mirage Contract Address to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    insertafter: EOF
+    regexp: "^mirage_contracts:"
+    line: 'mirage_contracts: "{{ mirage_contracts }}"'
+    state: present
+  tags: upload_mirage
