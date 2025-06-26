@@ -49,7 +49,6 @@
   set_fact:
     env_options: |
       ENDPOINT="{{ endpoint }}"
-      IMA_ENDPOINT="{{ ima_endpoint }}"
       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
       MANAGER_CONTRACTS="{{ manager_contracts }}"
@@ -63,7 +62,6 @@
       MONITORING_CONTAINERS="{{ monitoring_containers }}"
       DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
       ENV_TYPE="{{ env_type }}"
-      DISABLE_IMA="{{ disable_ima }}"
       INFLUX_URL="{{ influx_url }}"
       TELEGRAF="{{ telegraf }}"
   when:
