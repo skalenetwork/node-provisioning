@@ -1,6 +1,13 @@
 - name: Migrate Mirage boot node to regular Mirage node
   hosts: nodes
   become: true
+  pre_tasks:
+        - name: Fail if node_type is not 'mirage'
+          run_once: true
+          delegate_to: localhost
+          fail:
+            msg: "Stopping playbook. This play requires node_type to be 'mirage', but it is '{{ node_type }}'."
+          when: node_type != "mirage"
   roles:
     - role: sync
       when: build_type == "source"
