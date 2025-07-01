@@ -6,3 +6,5 @@
       import_role:
         name: deploy_mm
         tasks_from: deploy
+      when: node_type == "mirage_boot"
+
