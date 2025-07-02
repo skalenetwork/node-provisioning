@@ -1,7 +1,6 @@
 - name: Mirage migrate
   command:
     cmd: "mirage node migrate {{ base_path }}/init-env --yes"
-#  when: node_type is mirage
   register: migrate_cmd
 
 - name: Show migrate command output
