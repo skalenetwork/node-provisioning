@@ -279,6 +279,13 @@ metrics:
   value: '{{.tqsize_ftq}}'
   labels:
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_STET
+  help: STET - time of creating decryption shares for the block
+  match: 'STET:%{NUMBER:stet}'
+  value: '{{.stet}}'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 server:
   port: ${PORT}
 ********************************************
