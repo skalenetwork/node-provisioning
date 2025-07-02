@@ -18,7 +18,6 @@
 #   along with SKALE.py.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
-import logging
 from eth_typing import HexStr
 from enum import Enum
 from skale import SkaleManager
@@ -26,13 +25,12 @@ from skale.utils.web3_utils import init_web3
 from skale.wallets import Web3Wallet
 from skale.utils.contracts_provision.main import add_test_permissions, create_schain
 
-logger = logging.getLogger(__name__)
-
 CHAIN_NAME = os.environ['CHAIN_NAME']
 ENDPOINT = os.environ['ENDPOINT']
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
 MANAGER_CONTRACTS = os.environ['MANAGER_CONTRACTS']
 CHAIN_TYPE = os.environ.get('CHAIN_TYPE', 'SMALL2').upper()
+
 
 class SchainType(Enum):
     SMALL2 = [1, 2]
@@ -50,6 +48,7 @@ class SchainType(Enum):
     TEST4 = [32, 16]
     EMPTY = [0, 0]
 
+
 def get_chain_type_params(chain_type: str) -> list:
     try:
         return SchainType[chain_type].value
@@ -58,10 +57,12 @@ def get_chain_type_params(chain_type: str) -> list:
               f"Available types are: {[member.name for member in SchainType]}")
         raise
 
+
 def add_schain_type(part_of_node, number_of_nodes):
     return skale.schains_internal.add_schain_type(
         part_of_node, number_of_nodes
     )
+
 
 def get_schain_type_id(skale, type_parameters):
     n = skale.schains_internal.contract.functions.numberOfSchainTypes().call()
@@ -71,6 +72,7 @@ def get_schain_type_id(skale, type_parameters):
         if type_parameters == params:
             return idx
     return None
+
 
 def prepare_and_create_chain(skale, chain_type=CHAIN_TYPE) -> None:
     add_test_permissions(skale)
@@ -88,6 +90,7 @@ def prepare_and_create_chain(skale, chain_type=CHAIN_TYPE) -> None:
         schain_type=type_id,
     )
 
+
 def init_skale_manager(
     endpoint: str, alias_or_address: str, eth_private_key: HexStr
 ) -> SkaleManager:
@@ -99,4 +102,3 @@ def init_skale_manager(
 if __name__ == '__main__':
     skale = init_skale_manager(ENDPOINT, MANAGER_CONTRACTS, HexStr(ETH_PRIVATE_KEY))
     prepare_and_create_chain(skale)
-
