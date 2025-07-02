@@ -1,33 +1,30 @@
-- name: Run Mirage node update
-  shell:
-    cmd: "mirage boot update {{ base_path }}/init-env --yes"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-    HOME_DIR: "{{ base_path }}"
-  when: node_type is defined and node_type == "mirage"
+- name: Update node based on its type
   tags: skale_update
+  block:
+    - name: Determine update command from map
+      set_fact:
+        update_cmd: "{{ command_map[lookup_key] | default('') }}"
+      vars:
+        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
+        lookup_key: "{{ node_type }}_{{ sync_suffix }}"
+        command_map:
+          mirage_boot_normal: "mirage boot update {{ base_path }}/init-env --yes"
+          mirage_normal: "mirage node update {{ base_path }}/init-env --yes"
+#          mirage_sync: "mirage sync-node update {{ base_path }}/init-env --yes"
+          skale_normal: "skale node update {{ base_path }}/init-env --yes --pull-config all --unsafe"
+          skale_sync: "skale sync-node update {{ base_path }}/init-env --yes --unsafe"
 
-- name: Run Skale node update
-  shell:
-    cmd: "skale node update {{ base_path }}/init-env --yes --pull-config all --unsafe"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-    HOME_DIR: "{{ base_path }}"
-  when:
-    - (node_type is not defined or node_type != "mirage")
-    - (sync_node is not defined or not sync_node)
-  tags: skale_update
+    - name: Fail if update command could not be determined
+      fail:
+        msg: "Could not determine update command for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+      when: update_cmd | length == 0
 
-- name: Run Skale sync node update
-  shell:
-    cmd: "skale sync-node update {{ base_path }}/init-env --yes --unsafe"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-    HOME_DIR: "{{ base_path }}"
-  when:
-    - (node_type is not defined or node_type != "mirage")
-    - (sync_node is defined and sync_node)
-  tags: skale_update
+    - name: Show node update command
+      debug:
+        msg: "{{ update_cmd }}"
+
+    - name: Run node update command
+      shell:
+        cmd: "{{ update_cmd }}"
+      environment:
+        HOME_DIR: "{{ base_path }}"

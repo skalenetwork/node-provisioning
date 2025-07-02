@@ -1,62 +1,74 @@
-# --- Logic for Mirage Nodes ---
-- name: Download mirage_cli from spaces
+# --- Download binary ---
+
+- name: Download the correct binary based on node type
+  when: build_type == "git"
+  tags: binary
   get_url:
-    url: "{{ mirage_cli_url }}"
-    dest: "/usr/local/bin/mirage"
+    url: "{{ download_map[base_node_type].url }}"
+    dest: "{{ download_map[base_node_type].dest }}"
+    force: yes
     mode: "0755"
-  when: node_type is defined and node_type == "mirage"
-  tags: binary
+  vars:
+    base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+    download_map:
+      skale:
+        url: "{{ skale_cli_url }}"
+        dest: "/usr/local/bin/skale"
+      mirage:
+        url: "{{ mirage_cli_url }}"
+        dest: "/usr/local/bin/mirage"
 
-- name: Register mirage command path and name
-  set_fact:
-    cli_executable_path: "/usr/local/bin/mirage"
-    cli_command_name: "mirage"
-  when: node_type is defined and node_type == "mirage"
-  tags: binary
 
-# --- Logic for SKALE Nodes ---
-- name: Makedir dist (for SKALE CLI build)
+# --- Build binary from source ---
+
+- name: Makedir dist for CLI build
   file:
     state: directory
     path: "{{ base_path }}/node-cli/dist"
   when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
+    - build_type == "source"
 
-- name: Remove old binary builder image (for SKALE CLI build)
+- name: Remove old binary builder image
   community.docker.docker_image:
     name: "node-cli-builder"
     state: absent
   when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
+    - build_type == "source"
 
-- name: Build binary builder image (for SKALE CLI build)
+- name: Build binary builder image
   community.docker.docker_image_build:
     name: "node-cli-builder"
     network: host
     path: "{{ base_path }}/node-cli"
   when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
+    - build_type == "source"
 
-- name: Set build command (for SKALE CLI - regular)
-  set_fact:
-    build_cmd: "scripts/build.sh test test normal"
-  when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
-    - sync_node is not defined or not sync_node
+- name: Determine and set build command based on node type
+  when: build_type == "source"
+  block:
+    - name: Determine build target from map with readable keys
+      set_fact:
+        _build_target: "{{ build_target_map[lookup_key] | default('') }}"
+      vars:
+        base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
+        lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
+        build_target_map:
+          mirage_normal: "mirage"
+          # mirage_sync: "mirage_sync"
+          skale_normal: "normal"
+          skale_sync: "sync"
 
-- name: Add sync option to command (for SKALE CLI - sync)
-  set_fact:
-    build_cmd: "scripts/build.sh test test sync"
-  when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
-    - sync_node is defined and sync_node
+    - name: Fail if build target is unknown
+      fail:
+        msg: "Unsupported combination: node_type={{ node_type }}, sync_node={{ sync_node | default('not defined') }}"
+      when: _build_target | length == 0
 
-- name: Build binary (for SKALE CLI)
+    - name: Set full build command
+      set_fact:
+        build_cmd: "scripts/build.sh test test {{ _build_target }}"
+
+- name: Build binary
   docker_container:
     image: node-cli-builder
     name: node-cli-builder
@@ -65,53 +77,47 @@
       - "{{ base_path }}/node-cli/dist:/app/dist"
     command: "{{ build_cmd }}"
   when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
+    - build_type == "source"
 
-- name: Copy executable to /usr/bin/local for normal (SKALE CLI)
-  copy:
-    remote_src: True
-    src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
-    dest: /usr/local/bin/skale
-    mode: "0755"
-  when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
-    - (sync_node is not defined or not sync_node)
+- name: Copy source-built executable based on node type
+  when: build_type == "source"
+  block:
+    - name: Determine source and destination paths for the executable
+      set_fact:
+        executable_paths: "{{ path_map[lookup_key] | default({}) }}"
+      vars:
+        base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
+        lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
+        path_map:
+          mirage_normal:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
+            dest: "/usr/local/bin/mirage"
+          mirage_sync:
+            src: "" # TODO: replace it with correct path "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage-sync"
+            dest: "" # TODO: replace it with correct path "/usr/local/bin/mirage"
+          skale_normal:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
+            dest: "/usr/local/bin/skale"
+          skale_sync:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
+            dest: "/usr/local/bin/skale"
 
-- name: Copy executable to /usr/bin/local for sync (SKALE CLI)
-  copy:
-    remote_src: True
-    src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
-    dest: /usr/local/bin/skale
-    mode: "0755"
-  when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
-    - sync_node is defined and sync_node
+    - name: Fail if executable paths could not be determined
+      fail:
+        msg: "Could not determine which executable to copy for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+      when: executable_paths | length == 0 or executable_paths.src == ""
 
-- name: Remove builder container (for SKALE CLI)
+    - name: Copy the correct executable to /usr/local/bin
+      copy:
+        remote_src: true
+        src: "{{ executable_paths.src }}"
+        dest: "{{ executable_paths.dest }}"
+        mode: "0755"
+
+- name: Remove builder container
   docker_container:
     state: absent
     name: node-cli-builder
   when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "dev"
-
-- name: Download skale_cli from spaces (SKALE CLI)
-  get_url:
-    url: "{{ skale_cli_url }}"
-    dest: "/usr/local/bin/skale"
-    force: yes
-    mode: "0755"
-  when:
-    - node_type is not defined or node_type != "mirage"
-    - env is defined and env == "test"
-  tags: binary
-
-- name: Register skale command path and name
-  set_fact:
-    cli_executable_path: "/usr/local/bin/skale"
-    cli_command_name: "skale"
-  when: node_type is not defined or node_type != "mirage"
-  tags: binary
+    - build_type == "source"

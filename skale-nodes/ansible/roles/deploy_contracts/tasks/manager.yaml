@@ -30,14 +30,14 @@
 
 - name: Save SM Contract Address to variable
   set_fact:
-    sm_address: "{{ sm_address_output.stdout }}"
+    manager_contracts: "{{ sm_address_output.stdout }}"
   tags: upload_sm
 
 - name: Save SM URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
     insertafter: EOF
-    regexp: "^sm_address:"
-    line: 'sm_address: "{{ sm_address }}"'
+    regexp: "^manager_contracts:"
+    line: 'manager_contracts: "{{ manager_contracts }}"'
     state: present
   tags: upload_sm

@@ -1,13 +1,3 @@
-- name: Set Skale Manager contract address
-  set_fact:
-    manager_contracts: "{{ hostvars['localhost']['sm_address'] }}"
-  when: manager_contracts is undefined
-
-- name: Crash if no Skale Manager contract address provided
-  fail:
-    msg: manager_contracts is undefined
-  when: manager_contracts is undefined
-
 - name: Set hosts
   set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
   with_dict: "{{ hostvars }}"

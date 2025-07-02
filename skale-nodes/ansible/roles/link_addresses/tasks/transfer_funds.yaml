@@ -1,5 +1,3 @@
-# TODO: get 'manager_contracts' variable from group_vars/all
-
 - name: Transfer funds to node wallets
   run_once: yes
   script: transfer_funds.py

@@ -17,38 +17,43 @@
   debug:
     msg: "{{ validator_id }}"
 
-- name: Get wallet info output
-  command: "sudo {{ node_type }} wallet info -f json"
-  register: wallet_cmd_result
-  environment:
-    LC_ALL: "C.UTF-8"
-    LANG: "C.UTF-8"
+- name: Get wallet info
+  command:
+    cmd: "{{ node_commands[node_type] }}"
+  vars:
+    node_commands:
+      mirage_boot: "sudo mirage wallet info -f json"
+      skale: "sudo skale wallet info -f json"
+  when: node_type in node_commands
+  register: wallet_info_cmd
+  changed_when: false
+
+- name: Show wallet info command output
+  debug:
+    msg: "{{ wallet_info_cmd.stdout }}"
 
 - name: Get wallet data from json
   set_fact:
-    wallet_data: "{{ wallet_cmd_result.stdout | to_json | from_json }}"
-
-- name: Determine signature command based on node_type
-  set_fact:
-    get_signature_command: >-  # Using >- for multi-line in YAML, processed by Jinja
-      {% if node_type is defined and node_type == "mirage" %}
-      sudo {{ node_type }} boot signature {{ validator_id }}
-      {% else %}
-      sudo {{ node_type }} node signature {{ validator_id }}
-      {% endif %}
+    wallet_data: "{{ wallet_info_cmd.stdout | to_json | from_json }}"
 
 - name: Get node signature
-  command: "{{ get_signature_command }}"
-  register: signature_cmd_result
+  command:
+    cmd: "{{ node_commands[node_type] }}"
+  vars:
+    node_commands:
+      mirage_boot: "sudo mirage boot signature {{ validator_id }}"
+      skale: "sudo skale node signature {{ validator_id }}"
+  when: node_type in node_commands
+  register: get_signature_cmd
   changed_when: false
 
 - name: Display node signature
   debug:
-    msg: "{{ signature_cmd_result.stdout }}"
+    msg: "{{ get_signature_cmd.stdout }}"
 
 - name: Get wallet data from json
   set_fact:
-    signature: "{{ signature_cmd_result.stdout.split()[1] }}"
+    signature: "{{ get_signature_cmd.stdout.split()[1] }}"
 
 - name: Save address and signature to a file
   copy:

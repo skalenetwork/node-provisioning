@@ -1,4 +1,4 @@
-- name: Update skale node
+- name: Migrate Mirage boot node to regular Mirage node
   hosts: nodes
   become: true
   roles:
@@ -9,5 +9,5 @@
     - role: config
       tags: config
 
-    - role: update
-      tags: update
+    - role: mirage_migrate
+      tags: mirage_migrate

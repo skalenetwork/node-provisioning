@@ -4,7 +4,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
   tags: admin
 
 - name: Synchronization of transaction-manager repo
@@ -13,7 +12,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
   tags: tm
 
 - name: Synchronization of skale-watchdog repo
@@ -22,7 +20,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
   tags: watchdog
 
 - name: Synchronization of skale-node repo
@@ -31,7 +28,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
   tags: skale-node
 
 - name: Synchronization of node-cli repo
@@ -40,7 +36,6 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
   tags: cli
 
 - name: Synchronization of bounty-agent repo
@@ -49,17 +44,28 @@
     dest: "{{ base_path }}"
     delete: yes
     recursive: yes
-  when: env is defined and env == "dev"
+  when:
+    - node_type == "skale"
   tags: bounty
 
 - name: Replace skale-node docker-compose file
   template:
     src: docker-compose.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose.yml"
-  when: env is defined and env == "dev"
+  when:
+    - node_type == "skale"
+
+- name: Replace mirage-node docker-compose-mirage file
+  template:
+    src: docker-compose-mirage.yml.j2
+    dest: "{{ base_path }}/skale-node/docker-compose-mirage.yml"
+  when:
+    - node_type in ['mirage_boot', 'mirage']
 
 - name: Replace skale-node docker-compose-sync file
   template:
     src: docker-compose-sync.yml.j2
     dest: "{{ base_path }}/skale-node/docker-compose-sync.yml"
-  when: env is defined and env == "dev" and sync_node is defined and sync_node
+  when:
+    - node_type == "skale"
+    - sync_node is defined and sync_node

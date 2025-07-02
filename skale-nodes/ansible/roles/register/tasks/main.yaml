@@ -1,19 +1,14 @@
-- name: Register ip address
-  set_fact:
-    ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
-
-- name: Run mirage boot register
+- name: Register node
   command:
-    cmd: "{{ node_type }} boot register -n {{ inventory_hostname }} --ip {{ ip_address }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-  when: node_type is defined and node_type == "mirage"
+    cmd: "{{ node_commands[node_type] }}"
+  vars:
+    node_commands:
+      mirage_boot: "mirage boot register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
+      mirage: "mirage node register --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
+      skale: "skale node register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
+  when: node_type in node_commands
+  register: register_cmd
 
-- name: Run skale node register
-  command:
-    cmd: "{{ node_type }} node register --name {{ inventory_hostname }} --ip {{ ip_address }} --port 10000 --domain {{ ip_address }}.{{ base_domain_name }}"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
-  when: node_type is not defined or node_type != "mirage"
+- name: Show register command output
+  debug:
+    msg: "{{ register_cmd.stdout }}"

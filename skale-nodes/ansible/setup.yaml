@@ -1,10 +1,22 @@
+- name: Propagate manager_contracts to nodes
+  hosts: nodes
+  gather_facts: no
+  tasks:
+    - name: Set manager_contracts fact for each node
+      set_fact:
+        manager_contracts: "{{ hostvars['localhost']['manager_contracts'] | default(manager_contracts, true) }}"
+    - name: Crash if no SM contract address/alias provided
+      fail:
+        msg: manager_contracts is undefined
+      when: manager_contracts is undefined
+
 - name: Setup skale node
   hosts: nodes
   become: true
   roles:
     - role: sync
       tags: sync
-      when: env is defined and env == "dev"
+      when: build_type == "source"
 
     - role: skale_cli
       tags: cli
