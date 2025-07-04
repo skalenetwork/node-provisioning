@@ -36,7 +36,7 @@
     env_options: |
       MIRAGE_CONTRACTS="{{ mirage_contracts }}"
       CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
-      BOOT_ENDPOINT="{{ boot_endpoint }}"
+      BOOT_ENDPOINT="{{ endpoint }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
       SGX_SERVER_URL="{{ sgx_url }}"
       DISK_MOUNTPOINT="{{ block_device }}"
