@@ -59,12 +59,12 @@ if __name__ == '__main__':
     skale = init_skale_manager(ENDPOINT, MANAGER_CONTRACTS, HexStr(ETH_PRIVATE_KEY))
     if len(sys.argv) > 1:
         action = sys.argv[1]
-        if action == 'remove_schains':
+        if action == 'remove_chains':
             remove_all_schains(skale)
         elif action == 'remove_nodes':
             remove_active_nodes(skale)
         else:
-            logger.error(f'Unknown action: {action}. Please use "remove_schains" or "remove_nodes"')
+            logger.error(f'Unknown action: {action}. Please use "remove_chains" or "remove_nodes"')
             sys.exit(1)
     else:
         logger.info('No action specified, running full cleanup')

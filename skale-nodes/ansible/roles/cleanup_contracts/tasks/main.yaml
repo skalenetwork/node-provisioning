@@ -1,6 +1,6 @@
-- name: Cleanup contracts - remove all s-chains
+- name: Cleanup contracts - remove all chains
   script:
-    cmd: cleanup_contracts.py remove_schains
+    cmd: cleanup_contracts.py remove_chains
   run_once: yes
   environment:
     BASE_DIR: "files"
@@ -10,7 +10,7 @@
   args:
     executable: python3
   tags:
-    - cleanup_schains
+    - cleanup_chains
 
 - name: Cleanup contracts - remove all active nodes
   ansible.builtin.script:
