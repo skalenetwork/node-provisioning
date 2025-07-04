@@ -1,10 +1,18 @@
-# SKALE Node Provisoning
+# SKALE and Mirage Node Provisoning
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
-This repo will help deploy and register multiple SKALE nodes in the cloud automatically.
+This repo will help deploy and register multiple SKALE and Mirage nodes in the cloud automatically.
 
 NOTE: This is for QA and testing purposes only.
+
+- [Mirage Node Provisoning](#mirage-node-provisoning)
+  - [Mirage network creating](#mirage-network-creating)
+    - [Setup Mirage boot nodes](#1-prepare-inventory)
+    - [Prepare inventory](#2-setup-mirage-boot-nodes)
+    - [Create schain](#3-create-schain)
+    - [Deploy Mirage contracts](#4-deploy-mirage-contracts) 
+    - [Migrate Mirage boot nodes](#5-migrate-mirage-boot-nodes)
 
 - [SKALE Node Provisoning](#skale-node-provisoning)
   - [Host requirements](#host-requirements)
@@ -20,6 +28,54 @@ NOTE: This is for QA and testing purposes only.
     - [Upload authorized_keys to nodes](#upload-authorized_keys-to-nodes)
     - [Run main script without IMA deployment](#run-main-script-without-ima-deployment)
     - [Run skaled monitor](#run-skaled-monitor)
+
+
+# Mirage Node Provisioning
+
+## Mirage network creating
+
+### 1. Prepare inventory
+1) Set `node_type=mirage_boot`
+2) Set `build_type=git` (to use Docker image versions specified in the corresponding branch of the 
+`skale-node` repository on GitHub), or `build_type=source` (to build from source). In the second 
+case, set the appropriate local paths to the required cloned repositories and set  
+`container_configs_dir` variable (usually it's `/root/skale-node`).
+3) Don't forget to set all other necessary variables like `eth_private_key`, `endpoint`, etc.
+
+### 2. Setup Mirage boot nodes
+```bash
+ansible-playbook -i inventory main.yaml
+```
+The following playbooks are processed here: _deploy_contracts.yaml, sgx_sim.yaml, setup.yaml, 
+validator.yaml, signature.yaml, link_addresses.yaml, register.yaml_
+
+### 3. Create schain
+1) Set the schain name (it must match the name specified in the `mirage_static_params.yaml` file for 
+the corresponding network in the relevant branch of the `skale-node` repository). For example, for 
+the **devnet**, the typical name is `mirage-devnet1`.
+2) Set the `chain_type=small2`
+3) Run the following playbook:
+```bash
+ansible-playbook -i inventory create_chain.yaml
+```
+### 4. Deploy Mirage contracts
+1) Set `mirage_tag` variable (Mirage manager version)
+2) Set `mirage_endpoint` variable (endpoint of schain that was created before)
+3) Run the following playbook: 
+```bash
+ansible-playbook -i inventory deploy_mirage_manager.yaml
+```
+### 5. Migrate Mirage boot nodes
+1) Set `node_type=mirage`
+2) Set `boot_endpoint` to be the same as `endpoint` (temporarily - this will be removed after the 
+next PR is merged)
+3) Run the following playbook:
+```bash
+ansible-playbook -i inventory mirage_migrate.yaml
+```
+
+
+# SKALE Node Provisioning
 
 ## Host requirements
 
@@ -177,3 +233,4 @@ bash utils/generate_hosts.sh
 ```bash
 ansible-playbook -i inventory run_monitor.yaml
 ```
+
