@@ -42,6 +42,7 @@
       DISK_MOUNTPOINT="{{ block_device }}"
       ENV_TYPE="{{ env_type }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
+      ENFORCE_BTRFS='False'
   when: node_type == "mirage"
   tags: env
 
