@@ -13,6 +13,7 @@ NOTE: This is for QA and testing purposes only.
     - [Create schain](#3-create-schain)
     - [Deploy Mirage contracts](#4-deploy-mirage-contracts) 
     - [Migrate Mirage boot nodes](#5-migrate-mirage-boot-nodes)
+    - [Setup Mirage nodes](#6-setup-mirage-nodes)
 
 - [SKALE Node Provisoning](#skale-node-provisoning)
   - [Host requirements](#host-requirements)
@@ -71,7 +72,12 @@ ansible-playbook -i inventory deploy_mirage_manager.yaml
 ```bash
 ansible-playbook -i inventory mirage_migrate.yaml
 ```
-
+### 6. Setup Mirage nodes
+1) Set `node_type=mirage`
+2) Run the following playbook:
+```bash
+ansible-playbook -i inventory main_mirage.yaml
+```
 
 # SKALE Node Provisioning
 
