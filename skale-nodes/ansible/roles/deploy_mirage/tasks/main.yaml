@@ -5,7 +5,7 @@
     MIRAGE_TAG: "{{ mirage_tag }}"
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     MAINNET_ENDPOINT: "{{ endpoint }}"
-    ENDPOINT: "{{ mirage_endpoint }}"
+    ENDPOINT: "{{ boot_endpoint }}"
     CHAIN_NAME: "{{ chain_name }}"
     TARGET: "{{ manager_contracts }}"
   tags: deploy_mirage

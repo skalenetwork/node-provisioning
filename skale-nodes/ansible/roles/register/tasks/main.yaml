@@ -1,3 +1,14 @@
+- name: Hotfix for zero node in Mirage
+  script: fix_zero_node_mirage.py
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+  args:
+    executable: python3
+  when: node_type == "mirage_boot"
+
 - name: Register node
   command:
     cmd: "{{ node_commands[node_type] }}"
