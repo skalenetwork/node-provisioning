@@ -10,29 +10,36 @@
     regexp: "{{ item }}"
     path: "{{ playbook_dir }}/group_vars/all"
   loop: ["^manager_contracts", "^ima_contracts"]
-  tags: group_vars_cleanup
+  tags:
+    - group_vars_cleanup
+    - contract_data_cleanup
+
 
 - name: Find all abis
   find:
     paths: ["{{ playbook_dir }}/../../helper-scripts/contracts_data"]
     patterns: ["*.json"]
   register: abi_files
+  tags: contract_data_cleanup
 
 - name: Cleanup contract abis
   file:
     state: absent
     path: "{{ item.path }}"
   loop: "{{ abi_files.files }}"
+  tags: contract_data_cleanup
 
 - name: Cleanup manager manifests
   file:
     state: absent
     path: "{{ playbook_dir }}/../../helper-scripts/contracts_data/openzeppelin"
+  tags: contract_data_cleanup
 
 - name: Cleanup ima manifests
   file:
     state: absent
     path: "{{ playbook_dir }}/../../helper-scripts/contracts_data/ima-openzeppelin"
+  tags: contract_data_cleanup
 
 - name: Remove validator-id and validator-key files
   file:
@@ -40,3 +47,4 @@
     state: absent
   with_fileglob:
     - "{{ playbook_dir}}/files/validator-*.txt"
+  tags: validator_data_cleanup

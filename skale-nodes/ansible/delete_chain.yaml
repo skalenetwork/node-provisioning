@@ -1,0 +1,7 @@
+- name: Delete chain on SKALE or Mirage nodes
+  hosts: 127.0.0.1
+  connection: local
+  roles:
+    - role: delete_chain
+      tags:
+        - delete_chain
