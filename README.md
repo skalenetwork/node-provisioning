@@ -53,23 +53,21 @@ validator.yaml, signature.yaml, link_addresses.yaml, register.yaml_
 1) Set the schain name (it must match the name specified in the `mirage_static_params.yaml` file for 
 the corresponding network in the relevant branch of the `skale-node` repository). For example, for 
 the **devnet**, the typical name is `mirage-devnet1`.
-2) Set the `chain_type=small2`
+2) Set the desired `chain_type` (for example, LARGE4 - for 4-nodes chain )
 3) Run the following playbook:
 ```bash
 ansible-playbook -i inventory create_chain.yaml
 ```
 ### 4. Deploy Mirage contracts
 1) Set `mirage_tag` variable (Mirage manager version)
-2) Set `mirage_endpoint` variable (endpoint of schain that was created before)
+2) Set `boot_endpoint` variable (endpoint of schain that was created before)
 3) Run the following playbook: 
 ```bash
 ansible-playbook -i inventory deploy_mirage_manager.yaml
 ```
 ### 5. Migrate Mirage boot nodes
 1) Set `node_type=mirage`
-2) Set `boot_endpoint` to be the same as `endpoint` (temporarily - this will be removed after the 
-next PR is merged)
-3) Run the following playbook:
+2) Run the following playbook:
 ```bash
 ansible-playbook -i inventory mirage_migrate.yaml
 ```
