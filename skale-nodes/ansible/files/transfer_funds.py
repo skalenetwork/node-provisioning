@@ -20,7 +20,6 @@
 import os
 import logging
 
-from skale import SkaleManager
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
@@ -39,16 +38,11 @@ logger = logging.getLogger(__name__)
 init_default_logger()
 
 
-def init_web3_skale():
+def main():
     web3 = init_web3(ENDPOINT)
     wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
-    return SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
-
-
-def main():
-    skale = init_web3_skale()
     address = to_checksum_address(ADDRESS)
-    send_eth(skale.web3, skale.wallet, address, AMOUNT)
+    send_eth(web3, wallet, address, AMOUNT)
 
 
 if __name__ == '__main__':

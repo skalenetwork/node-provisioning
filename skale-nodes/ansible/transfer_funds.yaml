@@ -1,0 +1,50 @@
+#- name: Prepare node information
+#  hosts: nodes
+#  tasks:
+#    - name: Save folder name for nodes addresses info
+#      set_fact:
+#        node_info_dir: "files/node-info"
+#      delegate_to: "127.0.0.1"
+#
+#    - name: Block for getting wallet info and saving it
+#      block:
+#
+#        - name: Get wallet info
+#          command:
+#            cmd: "{{ node_commands[node_type] }}"
+#          vars:
+#            node_commands:
+#              mirage_boot: "sudo mirage wallet info -f json"
+#              mirage: "sudo mirage wallet info -f json"
+#              skale: "sudo skale wallet info -f json"
+#          when: node_type in node_commands
+#          register: wallet_info_cmd
+#          changed_when: false
+#
+#        - name: Show wallet info command output
+#          debug:
+#            msg: "{{ wallet_info_cmd.stdout }}"
+#
+#        - name: Get wallet data from json
+#          set_fact:
+#            wallet_data: "{{ wallet_info_cmd.stdout | from_json }}"
+#
+#        - name: Show wallet info command output
+#          debug:
+#            msg: "{{ wallet_data.address }}"
+#
+#        - name: Save address to a file on the control node
+#          copy:
+#            content: "{{ wallet_data.address }}"
+#            dest: "{{ node_info_dir }}/{{ inventory_hostname }}"
+#          delegate_to: "127.0.0.1"
+
+- name: Transfer funds to node address
+  hosts: 127.0.0.1
+  connection: local
+  tasks:
+    - name: Transfer funds
+      import_role:
+        name: link_addresses
+        tasks_from: transfer_funds
+
