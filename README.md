@@ -1,4 +1,4 @@
-# SKALE and Fair Node Provisoning
+# SKALE and Fair Node Provisioning
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
