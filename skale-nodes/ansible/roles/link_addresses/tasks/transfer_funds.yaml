@@ -1,14 +1,26 @@
 - name: Transfer funds to node wallets
   run_once: yes
-  script: transfer_funds.py
+  tags: node_funds
+  ansible.builtin.script: transfer_funds.py
   environment:
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
-    ADDRESS: "{{ lookup('file', '{{ item }}').split()[0].strip() }}"
-    ENDPOINT: "{{ endpoint }}"
-    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    ADDRESS: "{{ lookup('file', item).split()[0].strip() }}"
+    ENDPOINT: "{{ transfer_map[node_type].endpoint }}"
+    MANAGER_CONTRACTS: "{{ transfer_map[node_type].contracts }}"
     BASE_DIR: "files"
     AMOUNT: 0.2
   args:
     executable: python3
   with_fileglob: "node-info/*"
-  tags: node_funds
+  vars:
+    transfer_map:
+      mirage:
+        endpoint: "{{ boot_endpoint }}"
+        contracts: "{{ mirage_contracts }}"
+      mirage_boot:
+        endpoint: "{{ endpoint }}"
+        contracts: "{{ manager_contracts }}"
+      skale:
+        endpoint: "{{ endpoint }}"
+        contracts: "{{ manager_contracts }}"
+  when: node_type in transfer_map

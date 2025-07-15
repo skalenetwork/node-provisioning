@@ -22,8 +22,16 @@ from eth_typing import HexStr
 from skale import SkaleManager
 from skale.utils.web3_utils import init_web3
 from skale.wallets import Web3Wallet
-from skale.utils.contracts_provision.mirage import set_up_nodes
+from skale.wallets.web3_wallet import generate_wallet
+from skale.utils.contracts_provision.mirage import (
+    link_node_address, register_node, add_test_permissions, init_skale_from_wallet
+)
+from skale.utils.contracts_provision.main import (
+    set_test_msr, create_validator, enable_validator, validator_exist
+)
+from skale.utils.account_tools import send_eth
 
+ETH_AMOUNT = 0.2
 ENDPOINT = os.environ['ENDPOINT']
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
 MANAGER_CONTRACTS = os.environ['MANAGER_CONTRACTS']
@@ -37,6 +45,32 @@ def init_skale_manager(
     return SkaleManager(endpoint, alias_or_address, wallet)
 
 
+def setup_validator(skale: SkaleManager):
+    """Create and activate a validator"""
+    set_test_msr(skale, msr=0)
+    print('Address', skale.wallet.address)
+    if not validator_exist(skale):
+        create_validator(skale)
+    else:
+        print('Skipping default validator creation')
+    validator_id = skale.validator_service.validator_id_by_address(skale.wallet.address)
+    if not skale.validator_service.get(validator_id)['trusted']:
+        enable_validator(skale, validator_id)
+
+
+def fix_zero_node(skale):
+    wallet = generate_wallet(skale.web3)
+    print(f'Node Address: {wallet.address}')
+    send_eth(skale.web3, skale.wallet, wallet.address, ETH_AMOUNT)
+    add_test_permissions(skale)
+    setup_validator(skale)
+    link_node_address(skale, wallet)
+    node_skale = init_skale_from_wallet(skale, wallet)
+    register_node(node_skale)
+    skale.nodes.init_exit(0)
+    skale.manager.node_exit(0)
+
+
 if __name__ == '__main__':
     skale = init_skale_manager(ENDPOINT, MANAGER_CONTRACTS, HexStr(ETH_PRIVATE_KEY))
-    set_up_nodes(skale, 0)
+    fix_zero_node(skale)

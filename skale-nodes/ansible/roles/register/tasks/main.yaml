@@ -1,21 +1,10 @@
-- name: Hotfix for zero node in Mirage
-  script: fix_zero_node_mirage.py
-  environment:
-    BASE_DIR: "files"
-    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
-    ENDPOINT: "{{ endpoint }}"
-    MANAGER_CONTRACTS: "{{ manager_contracts }}"
-  args:
-    executable: python3
-  when: node_type == "mirage_boot"
-
 - name: Register node
   command:
     cmd: "{{ node_commands[node_type] }}"
   vars:
     node_commands:
       mirage_boot: "mirage boot register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
-      mirage: "mirage node register --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
+      mirage: "mirage node register --ip {{ hostvars[inventory_hostname].ansible_host }}"
       skale: "skale node register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
   when: node_type in node_commands
   register: register_cmd

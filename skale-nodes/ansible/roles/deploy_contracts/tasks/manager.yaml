@@ -41,3 +41,16 @@
     line: 'manager_contracts: "{{ manager_contracts }}"'
     state: present
   tags: upload_sm
+
+- name: Hotfix for zero node in Mirage
+  run_once: yes
+  script: fix_zero_node_mirage.py
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+  args:
+    executable: python3
+  when: node_type == "mirage_boot"
+  tags: fix_zero_node
