@@ -18,7 +18,6 @@
         url: "{{ fair_cli_url }}"
         dest: "/usr/local/bin/fair"
 
-
 # --- Build binary from source ---
 
 - name: Makedir dist for CLI build
@@ -66,7 +65,7 @@
 
     - name: Set full build command
       set_fact:
-        build_cmd: "scripts/build.sh test test {{ _build_target }}"
+        build_cmd: "bash scripts/build.sh test test {{ _build_target }}"
 
 - name: Build binary
   docker_container:
