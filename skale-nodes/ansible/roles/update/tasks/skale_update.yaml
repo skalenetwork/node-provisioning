@@ -8,9 +8,9 @@
         sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
         lookup_key: "{{ node_type }}_{{ sync_suffix }}"
         command_map:
-          mirage_boot_normal: "mirage boot update {{ base_path }}/init-env --yes"
-          mirage_normal: "mirage node update {{ base_path }}/init-env --yes"
-#          mirage_sync: "mirage sync-node update {{ base_path }}/init-env --yes"
+          fair_boot_normal: "fair boot update {{ base_path }}/init-env --yes"
+          fair_normal: "fair node update {{ base_path }}/init-env --yes"
+#          fair_sync: "fair sync-node update {{ base_path }}/init-env --yes"
           skale_normal: "skale node update {{ base_path }}/init-env --yes --pull-config all --unsafe"
           skale_sync: "skale sync-node update {{ base_path }}/init-env --yes --unsafe"
 

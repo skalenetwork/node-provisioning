@@ -3,8 +3,8 @@
     cmd: "{{ node_commands[node_type] }}"
   vars:
     node_commands:
-      mirage_boot: "mirage boot register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
-      mirage: "mirage node register --ip {{ hostvars[inventory_hostname].ansible_host }}"
+      fair_boot: "fair boot register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
+      fair: "fair node register --ip {{ hostvars[inventory_hostname].ansible_host }}"
       skale: "skale node register -n {{ inventory_hostname }} --ip {{ hostvars[inventory_hostname].ansible_host }} -p 10000 -d {{ inventory_hostname }}.{{ base_domain_name }}"
   when: node_type in node_commands
   register: register_cmd

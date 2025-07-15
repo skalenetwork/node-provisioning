@@ -1,4 +1,4 @@
-- name: Delete chain on SKALE or Mirage nodes
+- name: Delete chain on SKALE or Fair nodes
   hosts: 127.0.0.1
   connection: local
   roles:

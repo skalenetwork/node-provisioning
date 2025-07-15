@@ -14,10 +14,10 @@
   with_fileglob: "node-info/*"
   vars:
     transfer_map:
-      mirage:
+      fair:
         endpoint: "{{ boot_endpoint }}"
-        contracts: "{{ mirage_contracts }}"
-      mirage_boot:
+        contracts: "{{ fair_contracts }}"
+      fair_boot:
         endpoint: "{{ endpoint }}"
         contracts: "{{ manager_contracts }}"
       skale:

@@ -14,8 +14,8 @@
 #            cmd: "{{ node_commands[node_type] }}"
 #          vars:
 #            node_commands:
-#              mirage_boot: "sudo mirage wallet info -f json"
-#              mirage: "sudo mirage wallet info -f json"
+#              fair_boot: "sudo fair wallet info -f json"
+#              fair: "sudo fair wallet info -f json"
 #              skale: "sudo skale wallet info -f json"
 #          when: node_type in node_commands
 #          register: wallet_info_cmd
