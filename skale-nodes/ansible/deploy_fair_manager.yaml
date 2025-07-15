@@ -1,0 +1,14 @@
+- name: Deploy Fair manager contracts
+  hosts: 127.0.0.1
+  connection: local
+  pre_tasks:
+    - name: Fail if node_type is not 'fair_boot'
+      fail:
+        msg: "Stopping playbook. This play requires node_type to be 'fair_boot', but it is '{{ node_type }}'."
+      when: node_type != "fair_boot"
+  roles:
+    - role: deploy_fair
+      tags:
+        - deploy_fair
+
+

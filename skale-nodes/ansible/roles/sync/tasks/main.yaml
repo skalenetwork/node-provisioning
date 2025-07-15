@@ -55,12 +55,12 @@
   when:
     - node_type == "skale"
 
-- name: Replace mirage-node docker-compose-mirage file
+- name: Replace fair-node docker-compose-fair file
   template:
-    src: docker-compose-mirage.yml.j2
-    dest: "{{ base_path }}/skale-node/docker-compose-mirage.yml"
+    src: docker-compose-fair.yml.j2
+    dest: "{{ base_path }}/skale-node/docker-compose-fair.yml"
   when:
-    - node_type in ['mirage_boot', 'mirage']
+    - node_type in ['fair_boot', 'fair']
 
 - name: Replace skale-node docker-compose-sync file
   template:

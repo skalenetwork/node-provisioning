@@ -1,4 +1,3 @@
 [submodule "helper-scripts"]
 	path = helper-scripts
 	url = git@github.com:skalenetwork/helper-scripts.git
-	branch = mirage-naming

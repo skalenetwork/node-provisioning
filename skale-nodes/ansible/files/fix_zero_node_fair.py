@@ -23,7 +23,7 @@ from skale import SkaleManager
 from skale.utils.web3_utils import init_web3
 from skale.wallets import Web3Wallet
 from skale.wallets.web3_wallet import generate_wallet
-from skale.utils.contracts_provision.mirage import (
+from skale.utils.contracts_provision.fair import (
     link_node_address, register_node, add_test_permissions, init_skale_from_wallet
 )
 from skale.utils.contracts_provision.main import (

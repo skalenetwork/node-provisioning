@@ -42,9 +42,9 @@
     state: present
   tags: upload_sm
 
-- name: Hotfix for zero node in Mirage
+- name: Hotfix for zero node in Fair
   run_once: yes
-  script: fix_zero_node_mirage.py
+  script: fix_zero_node_fair.py
   environment:
     BASE_DIR: "files"
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
@@ -52,5 +52,5 @@
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
   args:
     executable: python3
-  when: node_type == "mirage_boot"
+  when: node_type == "fair_boot"
   tags: fix_zero_node

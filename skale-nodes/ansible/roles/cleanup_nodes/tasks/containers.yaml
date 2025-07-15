@@ -18,7 +18,7 @@
   with_items: "{{ monitoring_container_ids | default([]) }}"
 
 - name: Get all container ids
-  command: 'docker ps -a -q --filter="name=skale_" --filter="name=mirage_"'
+  command: 'docker ps -a -q --filter="name=skale_" --filter="name=fair_"'
   become: true
   register: containers_output
   tags: containers_ids
@@ -38,25 +38,25 @@
   tags: admin
   when: node_type == "skale"
 
-- name: Destroy mirage boot admin container
+- name: Destroy fair boot admin container
   become: true
   docker_container:
-    name: "mirage_boot_admin"
+    name: "fair_boot_admin"
     state: absent
     force_kill: yes
     keep_volumes: no
   tags: admin
-  when: node_type == "mirage_boot"
+  when: node_type == "fair_boot"
 
-- name: Destroy mirage admin container
+- name: Destroy fair admin container
   become: true
   docker_container:
-    name: "mirage_admin"
+    name: "fair_admin"
     state: absent
     force_kill: yes
     keep_volumes: no
   tags: admin
-  when: node_type == "mirage"
+  when: node_type == "fair"
 
 - name: Destroy all containers
   become: true

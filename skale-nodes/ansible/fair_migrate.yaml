@@ -1,0 +1,20 @@
+- name: Migrate Fair boot node to regular Fair node
+  hosts: nodes
+  become: true
+  pre_tasks:
+    - name: Fail if node_type is not 'fair'
+      run_once: true
+      delegate_to: localhost
+      fail:
+        msg: "Stopping playbook. This play requires node_type to be 'fair', but it is '{{ node_type }}'."
+      when: node_type != "fair"
+  roles:
+    - role: sync
+      when: build_type == "source"
+      tags: sync
+
+    - role: config
+      tags: config
+
+    - role: fair_migrate
+      tags: fair_migrate

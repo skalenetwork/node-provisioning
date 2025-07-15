@@ -23,8 +23,8 @@
     cmd: "{{ command_prefixes[node_type] }} init {{ base_path }}/init-env {{ sync_flags }}"
   vars:
     command_prefixes:
-      mirage_boot: "mirage boot"
-      mirage: "mirage node"
+      fair_boot: "fair boot"
+      fair: "fair node"
       skale: "{{ 'skale sync-node' if (sync_node | default(false) | bool) else 'skale node' }}"
   when: node_type in command_prefixes
   register: init_cmd

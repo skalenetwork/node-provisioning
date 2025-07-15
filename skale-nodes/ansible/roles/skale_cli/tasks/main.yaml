@@ -9,14 +9,14 @@
     force: yes
     mode: "0755"
   vars:
-    base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+    base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
     download_map:
       skale:
         url: "{{ skale_cli_url }}"
         dest: "/usr/local/bin/skale"
-      mirage:
-        url: "{{ mirage_cli_url }}"
-        dest: "/usr/local/bin/mirage"
+      fair:
+        url: "{{ fair_cli_url }}"
+        dest: "/usr/local/bin/fair"
 
 
 # --- Build binary from source ---
@@ -50,12 +50,12 @@
       set_fact:
         _build_target: "{{ build_target_map[lookup_key] | default('') }}"
       vars:
-        base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+        base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
         sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
         lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
         build_target_map:
-          mirage_normal: "mirage"
-          # mirage_sync: "mirage_sync"
+          fair_normal: "fair"
+          # fair_sync: "fair_sync"
           skale_normal: "normal"
           skale_sync: "sync"
 
@@ -86,16 +86,16 @@
       set_fact:
         executable_paths: "{{ path_map[lookup_key] | default({}) }}"
       vars:
-        base_node_type: "{{ 'mirage' if node_type == 'mirage_boot' else node_type }}"
+        base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
         sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
         lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
         path_map:
-          mirage_normal:
-            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage"
-            dest: "/usr/local/bin/mirage"
-          mirage_sync:
-            src: "" # TODO: replace it with correct path "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-mirage-sync"
-            dest: "" # TODO: replace it with correct path "/usr/local/bin/mirage"
+          fair_normal:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-fair"
+            dest: "/usr/local/bin/fair"
+          fair_sync:
+            src: "" # TODO: replace it with correct path "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-fair-sync"
+            dest: "" # TODO: replace it with correct path "/usr/local/bin/fair"
           skale_normal:
             src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
             dest: "/usr/local/bin/skale"
