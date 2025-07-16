@@ -6,3 +6,14 @@
 - name: Show migrate command output
   debug:
     msg: "{{ migrate_cmd.stdout }}"
+
+- name: Execute set_rng script
+  script: set_rng.py
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ boot_endpoint }}"
+    FAIR_CONTRACTS: "{{ fair_contracts }}"
+  args:
+    executable: python3
+  tags: set_nrg
