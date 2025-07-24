@@ -16,4 +16,6 @@
     FAIR_CONTRACTS: "{{ fair_contracts }}"
   args:
     executable: python3
+  delegate_to: localhost
+  run_once: true
   tags: set_nrg
