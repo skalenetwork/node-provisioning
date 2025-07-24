@@ -18,4 +18,4 @@
     executable: python3
   delegate_to: localhost
   run_once: true
-  tags: set_nrg
+  tags: set_rng
