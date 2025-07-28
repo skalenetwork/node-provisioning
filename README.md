@@ -33,7 +33,7 @@ NOTE: This is for QA and testing purposes only.
 
 # Fair Node Provisioning
 
-## Fair network creating
+## Fair network creation
 
 ### 1. Prepare inventory
 1) Set `node_type=fair_boot`
