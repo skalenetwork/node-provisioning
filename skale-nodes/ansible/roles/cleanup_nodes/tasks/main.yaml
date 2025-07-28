@@ -1,6 +1,7 @@
 - name: Change Fair node IP
   import_tasks: change_ip.yaml
   tags: change_ip
+  when: node_type == "fair"
 
 - name: Run container cleanup
   import_tasks: containers.yaml
