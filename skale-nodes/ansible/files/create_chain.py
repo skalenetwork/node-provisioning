@@ -43,8 +43,8 @@ class SchainType(Enum):
     LARGE4 = [128, 4]
     LARGE = [128, 16]
     TEST0_4 = [0, 4]
-    TEST4_2 = [32, 2]
     TEST4_4 = [32, 4]
+    TEST4_2 = [32, 2]
     TEST4 = [32, 16]
     EMPTY = [0, 0]
 
@@ -75,8 +75,10 @@ def get_schain_type_id(skale, type_parameters):
 
 
 def prepare_and_create_chain(skale, chain_type=CHAIN_TYPE) -> None:
+    chain_type = 'TEST4_4'
     add_test_permissions(skale)
     type_params = get_chain_type_params(chain_type)
+    print(type_params)
     type_id = get_schain_type_id(skale, type_params)
     if type_id is None:
         print(f'sChain type {chain_type} '
@@ -100,5 +102,6 @@ def init_skale_manager(
 
 
 if __name__ == '__main__':
-    skale = init_skale_manager(ENDPOINT, MANAGER_CONTRACTS, HexStr(ETH_PRIVATE_KEY))
+    skale = init_skale_manager(
+        ENDPOINT, MANAGER_CONTRACTS, HexStr(ETH_PRIVATE_KEY))
     prepare_and_create_chain(skale)
