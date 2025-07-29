@@ -16,7 +16,7 @@
     transfer_map:
       fair:
         endpoint: "{{ boot_endpoint }}"
-        contracts: "{{ fair_contracts }}"
+        contracts: "{{ fair_contracts | default('') }}"
       fair_boot:
         endpoint: "{{ endpoint }}"
         contracts: "{{ manager_contracts }}"

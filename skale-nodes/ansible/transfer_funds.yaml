@@ -8,6 +8,7 @@
 
     - name: Block for getting wallet info and saving it
       block:
+
         - name: Get wallet info
           command:
             cmd: "{{ node_commands[node_type] }}"
@@ -46,3 +47,4 @@
       import_role:
         name: link_addresses
         tasks_from: transfer_funds
+
