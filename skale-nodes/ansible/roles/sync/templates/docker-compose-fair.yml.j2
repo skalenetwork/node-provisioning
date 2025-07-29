@@ -69,6 +69,7 @@ services:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
+      - ${SKALE_LIB_PATH}:${SKALE_LIB_PATH}
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
     healthcheck:
       test: ["CMD", "python3", "healthchecks/admin.py"]
@@ -114,6 +115,7 @@ services:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
+      - ${SKALE_LIB_PATH}:${SKALE_LIB_PATH}
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
     healthcheck:
       test: ["CMD", "python3", "healthchecks/admin.py"]
@@ -159,6 +161,7 @@ services:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
+      - ${SKALE_LIB_PATH}:${SKALE_LIB_PATH}
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
 
   fair-api:
@@ -197,6 +200,7 @@ services:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
+      - ${SKALE_LIB_PATH}:${SKALE_LIB_PATH}
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
 
   redis:
