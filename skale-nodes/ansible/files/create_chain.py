@@ -75,10 +75,8 @@ def get_schain_type_id(skale, type_parameters):
 
 
 def prepare_and_create_chain(skale, chain_type=CHAIN_TYPE) -> None:
-    chain_type = 'TEST4_4'
     add_test_permissions(skale)
     type_params = get_chain_type_params(chain_type)
-    print(type_params)
     type_id = get_schain_type_id(skale, type_params)
     if type_id is None:
         print(f'sChain type {chain_type} '
