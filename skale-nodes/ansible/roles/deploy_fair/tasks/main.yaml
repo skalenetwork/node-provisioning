@@ -8,6 +8,7 @@
     ENDPOINT: "{{ boot_endpoint }}"
     CHAIN_NAME: "{{ chain_name }}"
     TARGET: "{{ manager_contracts }}"
+    EXPLORER_URL: "{{ explorer_url | default('') }}"
   tags: deploy_fair
 
 - name: Copy Fair ABI

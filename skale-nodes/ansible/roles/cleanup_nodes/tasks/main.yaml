@@ -1,3 +1,8 @@
+- name: Change Fair node IP
+  import_tasks: change_ip.yaml
+  tags: change_ip
+  when: node_type == "fair"
+
 - name: Cli cleanup command
   import_tasks: cli_cleanup.yaml
   tags: cli_cleanup
