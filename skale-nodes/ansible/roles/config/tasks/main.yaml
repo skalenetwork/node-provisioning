@@ -20,7 +20,7 @@
     env_options: |
       MANAGER_CONTRACTS="{{ manager_contracts }}"
       IMA_CONTRACTS="{{ ima_contracts }}"
-      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      NODE_VERSION="{{ node_version }}"
       ENDPOINT="{{ endpoint }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
       DISK_MOUNTPOINT="{{ block_device }}"
@@ -35,7 +35,7 @@
   set_fact:
     env_options: |
       FAIR_CONTRACTS="{{ fair_contracts }}"
-      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      NODE_VERSION="{{ node_version }}"
       BOOT_ENDPOINT="{{ boot_endpoint }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
       SGX_SERVER_URL="{{ sgx_url }}"
@@ -50,7 +50,7 @@
   set_fact:
     env_options: |
       ENDPOINT="{{ endpoint }}"
-      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      NODE_VERSION="{{ node_version }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
       MANAGER_CONTRACTS="{{ manager_contracts }}"
       IMA_CONTRACTS="{{ ima_contracts }}"
@@ -73,7 +73,7 @@
 - name: Set env options for SKALE sync node
   set_fact:
     env_options: |
-      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      NODE_VERSION="{{ node_version }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
       ENDPOINT={{ endpoint }}
       ENFORCE_BTRFS='True'
