@@ -216,7 +216,7 @@ metrics:
 - type: gauge
   name: logs_BCT
   help: Block Commit Time (ms)
-  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER:bct}:BFST:%{NUMBER}:PST:%{NUMBER}'
+  match: '%{C_PREFIX_BLOCK}:BCT:%{NUMBER:bct}:BFST:%{NUMBER}:PST:%{NUMBER}'
   value: '{{.bct}}'
   labels:
     node_id: '{{.node_id}}'
@@ -224,7 +224,7 @@ metrics:
 - type: gauge
   name: logs_BFST
   help: Block Finalization Stage Time (ms)
-  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER}:BFST:%{NUMBER:bfst}:PST:%{NUMBER}'
+  match: '%{C_PREFIX_BLOCK}:BCT:%{NUMBER}:BFST:%{NUMBER:bfst}:PST:%{NUMBER}'
   value: '{{.bfst}}'
   labels:
     node_id: '{{.node_id}}'
@@ -232,10 +232,59 @@ metrics:
 - type: gauge
   name: logs_PST
   help: Proposal Stage Time (ms)
-  match: '%{C_PREFIX_BLOCK}:CWT:%{NUMBER}:TLWT:%{NUMBER}:SBPT:%{NUMBER}:BCT:%{NUMBER}:BFST:%{NUMBER}:PST:%{NUMBER:pst}'
+  match: '%{C_PREFIX_BLOCK}:BCT:%{NUMBER}:BFST:%{NUMBER}:PST:%{NUMBER:pst}'
   value: '{{.pst}}'
   labels:
     node_id: '{{.node_id}}'
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_SWT
+  help: Sync Wait Time
+  match: 'SWT:%{NUMBER:swt}:BFT:%{NUMBER}:TQBYTES:CTQ:%{NUMBER}:FTQ:%{NUMBER}:TQSIZE:CTQ:%{NUMBER}:FTQ:%{NUMBER}'
+  value: '{{.swt}}'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_BFT
+  help: Block Finalization Time
+  match: 'SWT:%{NUMBER}:BFT:%{NUMBER:bft}:TQBYTES:CTQ:%{NUMBER}:FTQ:%{NUMBER}:TQSIZE:CTQ:%{NUMBER}:FTQ:%{NUMBER}'
+  value: '{{.bft}}'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_TQBYTES_CTQ
+  help: Transaction Queue Bytes - CTQ Value
+  match: 'SWT:%{NUMBER}:BFT:%{NUMBER}:TQBYTES:CTQ:%{NUMBER:tqbytes_ctq}:FTQ:%{NUMBER}:TQSIZE:CTQ:%{NUMBER}:FTQ:%{NUMBER}'
+  value: '{{.tqbytes_ctq}}'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_TQBYTES_FTQ
+  help: Transaction Queue Bytes - FTQ Value
+  match: 'SWT:%{NUMBER}:BFT:%{NUMBER}:TQBYTES:CTQ:%{NUMBER}:FTQ:%{NUMBER:tqbytes_ftq}:TQSIZE:CTQ:%{NUMBER}:FTQ:%{NUMBER}'
+  value: '{{.tqbytes_ftq}}'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_TQSIZE_CTQ
+  help: Transaction Queue Size - CTQ Value
+  match: 'SWT:%{NUMBER}:BFT:%{NUMBER}:TQBYTES:CTQ:%{NUMBER}:FTQ:%{NUMBER}:TQSIZE:CTQ:%{NUMBER:tqsize_ctq}:FTQ:%{NUMBER}'
+  value: '{{.tqsize_ctq}}'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_TQSIZE_FTQ
+  help: Transaction Queue Size - FTQ Value
+  match: 'SWT:%{NUMBER}:BFT:%{NUMBER}:TQBYTES:CTQ:%{NUMBER}:FTQ:%{NUMBER}:TQSIZE:CTQ:%{NUMBER}:FTQ:%{NUMBER:tqsize_ftq}'
+  value: '{{.tqsize_ftq}}'
+  labels:
+    logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
+- type: gauge
+  name: logs_STET
+  help: STET - time of creating decryption shares for the block
+  match: 'STET:%{NUMBER:stet}'
+  value: '{{.stet}}'
+  labels:
     logfile: '{{gsub .logfile ".*/log_links/(.+)/.*-json.log" "\\\\1"}}'
 server:
   port: ${PORT}
