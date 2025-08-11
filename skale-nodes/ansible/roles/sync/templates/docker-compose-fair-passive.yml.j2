@@ -11,7 +11,7 @@ services:
         max-file: "5"
         max-size: "10m"
 
-  fair-admin-passive:
+  fair-admin:
     <<: *skale_base
     container_name: fair_admin
     image: "skale-admin:${TAG:-latest}"
@@ -37,7 +37,7 @@ services:
       SKALE_NETWORK_TYPE: "fair"
       PASSIVE_NODE: "True"
 
-    command: "python3 fair_passive.py"
+    command: "python3 fair.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
@@ -53,6 +53,7 @@ services:
 
   fair-api:
     <<: *skale_base
+    container_name: fair_api
     image: "skale-admin:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-admin"
