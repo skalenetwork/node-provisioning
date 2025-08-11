@@ -67,7 +67,7 @@
       TELEGRAF="{{ telegraf }}"
   when:
     - node_type == "skale"
-    - (sync_node is not defined or not sync_node)
+    - (passive_node is not defined or not passive_node)
   tags: env
 
 - name: Set env options for SKALE sync node
@@ -87,7 +87,7 @@
       TELEGRAF="{{ telegraf }}"
   when:
     - node_type == "skale"
-    - (sync_node is defined and sync_node)
+    - (passive_node is defined and passive_node)
   tags: env
 
 - name: Show env

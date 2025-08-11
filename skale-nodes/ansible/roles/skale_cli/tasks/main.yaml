@@ -50,7 +50,7 @@
         _build_target: "{{ build_target_map[lookup_key] | default('') }}"
       vars:
         base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
-        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
+        sync_suffix: "{{ 'sync' if (passive_node | default(false) | bool) else 'normal' }}"
         lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
         build_target_map:
           fair_normal: "fair"
@@ -60,7 +60,7 @@
 
     - name: Fail if build target is unknown
       fail:
-        msg: "Unsupported combination: node_type={{ node_type }}, sync_node={{ sync_node | default('not defined') }}"
+        msg: "Unsupported combination: node_type={{ node_type }}, passive_node={{ passive_node | default('not defined') }}"
       when: _build_target | length == 0
 
     - name: Set full build command
@@ -86,7 +86,7 @@
         executable_paths: "{{ path_map[lookup_key] | default({}) }}"
       vars:
         base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
-        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
+        sync_suffix: "{{ 'sync' if (passive_node | default(false) | bool) else 'normal' }}"
         lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
         path_map:
           fair_normal:
@@ -104,7 +104,7 @@
 
     - name: Fail if executable paths could not be determined
       fail:
-        msg: "Could not determine which executable to copy for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+        msg: "Could not determine which executable to copy for node_type='{{ node_type }}' and passive_node='{{ passive_node | default('not defined') }}'."
       when: executable_paths | length == 0 or executable_paths.src == ""
 
     - name: Copy the correct executable to /usr/local/bin

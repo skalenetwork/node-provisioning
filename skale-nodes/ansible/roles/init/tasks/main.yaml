@@ -1,13 +1,13 @@
-- name: Set sync_flags based on sync_node and catchup status
+- name: Set sync_flags based on passive_node and catchup status
   set_fact:
-    sync_flags: "{{ '--catchup' if (sync_node | default(false) | bool) and (catchup | default(false) | bool) else '' }}"
+    sync_flags: "{{ '--catchup' if (passive_node | default(false) | bool) and (catchup | default(false) | bool) else '' }}"
 
 - name: Add --archive if needed (SKALE sync node)
   set_fact:
     sync_flags: "{{ sync_flags }} --archive"
   when:
     - node_type == "skale"
-    - sync_node is defined and sync_node
+    - passive_node is defined and passive_node
     - archive is defined and archive
 
 - name: Add --historic-state if needed (SKALE sync node)
@@ -15,7 +15,7 @@
     sync_flags: "{{ sync_flags }} --historic-state"
   when:
     - node_type == "skale"
-    - sync_node is defined and sync_node
+    - passive_node is defined and passive_node
     - historic_state is defined and historic_state
 
 - name: Build and execute init command
@@ -25,7 +25,7 @@
     command_prefixes:
       fair_boot: "fair boot"
       fair: "fair node"
-      skale: "{{ 'skale sync-node' if (sync_node | default(false) | bool) else 'skale node' }}"
+      skale: "{{ 'skale sync-node' if (passive_node | default(false) | bool) else 'skale node' }}"
   when: node_type in command_prefixes
   register: init_cmd
 
