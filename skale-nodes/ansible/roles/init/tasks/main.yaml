@@ -25,7 +25,7 @@
     command_prefixes:
       fair_boot: "fair boot"
       fair: "fair node"
-      skale: "{{ 'skale sync-node' if (passive_node | default(false) | bool) else 'skale node' }}"
+      skale: "{{ 'skale passive-node' if (passive_node | default(false) | bool) else 'skale node' }}"
   when: node_type in command_prefixes
   register: init_cmd
 

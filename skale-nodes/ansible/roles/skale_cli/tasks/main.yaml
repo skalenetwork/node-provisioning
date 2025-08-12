@@ -56,7 +56,7 @@
           fair_normal: "fair"
           # fair_sync: "fair_sync"
           skale_normal: "normal"
-          skale_sync: "sync"
+          skale_passive: "passive"
 
     - name: Fail if build target is unknown
       fail:
@@ -98,7 +98,7 @@
           skale_normal:
             src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
             dest: "/usr/local/bin/skale"
-          skale_sync:
+          skale_passive:
             src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
             dest: "/usr/local/bin/skale"
 
