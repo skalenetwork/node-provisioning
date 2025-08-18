@@ -15,15 +15,16 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with node-provisioning.  If not, see <https://www.gnu.org/licenses/>.
 
-import os
+import codecs
 import logging
+import os
+
+from eth_keys import keys
 from eth_typing import HexStr
+from skale import FairManager
+from skale.utils.helper import init_default_logger
 from skale.utils.web3_utils import init_web3
 from skale.wallets import Web3Wallet
-from skale import FairManager
-from eth_keys import keys
-import codecs
-from skale.utils.helper import init_default_logger
 
 logger = logging.getLogger(__name__)
 init_default_logger()
