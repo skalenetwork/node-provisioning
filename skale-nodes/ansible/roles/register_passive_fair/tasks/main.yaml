@@ -3,8 +3,8 @@
   environment:
     BASE_DIR: "files"
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
-    ENDPOINT: "{{ endpoint }}"
+    ENDPOINT: "{{ boot_endpoint }}"
     FAIR_CONTRACTS: "{{ fair_contracts }}"
-    PASSIVE_FAIR_IP: {{ hostvars[inventory_hostname].ansible_host }}
+    PASSIVE_FAIR_IP: "{{ hostvars[groups['nodes'][0]]['ansible_host'] }}"
   args:
     executable: python3
