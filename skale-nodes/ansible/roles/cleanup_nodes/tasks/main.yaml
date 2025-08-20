@@ -3,6 +3,10 @@
   tags: change_ip
   when: node_type == "fair"
 
+- name: Cli cleanup command
+  import_tasks: cli_cleanup.yaml
+  tags: cli_cleanup
+
 - name: Run container cleanup
   import_tasks: containers.yaml
   tags: container_cleanup

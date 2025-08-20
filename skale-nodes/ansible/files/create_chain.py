@@ -43,8 +43,8 @@ class SchainType(Enum):
     LARGE4 = [128, 4]
     LARGE = [128, 16]
     TEST0_4 = [0, 4]
-    TEST4_2 = [32, 2]
     TEST4_4 = [32, 4]
+    TEST4_2 = [32, 2]
     TEST4 = [32, 16]
     EMPTY = [0, 0]
 
@@ -100,5 +100,6 @@ def init_skale_manager(
 
 
 if __name__ == '__main__':
-    skale = init_skale_manager(ENDPOINT, MANAGER_CONTRACTS, HexStr(ETH_PRIVATE_KEY))
+    skale = init_skale_manager(
+        ENDPOINT, MANAGER_CONTRACTS, HexStr(ETH_PRIVATE_KEY))
     prepare_and_create_chain(skale)

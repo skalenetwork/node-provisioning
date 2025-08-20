@@ -70,6 +70,7 @@
 - name: Prune docker
   command:
     cmd: "docker system prune -af"
+  when: prune_docker is defined and prune_docker
 
 - name: Umount shared-space
   command:
