@@ -3,7 +3,7 @@
     cmd: "{{ command_prefixes[node_type] }} node cleanup --yes"
   vars:
     command_prefixes:
-      fair: "fair node"
+      fair: "fair"
   when: node_type in command_prefixes
   register: cleanup_cmd
 

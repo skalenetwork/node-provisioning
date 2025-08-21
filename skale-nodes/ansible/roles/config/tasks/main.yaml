@@ -23,7 +23,7 @@
       NODE_VERSION="{{ node_version }}"
       ENDPOINT="{{ endpoint }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
-      DISK_MOUNTPOINT="{{ block_device }}"
+      BLOCK_DEVICE="{{ block_device }}"
       SGX_SERVER_URL="{{ sgx_url }}"
       ENV_TYPE="{{ env_type }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
@@ -38,7 +38,7 @@
       NODE_VERSION="{{ node_version }}"
       BOOT_ENDPOINT="{{ boot_endpoint }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
-      DISK_MOUNTPOINT="{{ block_device }}"
+      BLOCK_DEVICE="{{ block_device }}"
       ENV_TYPE="{{ env_type }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
       ENFORCE_BTRFS='False'
@@ -62,8 +62,8 @@
       MANAGER_CONTRACTS="{{ manager_contracts }}"
       IMA_CONTRACTS="{{ ima_contracts }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
-      DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
-      DISK_MOUNTPOINT="{{ block_device }}"
+      DOCKER_LVMPY_VERSION="{{ docker_lvmpy_version }}"
+      BLOCK_DEVICE="{{ block_device }}"
       SGX_SERVER_URL="{{ sgx_url }}"
       TG_API_KEY="{{ tg_api_key }}"
       TG_CHAT_ID="{{ tg_chat_id }}"
@@ -84,12 +84,12 @@
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
       ENDPOINT={{ endpoint }}
       ENFORCE_BTRFS='True'
-      DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
+      DOCKER_LVMPY_VERSION="{{ docker_lvmpy_version }}"
       ENV_TYPE="{{ env_type }}"
       SCHAIN_NAME="{{ schain_name }}"
       MANAGER_CONTRACTS={{ manager_contracts }}
       IMA_CONTRACTS={{ ima_contracts }}
-      DISK_MOUNTPOINT={{ block_device }}
+      BLOCK_DEVICE={{ block_device }}
       INFLUX_URL="{{ influx_url }}"
       TELEGRAF="{{ telegraf }}"
   when:
