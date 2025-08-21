@@ -45,22 +45,18 @@
 - name: Determine and set build command based on node type
   when: build_type == "source"
   block:
-    - name: Determine build target from map with readable keys
+    - name: Determine build target from a simple map
       set_fact:
-        _build_target: "{{ build_target_map[lookup_key] | default('') }}"
+        _build_target: "{{ build_target_map[base_node_type] | default('') }}"
       vars:
         base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
-        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
-        lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
         build_target_map:
-          fair_normal: "fair"
-          # fair_sync: "fair_sync"
-          skale_normal: "normal"
-          skale_sync: "sync"
+          fair: "fair"
+          skale: "skale"
 
     - name: Fail if build target is unknown
       fail:
-        msg: "Unsupported combination: node_type={{ node_type }}, sync_node={{ sync_node | default('not defined') }}"
+        msg: "Unsupported node_type: {{ node_type }}"
       when: _build_target | length == 0
 
     - name: Set full build command
@@ -83,28 +79,20 @@
   block:
     - name: Determine source and destination paths for the executable
       set_fact:
-        executable_paths: "{{ path_map[lookup_key] | default({}) }}"
+        executable_paths: "{{ path_map[base_node_type] | default({}) }}"
       vars:
         base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
-        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
-        lookup_key: "{{ base_node_type }}_{{ sync_suffix }}"
         path_map:
-          fair_normal:
+          fair:
             src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-fair"
             dest: "/usr/local/bin/fair"
-          fair_sync:
-            src: "" # TODO: replace it with correct path "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-fair-sync"
-            dest: "" # TODO: replace it with correct path "/usr/local/bin/fair"
-          skale_normal:
+          skale:
             src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
-            dest: "/usr/local/bin/skale"
-          skale_sync:
-            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync"
             dest: "/usr/local/bin/skale"
 
     - name: Fail if executable paths could not be determined
       fail:
-        msg: "Could not determine which executable to copy for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+        msg: "Unsupported node_type for copy operation: {{ node_type }}"
       when: executable_paths | length == 0 or executable_paths.src == ""
 
     - name: Copy the correct executable to /usr/local/bin

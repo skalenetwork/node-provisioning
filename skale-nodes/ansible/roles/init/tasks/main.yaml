@@ -1,22 +1,28 @@
-- name: Set sync_flags based on sync_node and catchup status
+- name: Get FAIR passive node ID (for passive FAIR nodes only)
+  run_once: yes
   set_fact:
-    sync_flags: "{{ '--catchup' if (sync_node | default(false) | bool) and (catchup | default(false) | bool) else '' }}"
+    passive_node_id: "{{ lookup('file', 'files/passive-id.txt') }}"
+  when:
+    - node_type == "fair"
+    - passive_node is defined and passive_node
 
-- name: Add --archive if needed (SKALE sync node)
+- name: Set sync_flags based on passive_node status
+  set_fact:
+    sync_flags: "{{ '--id ' ~ passive_node_id if node_type == 'fair' and (passive_node | default(false) | bool) else '' }}"
+
+- name: Add --indexer if needed
+  set_fact:
+    sync_flags: "{{ sync_flags }} --indexer"
+  when:
+    - passive_node is defined and passive_node
+    - indexer is defined and indexer
+
+- name: Add --archive if needed
   set_fact:
     sync_flags: "{{ sync_flags }} --archive"
   when:
-    - node_type == "skale"
-    - sync_node is defined and sync_node
+    - passive_node is defined and passive_node
     - archive is defined and archive
-
-- name: Add --historic-state if needed (SKALE sync node)
-  set_fact:
-    sync_flags: "{{ sync_flags }} --historic-state"
-  when:
-    - node_type == "skale"
-    - sync_node is defined and sync_node
-    - historic_state is defined and historic_state
 
 - name: Build and execute init command
   command:
@@ -24,8 +30,8 @@
   vars:
     command_prefixes:
       fair_boot: "fair boot"
-      fair: "fair node"
-      skale: "{{ 'skale sync-node' if (sync_node | default(false) | bool) else 'skale node' }}"
+      fair: "{{ 'fair passive-node' if (passive_node | default(false) | bool) else 'fair node' }}"
+      skale: "{{ 'skale passive-node' if (passive_node | default(false) | bool) else 'skale node' }}"
   when: node_type in command_prefixes
   register: init_cmd
 

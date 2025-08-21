@@ -5,18 +5,18 @@
       set_fact:
         update_cmd: "{{ command_map[lookup_key] | default('') }}"
       vars:
-        sync_suffix: "{{ 'sync' if (sync_node | default(false) | bool) else 'normal' }}"
-        lookup_key: "{{ node_type }}_{{ sync_suffix }}"
+        passive_suffix: "{{ 'passive' if (passive_node | default(false) | bool) else 'normal' }}"
+        lookup_key: "{{ node_type }}_{{ passive_suffix }}"
         command_map:
           fair_boot_normal: "fair boot update {{ base_path }}/init-env --yes"
           fair_normal: "fair node update {{ base_path }}/init-env --yes"
-#          fair_sync: "fair sync-node update {{ base_path }}/init-env --yes"
+          fair_passive: "fair passive-node update {{ base_path }}/init-env --yes"
           skale_normal: "skale node update {{ base_path }}/init-env --yes --pull-config all --unsafe"
-          skale_sync: "skale sync-node update {{ base_path }}/init-env --yes --unsafe"
+          skale_passive: "skale passive-node update {{ base_path }}/init-env --yes --unsafe"
 
     - name: Fail if update command could not be determined
       fail:
-        msg: "Could not determine update command for node_type='{{ node_type }}' and sync_node='{{ sync_node | default('not defined') }}'."
+        msg: "Could not determine update command for node_type='{{ node_type }}' and passive_node='{{ passive_node | default('not defined') }}'."
       when: update_cmd | length == 0
 
     - name: Show node update command

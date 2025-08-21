@@ -1,0 +1,7 @@
+- name: Register passive FAIR node
+  hosts: 127.0.0.1
+  connection: local
+  roles:
+    - role: register_passive_fair
+      tags:
+        - register_passive_fair

@@ -62,10 +62,10 @@
   when:
     - node_type in ['fair_boot', 'fair']
 
-- name: Replace skale-node docker-compose-sync file
+- name: Replace skale-node docker-compose-passive file
   template:
-    src: docker-compose-sync.yml.j2
-    dest: "{{ base_path }}/skale-node/docker-compose-sync.yml"
+    src: docker-compose-passive.yml.j2
+    dest: "{{ base_path }}/skale-node/docker-compose-passive.yml"
   when:
     - node_type == "skale"
-    - sync_node is defined and sync_node
+    - passive_node is defined and passive_node
