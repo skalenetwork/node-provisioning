@@ -1,9 +1,9 @@
 - name: Build and execute cleanup command
   command:
-    cmd: "{{ command_prefixes[node_type] }} node cleanup --yes"
+    cmd: "{{ command_prefixes[node_type] }} cleanup --yes"
   vars:
     command_prefixes:
-      fair: "fair"
+      fair: "{{ 'fair passive-node' if (passive_node | default(false) | bool) else 'fair node' }}"
   when: node_type in command_prefixes
   register: cleanup_cmd
 
