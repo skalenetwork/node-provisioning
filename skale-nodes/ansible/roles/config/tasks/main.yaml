@@ -10,11 +10,6 @@
   when: ima_contracts is undefined
   tags: contracts
 
-- name: Set sgx url
-  set_fact:
-    sgx_url: "https://{{ hostvars['sgx0'].ansible_host }}:1026"
-  when: sgx_url is not defined or sgx_url == ''
-
 - name: Set env options for Fair boot node
   set_fact:
     env_options: |
