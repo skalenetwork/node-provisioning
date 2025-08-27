@@ -52,5 +52,4 @@
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
   args:
     executable: python3
-  when: node_type == "fair_boot"
   tags: fix_zero_node
