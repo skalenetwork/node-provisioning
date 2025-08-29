@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   base: &skale_base
     image: rancher/pause:3.6
@@ -27,6 +25,7 @@ services:
       SGX_URL: ${SGX_SERVER_URL}
       ENDPOINT: ${ENDPOINT}
       BOOT_ENDPOINT: ${BOOT_ENDPOINT}
+      CONFIRMATION_BLOCKS: 0
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -234,6 +233,7 @@ services:
       FLASK_APP_HOST: "127.0.0.1"
       FLASK_DEBUG_MODE: "False"
       SKALE_NETWORK_TYPE: "fair"
+      PASSIVE_NODE: ${PASSIVE_NODE}
 
   nginx:
     <<: *skale_base
