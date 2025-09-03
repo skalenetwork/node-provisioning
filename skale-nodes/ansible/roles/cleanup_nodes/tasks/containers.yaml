@@ -31,7 +31,7 @@
 - name: Destroy skale admin container
   become: true
   docker_container:
-    name: "skale_admin"
+    name: "sk_admin"
     state: absent
     force_kill: yes
     keep_volumes: no
