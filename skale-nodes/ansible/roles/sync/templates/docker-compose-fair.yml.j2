@@ -1,5 +1,5 @@
 services:
-  base: &skale_base
+  base: &sk_base
     image: rancher/pause:3.6
     restart: unless-stopped
     labels:
@@ -12,8 +12,8 @@ services:
         max-size: "10m"
 
   transaction-manager:
-    <<: *skale_base
-    container_name: skale_transaction-manager
+    <<: *sk_base
+    container_name: sk_tm
     image: "skalenetwork/transaction-manager:${TAG:-latest}"
     build:
       context: "{{ base_path }}/transaction-manager"
@@ -30,9 +30,9 @@ services:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
 
-  fair-boot:
-    <<: *skale_base
-    container_name: fair_boot_admin
+  boot-admin:
+    <<: *sk_base
+    container_name: sk_boot_admin
     image: "skale-admin:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-admin"
@@ -77,9 +77,9 @@ services:
       retries: 2
       start_period: 30s
 
-  fair-admin:
-    <<: *skale_base
-    container_name: fair_admin
+  admin:
+    <<: *sk_base
+    container_name: sk_admin
     image: "skale-admin:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-admin"
@@ -124,9 +124,9 @@ services:
       retries: 2
       start_period: 30s
 
-  fair-boot-api:
-    <<: *skale_base
-    container_name: fair_boot_api
+  boot-api:
+    <<: *sk_base
+    container_name: sk_boot_api
     image: "skale-admin:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-admin"
@@ -164,9 +164,9 @@ services:
       - ${SKALE_LIB_PATH}:${SKALE_LIB_PATH}
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
 
-  fair-api:
-    <<: *skale_base
-    container_name: fair_api
+  api:
+    <<: *sk_base
+    container_name: sk_api
     image: "skale-admin:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-admin"
@@ -205,8 +205,8 @@ services:
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
 
   redis:
-    <<: *skale_base
-    container_name: skale_redis
+    <<: *sk_base
+    container_name: sk_redis
     image: "redis:8.0.1-alpine"
     network_mode: host
     tty: true
@@ -219,8 +219,8 @@ services:
     restart: unless-stopped
 
   watchdog:
-    <<: *skale_base
-    container_name: skale_watchdog
+    <<: *sk_base
+    container_name: sk_watchdog
     image: "skale-watchdog:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-watchdog"
@@ -236,9 +236,9 @@ services:
       PASSIVE_NODE: ${PASSIVE_NODE}
 
   nginx:
-    <<: *skale_base
+    <<: *sk_base
     image: nginx:1.20.2
-    container_name: skale_nginx
+    container_name: sk_nginx
     network_mode: host
     depends_on:
       - watchdog
@@ -253,7 +253,7 @@ services:
         read_only: true
 
   advisor:
-    <<: *skale_base
+    <<: *sk_base
     image: gcr.io/cadvisor/cadvisor-amd64:v0.50.0
     container_name: monitor_cadvisor
     cpu_shares: 128
@@ -266,7 +266,7 @@ services:
       - /dev/disk/:/dev/disk:ro
 
   node-exporter:
-    <<: *skale_base
+    <<: *sk_base
     container_name: monitor_node_exporter
     image: quay.io/prometheus/node-exporter
     volumes:
@@ -281,10 +281,10 @@ services:
     network_mode: host
 
   filebeat:
-    <<: *skale_base
-    container_name: skale_filebeat
+    <<: *sk_base
+    container_name: sk_filebeat
     user: root
-    image: docker.elastic.co/beats/filebeat:7.3.1
+    image: elastic/filebeat:9.1.3
     network_mode: host
     environment:
       FILEBEAT_HOST: ${FILEBEAT_HOST}
