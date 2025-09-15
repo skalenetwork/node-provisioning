@@ -49,7 +49,10 @@ def init_fair() -> FairManager:
 if __name__ == '__main__':
     fair = init_fair()
     fair.nodes.register_passive(PASSIVE_FAIR_IP, PASSIVE_FAIR_PORT)
-    private_key_bytes = codecs.decode(ETH_PRIVATE_KEY, 'hex')
+    pk = ETH_PRIVATE_KEY
+    if pk and pk.startswith('0x'):
+        pk = pk[2:]
+    private_key_bytes = codecs.decode(pk, 'hex')
     priv_key = keys.PrivateKey(private_key_bytes)
     pub_key = priv_key.public_key
     address = pub_key.to_checksum_address()

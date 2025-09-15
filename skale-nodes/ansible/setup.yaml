@@ -1,5 +1,5 @@
 - name: Propagate manager_contracts to nodes
-  hosts: nodes
+  hosts: nodes,archive
   gather_facts: no
   tasks:
     - name: Set manager_contracts fact for each node
@@ -11,7 +11,7 @@
       when: manager_contracts is undefined
 
 - name: Setup skale node
-  hosts: nodes
+  hosts: nodes,archive
   become: true
   roles:
     - role: sync
