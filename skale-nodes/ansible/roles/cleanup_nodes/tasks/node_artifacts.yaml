@@ -35,3 +35,9 @@
     chain: "{{ item }}"
     flush: yes
   with_items: ["INPUT", "FORWARD", "OUTPUT"]
+
+- name: Load firewall rules from configuration file
+  ansible.builtin.command:
+    cmd: "nft -f /etc/nftables.conf"
+  register: nft_load_result
+  tags: cleanup_firewall

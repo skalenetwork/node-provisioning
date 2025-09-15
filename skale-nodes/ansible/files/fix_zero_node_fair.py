@@ -18,6 +18,7 @@
 #   along with node-provisioning.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import time
 from eth_typing import HexStr
 from skale import SkaleManager
 from skale.utils.web3_utils import init_web3
@@ -58,9 +59,21 @@ def setup_validator(skale: SkaleManager):
         enable_validator(skale, validator_id)
 
 
+def wait_for_next_block(web3):
+    """Wait for the next block to be mined"""
+    current_block = web3.eth.block_number
+    print(f'Current block: {current_block}, waiting for next block...')
+    while web3.eth.block_number == current_block:
+        time.sleep(1)  # Check every second
+    new_block = web3.eth.block_number
+    print(f'New block mined: {new_block}')
+
+
 def fix_zero_node(skale):
     wallet = generate_wallet(skale.web3)
     print(f'Node Address: {wallet.address}')
+    wait_for_next_block(skale.web3)
+
     send_eth(skale.web3, skale.wallet, wallet.address, ETH_AMOUNT)
     add_test_permissions(skale)
     setup_validator(skale)

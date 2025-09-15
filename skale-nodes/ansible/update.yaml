@@ -1,5 +1,5 @@
 - name: Update skale node
-  hosts: nodes
+  hosts: nodes,archive
   become: true
   roles:
     - role: sync
