@@ -1,3 +1,14 @@
+- name: Validate node_type
+  hosts: nodes
+  gather_facts: false
+  tasks:
+    - name: Validate node_type
+      fail:
+        msg: >
+          The 'node_type' variable must be defined and set to 'skale'.
+          Current value: '{{ node_type | default('undefined') }}'
+      when: node_type is not defined or node_type != 'skale'
+
 - name: Fetch schain nodes script
   hosts: localhost
   serial: True
