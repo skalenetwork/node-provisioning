@@ -1,9 +1,20 @@
+- name: Validate node_type
+  fail:
+    msg: >
+      The 'node_type' variable must be defined and set to either 'skale' or 'fair'.
+      Current value: '{{ node_type | default('undefined') }}'
+  when: node_type is not defined or node_type not in ['skale', 'fair']
+
 - name: Setting backup archive folder
   set_fact: backup_path="{{ base_path }}/backup"
 
+- name: Set node command prefix
+  set_fact:
+    node_cmd_prefix: "{{ 'fair' if node_type == 'fair' else 'skale' }}"
+
 - name: Turn off the node
   command:
-    cmd: "skale node turn-off --yes"
+    cmd: "{{ node_cmd_prefix }} node turn-off --yes"
   when: not no_downtime is defined or not no_downtime
   become: true
 
@@ -15,7 +26,7 @@
 
 - name: Create backup archive
   command:
-    cmd: "skale node backup {{ backup_path }}"
+    cmd: "{{ node_cmd_prefix }} node backup {{ backup_path }}"
   become: true
 
 - name: Create sgx sim backup
@@ -28,7 +39,7 @@
 
 - name: Turn on the node back
   command:
-    cmd: "skale node turn-on {{ base_path }}/init-env --yes"
+    cmd: "{{ node_cmd_prefix }} node turn-on {{ base_path }}/init-env --yes"
   when: not no_downtime is defined or not no_downtime
   become: true
 
