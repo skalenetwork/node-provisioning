@@ -32,7 +32,7 @@
         node_schains: "{{ hostvars['localhost'].node_schains }}"
 
     - name: Make snapshot
-      include: tasks/schains_backup.yaml
+      include_tasks: tasks/schains_backup.yaml
       vars:
         schains: "{{ node_schains[ip_address] }}"
       when: ip_address in node_schains
