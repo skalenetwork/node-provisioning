@@ -1,2 +1,3 @@
 - import_playbook: backup_nodes.yaml
-- import_playbook: backup_schains.yaml
+- include_playbook: backup_schains.yaml
+  when: node_type is defined and node_type == 'skale'
