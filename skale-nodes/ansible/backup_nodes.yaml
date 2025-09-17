@@ -1,4 +1,7 @@
-- name: Backup node
+- name: Backup SKALE or FAIR nodes
   hosts: nodes
+
   roles:
-    - node_backup
+    - role: node_backup
+      when: node_type is defined and node_type in ['skale', 'fair']
+      tags: backup_node
