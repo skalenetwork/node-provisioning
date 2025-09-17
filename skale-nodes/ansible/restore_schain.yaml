@@ -1,9 +1,18 @@
 - name: Fetch schain nodes script
   hosts: localhost
+  connection: local
+  gather_facts: false
   serial: True
 
   tasks:
-    - name: Fetch nodes schains script
+    - name: Validate node_type
+      fail:
+        msg: >
+          The 'node_type' variable must be defined and set to 'skale' for sChain restore.
+          Current value: '{{ node_type | default('undefined') }}'
+      when: node_type is not defined or node_type != 'skale'
+
+    - name: Run fetch schain nodes script
       script: fetch_node_schains.py
       environment:
         ETH_PRIVATE_KEY: "{{ eth_private_key }}"
