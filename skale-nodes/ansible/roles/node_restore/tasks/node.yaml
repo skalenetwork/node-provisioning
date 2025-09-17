@@ -1,3 +1,14 @@
+- name: Validate node_type
+  fail:
+    msg: >
+      The 'node_type' variable must be defined and set to either 'skale' or 'fair'.
+      Current value: '{{ node_type | default('undefined') }}'
+  when: node_type is not defined or node_type not in ['skale', 'fair']
+
+- name: Set node command prefix
+  set_fact:
+    node_cmd_prefix: "{{ 'fair' if node_type == 'fair' else 'skale' }}"
+
 - name: Lookup backupfile
   delegate_to: localhost
   find:
@@ -11,7 +22,7 @@
 
 - name: Get latest backup
   set_fact:
-    backup_name: "{{ (search_result.files | sort(attribute='mtime'))[-1].path | basename }}"
+    backup_name: "{{ (search_result.files | sort(attribute='mtime', reverse=true) | first).path | basename }}"
 
 - name: Upload node backup file
   copy:
@@ -25,17 +36,18 @@
 
 - name: Compose regular cmd
   set_fact:
-    cmd: "skale node restore {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
+    cmd: "{{ node_cmd_prefix }} node restore {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
   when: config_only is not defined or not config_only
 
 - name: Compose cmd with config only
   set_fact:
-    cmd: "skale node restore --config-only {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
-  when: config_only is defined and config_only
+    cmd: "{{ node_cmd_prefix }} node restore --config-only {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
+  when:
+    - node_type == "skale"
+    - config_only is defined and config_only
 
-- name: Run skale node restore
+- name: Run skale/fair node restore
   shell:
     cmd: "{{ cmd }}"
   environment:
     HOME_DIR: "{{ base_path }}"
-  tags: skale_restore
