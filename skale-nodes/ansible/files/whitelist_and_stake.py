@@ -3,10 +3,10 @@ import os
 
 from eth_typing import HexStr
 from skale import FairManager
+from skale.types.node import NodeId
 from skale.utils.helper import init_default_logger
 from skale.utils.web3_utils import init_web3
 from skale.wallets import Web3Wallet
-from skale.types.node import NodeId
 
 ENDPOINT = os.getenv('ENDPOINT')
 FAIR_CONTRACTS = os.getenv('FAIR_CONTRACTS')
