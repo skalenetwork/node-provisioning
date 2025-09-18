@@ -1,8 +1,17 @@
 - name: Fetch schain nodes script
   hosts: localhost
+  connection: local
+  gather_facts: false
   serial: True
 
   tasks:
+    - name: Validate node_type
+      fail:
+        msg: >
+          The 'node_type' variable must be defined and set to 'skale' for sChain backup.
+          Current value: '{{ node_type | default('undefined') }}'
+      when: node_type is not defined or node_type != 'skale'
+
     - name: Run fetch schain nodes script
       script: fetch_node_schains.py -u
       environment:
@@ -32,7 +41,7 @@
         node_schains: "{{ hostvars['localhost'].node_schains }}"
 
     - name: Make snapshot
-      include: tasks/schains_backup.yaml
+      include_tasks: tasks/schains_backup.yaml
       vars:
         schains: "{{ node_schains[ip_address] }}"
       when: ip_address in node_schains

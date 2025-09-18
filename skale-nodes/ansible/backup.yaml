@@ -1,2 +1,0 @@
-- import_playbook: backup_nodes.yaml
-- import_playbook: backup_schains.yaml

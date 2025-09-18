@@ -1,1 +1,2 @@
-- include: node.yaml
+- import_tasks: node.yaml
+  tags: [restore_node]
