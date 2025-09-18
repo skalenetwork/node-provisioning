@@ -6,6 +6,7 @@ from skale import FairManager
 from skale.utils.helper import init_default_logger
 from skale.utils.web3_utils import init_web3
 from skale.wallets import Web3Wallet
+from skale.types.node import NodeId
 
 ENDPOINT = os.getenv('ENDPOINT')
 FAIR_CONTRACTS = os.getenv('FAIR_CONTRACTS')
@@ -22,7 +23,7 @@ def init_fair_manager() -> FairManager:
     return FairManager(ENDPOINT, FAIR_CONTRACTS, wallet=wallet)
 
 
-def process_node(fair_manager: FairManager, node_id: int) -> None:
+def process_node(fair_manager: FairManager, node_id: NodeId) -> None:
     try:
         if fair_manager.status.is_whitelisted(node_id):
             logger.info(f'Node {node_id} is already whitelisted. Skipping whitelisting.')
