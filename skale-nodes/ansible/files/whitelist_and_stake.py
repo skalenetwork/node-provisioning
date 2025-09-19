@@ -5,7 +5,6 @@ import sys
 from eth_typing import HexStr
 from skale import FairManager
 from skale.types.node import NodeId
-from skale.utils.helper import init_default_logger
 from skale.utils.web3_utils import init_web3
 from skale.wallets import Web3Wallet
 
@@ -15,7 +14,6 @@ ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 WEI_AMOUNT = int(os.getenv('WEI_AMOUNT'))
 
 logger = logging.getLogger(__name__)
-init_default_logger()
 
 
 def init_fair_manager() -> FairManager:
@@ -48,6 +46,9 @@ def process_node(fair_manager: FairManager, node_id: NodeId) -> list[str]:
 
 
 def main() -> None:
+    logging.basicConfig(
+        level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', stream=sys.stdout
+    )
     fair_manager = init_fair_manager()
     try:
         nodes_to_process = fair_manager.nodes.get_active_node_ids()
