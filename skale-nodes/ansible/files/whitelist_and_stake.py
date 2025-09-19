@@ -32,7 +32,6 @@ def process_node(fair_manager: FairManager, node_id: NodeId) -> list[str]:
             logger.info(f'Node {node_id} was successfully whitelisted.')
     except Exception as e:
         error_msg = f'Could not whitelist node {node_id}: {e}'
-        logger.warning(error_msg)
         node_errors.append(error_msg)
 
     try:
@@ -40,7 +39,6 @@ def process_node(fair_manager: FairManager, node_id: NodeId) -> list[str]:
         logger.info(f'Node {node_id} was successfully staked with {WEI_AMOUNT} Wei.')
     except Exception as e:
         error_msg = f'Could not stake node {node_id}: {e}'
-        logger.warning(error_msg)
         node_errors.append(error_msg)
     return node_errors
 
@@ -57,7 +55,6 @@ def main() -> None:
             return
         logger.info(f'Found active nodes: {nodes_to_process}')
     except Exception as e:
-        logger.critical(f'Failed to get active node IDs: {e}') # Removed to prevent duplication in stdout
         sys.stderr.write(f"CRITICAL: Failed to get active node IDs: {e}\n")
         sys.exit(1)
 
