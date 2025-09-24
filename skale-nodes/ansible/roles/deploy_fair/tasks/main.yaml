@@ -1,2 +1,5 @@
 - import_tasks: deploy_fair.yaml
+  tags: [deploy_fair]
 - import_tasks: whitelist_and_stake.yaml
+  tags: [whitelist_and_stake]
+
