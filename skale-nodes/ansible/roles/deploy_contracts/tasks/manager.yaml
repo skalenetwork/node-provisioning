@@ -50,6 +50,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    ALLOWED_TS_DIFF: -1
   args:
     executable: python3
   tags: fix_zero_node
