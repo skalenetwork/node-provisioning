@@ -72,7 +72,7 @@ def wait_for_next_block(web3):
 def fix_zero_node(skale):
     wallet = generate_wallet(skale.web3)
     print(f'Node Address: {wallet.address}')
-    wait_for_next_block(skale.web3)
+    # wait_for_next_block(skale.web3)  # TODO: make it conditional
 
     send_eth(skale.web3, skale.wallet, wallet.address, ETH_AMOUNT)
     add_test_permissions(skale)
