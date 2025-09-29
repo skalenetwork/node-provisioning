@@ -42,6 +42,23 @@
     state: present
   tags: upload_sm
 
+- name: Set allowed_ts_diff based on anvil variable
+  set_fact:
+    allowed_ts_diff: "{{ -1 if anvil is defined and anvil else 300 }}"
+  run_once: yes
+  tags: fix_zero_node
+
+- name: Save allowed_ts_diff to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    insertafter: EOF
+    regexp: "^allowed_ts_diff:"
+    line: 'allowed_ts_diff: "{{ allowed_ts_diff }}"'
+    state: present
+  run_once: yes
+  tags: fix_zero_node
+
+
 - name: Hotfix for zero node in Fair
   run_once: yes
   script: fix_zero_node_fair.py
@@ -50,7 +67,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
-    ALLOWED_TS_DIFF: -1
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
   args:
     executable: python3
   tags: fix_zero_node
