@@ -9,11 +9,10 @@
     state: absent
     regexp: "{{ item }}"
     path: "{{ playbook_dir }}/group_vars/all"
-  loop: ["^manager_contracts", "^ima_contracts"]
+  loop: ["^manager_contracts", "^ima_contracts", "^fair_contracts",  "^allowed_ts_diff"]
   tags:
     - group_vars_cleanup
     - contract_data_cleanup
-
 
 - name: Find all abis
   find:
