@@ -11,10 +11,19 @@
     - name: Run anvil container
       docker_container:
         name: anvil
-        image: "ghcr.io/foundry-rs/foundry:rc-3"
-        command: "anvil --gas-price 0 --block-base-fee-per-gas 0 --disable-min-priority-fee"
-        network_mode: host
-        detach: yes
+        image: ghcr.io/foundry-rs/foundry:latest
+        entrypoint: anvil
+        command:
+          - --host
+          - 0.0.0.0
+          - --gas-price
+          - "0"
+          - --block-base-fee-per-gas
+          - "0"
+          - --disable-min-priority-fee
+        published_ports:
+          - "8545:8545"
+        detach: true
         state: started
 
     - name: Wait for anvil to start
