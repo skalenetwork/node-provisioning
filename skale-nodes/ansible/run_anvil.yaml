@@ -1,0 +1,6 @@
+- name: Run anvil container on the first node
+  hosts: "{{ groups['nodes'][0] }}"
+  roles:
+    - role: run_anvil
+      tags: [anvil]
+      when: anvil is defined and anvil
