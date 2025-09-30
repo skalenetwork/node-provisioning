@@ -1,3 +1,24 @@
+- name: Set endpoint for anvil
+  set_fact:
+    endpoint: "http://{{ hostvars[groups['nodes'][0]].ansible_host }}:8545"
+  run_once: true
+  when: anvil is defined and anvil
+  tags:
+    - deploy_sm
+    - anvil
+
+- name: Save endpoint for anvil to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^endpoint:"
+    line: "endpoint: {{ endpoint }}"
+  run_once: yes
+  when: anvil is defined and anvil
+  tags:
+    - deploy_sm
+    - anvil
+
 - name: Deploy manager contracts (this may take a while, logs - {{ playbook_dir }}/logs/sm-deploy.log)
   shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_manager.sh 2>&1 | tee {{ playbook_dir }}/logs/sm-deploy.log
   run_once: yes
