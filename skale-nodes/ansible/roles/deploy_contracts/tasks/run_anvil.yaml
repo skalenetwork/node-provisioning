@@ -1,0 +1,45 @@
+- name: Manage anvil container on the first remote node
+  run_once: true
+  tags:
+    - anvil
+  block:
+    - name: Ensure previous anvil container is removed
+      docker_container:
+        name: anvil
+        state: absent
+
+    - name: Run anvil container
+      docker_container:
+        name: anvil
+        image: "ghcr.io/foundry-rs/foundry:rc-3"
+        command: "anvil --gas-price 0 --block-base-fee-per-gas 0 --disable-min-priority-fee"
+        network_mode: host
+        detach: yes
+        state: started
+
+    - name: Wait for anvil to start
+      pause:
+        seconds: 15
+
+    - name: Get private key from anvil logs
+      shell: "docker logs anvil 2>&1 | grep -A 10 'Private Keys' | grep '(0)' | awk '{print $2}'"
+      register: key_output
+      changed_when: false
+
+- name: Set anvil_private_key fact
+  run_once: true
+  set_fact:
+    anvil_private_key: "{{ key_output.stdout | trim }}"
+  tags:
+    - anvil
+
+- name: Save anvil_private_key to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^anvil_private_key:"
+    line: "anvil_private_key: {{ anvil_private_key }}"
+  run_once: yes
+  delegate_to: localhost
+  tags:
+    - anvil
