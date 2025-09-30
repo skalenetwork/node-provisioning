@@ -24,9 +24,9 @@
 - name: Save IMA URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
-    insertafter: EOF
-    regexp: "^ima_contracts:"
-    line: 'ima_contracts: "{{ ima_contracts }}"'
-    state: present
+    create: yes
+    regexp: "^ima_contracts::"
+    line: "ima_contracts: {{ ima_contracts }}"
+  run_once: yes
   tags:
     - upload_ima
