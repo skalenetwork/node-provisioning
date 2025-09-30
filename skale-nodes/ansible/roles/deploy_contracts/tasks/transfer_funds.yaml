@@ -15,6 +15,11 @@
   tags:
     - anvil
 
+- name: Show anvil_private_key
+  debug:
+    msg: "{{ anvil_private_key }}"
+
+
 - name: Transfer funds from the base anvil account to main one
   run_once: yes
   tags: anvil_funds

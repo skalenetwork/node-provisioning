@@ -1,3 +1,4 @@
+- import_playbook: run_anvil.yaml
 - import_playbook: deploy_contracts.yaml
 - import_playbook: sgx_sim.yaml
 - import_playbook: setup.yaml

@@ -1,23 +1,7 @@
-- name: Run anvil container on the first node
-  hosts: "{{ groups['nodes'][0] }}"
-  gather_facts: false
-  tasks:
-    - name: Run only run_anvil.yaml
-      import_role:
-        name: deploy_contracts
-        tasks_from: run_anvil.yaml
-      tags: [anvil]
-
 - name: Deploy mainnet contracts
   hosts: 127.0.0.1
   connection: local
   roles:
     - role: deploy_contracts
-      tasks_from: transfer_funds.yaml
-      tags: anvil
-    - role: deploy_contracts
-      tasks_from: manager.yaml
-      tags: deploy_contracts
-    - role: deploy_contracts
-      tasks_from: ima.yaml
-      tags: deploy_contracts
+      tags:
+        - deploy_contracts

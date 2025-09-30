@@ -42,6 +42,13 @@
   tags:
     - anvil
 
+- name: Expose anvil_private_key to 127.0.0.1 for subsequent plays
+  set_fact:
+    anvil_private_key: "{{ anvil_private_key }}"
+  delegate_to: 127.0.0.1
+  delegate_facts: true
+  run_once: true
+
 - name: Save anvil_private_key to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
