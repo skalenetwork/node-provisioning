@@ -20,3 +20,18 @@
   run_once: true
   become: false
   tags: set_rng
+  when: set_rng_script_has_run is not defined
+
+- name: Mark set_rng script as executed
+  set_fact:
+    set_rng_script_has_run: true
+  run_once: true
+
+- name: Stop and remove anvil container
+  docker_container:
+    name: anvil
+    state: absent
+  delegate_to: "{{ groups['nodes'][0] }}"
+  run_once: true
+  when: anvil is defined and anvil
+  tags: stop_anvil
