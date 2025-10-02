@@ -19,6 +19,32 @@
   debug:
     msg: "{{ anvil_private_key }}"
 
+- name: Set endpoint for anvil
+  set_fact:
+    endpoint: "http://{{ hostvars[groups['nodes'][0]].ansible_host }}:8545"
+  run_once: true
+  when: anvil is defined and anvil
+  tags: [anvil]
+
+- name: Save endpoint for anvil to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^endpoint:"
+    line: "endpoint: {{ endpoint }}"
+  run_once: yes
+  when: anvil is defined and anvil
+  tags: [anvil]
+
+- name: Publish endpoint to all nodes for subsequent plays
+  set_fact:
+    endpoint: "{{ endpoint }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['nodes'] }}"
+  run_once: true
+  when: anvil is defined and anvil
+  tags: [anvil]
 
 - name: Transfer funds from the base anvil account to main one
   run_once: yes
