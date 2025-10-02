@@ -25,8 +25,8 @@
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
     create: yes
-    regexp: "^ima_contracts::"
-    line: "ima_contracts: {{ ima_contracts }}"
+    regexp: "^ima_contracts:"
+    line: "ima_contracts: '{{ ima_contracts }}'"
   run_once: yes
   tags:
     - upload_ima

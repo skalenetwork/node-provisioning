@@ -54,7 +54,7 @@
     path: "{{ playbook_dir }}/group_vars/all"
     create: yes
     regexp: "^anvil_private_key:"
-    line: "anvil_private_key: {{ anvil_private_key }}"
+    line: "anvil_private_key: '{{ anvil_private_key }}'"
   run_once: yes
   delegate_to: localhost
   tags:

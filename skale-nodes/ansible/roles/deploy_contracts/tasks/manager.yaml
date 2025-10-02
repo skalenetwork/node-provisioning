@@ -60,7 +60,7 @@
     path: "{{ playbook_dir }}/group_vars/all"
     create: yes
     regexp: "^manager_contracts:"
-    line: "manager_contracts: {{ manager_contracts }}"
+    line: "manager_contracts: '{{ manager_contracts }}'"
   tags: upload_sm
 
 - name: Set allowed_ts_diff based on anvil variable
