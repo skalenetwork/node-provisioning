@@ -3,7 +3,7 @@
   set_fact:
     passive_node_id: "{{ lookup('file', 'files/passive-id.txt') }}"
   when:
-    - node_type == "fair"
+    - node_type == 'fair'
     - passive_node is defined and passive_node
 
 - name: Set sync_flags based on passive_node status
@@ -23,6 +23,15 @@
   when:
     - passive_node is defined and passive_node
     - archive is defined and archive
+
+- name: Add --snapshot if needed
+  set_fact:
+    sync_flags: "{{ sync_flags }} --snapshot {{ snapshot }}"
+  when:
+    - node_type == 'fair'
+    - passive_node is defined and passive_node
+    - snapshot is defined
+    - snapshot == 'any' or 'http' in snapshot
 
 - name: Build and execute init command
   command:

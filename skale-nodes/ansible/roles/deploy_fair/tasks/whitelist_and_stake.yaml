@@ -1,0 +1,10 @@
+- name: Execute whitelist_and_stake script
+  script: whitelist_and_stake.py
+  environment:
+    BASE_DIR: "files"
+    WEI_AMOUNT: "1"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ boot_endpoint }}"
+    FAIR_CONTRACTS: "{{ fair_contracts }}"
+  args:
+    executable: python3

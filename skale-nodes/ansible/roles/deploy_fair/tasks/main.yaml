@@ -1,44 +1,5 @@
-- name: Deploy Fair manager contracts (this may take a while, logs - {{ playbook_dir }}/logs/fair-deploy.log)
-  shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_fair.sh 2>&1 | tee {{ playbook_dir }}/logs/fair-deploy.log
-  run_once: yes
-  environment:
-    FAIR_TAG: "{{ fair_tag }}"
-    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
-    MAINNET_ENDPOINT: "{{ endpoint }}"
-    ENDPOINT: "{{ boot_endpoint }}"
-    CHAIN_NAME: "{{ chain_name }}"
-    TARGET: "{{ manager_contracts }}"
-    EXPLORER_URL: "{{ explorer_url | default('') }}"
-  tags: deploy_fair
+- import_tasks: deploy_fair.yaml
+  tags: [deploy_fair]
+- import_tasks: whitelist_and_stake.yaml
+  tags: [whitelist_and_stake]
 
-- name: Copy Fair ABI
-  copy:
-    src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/fair.json"
-    dest: "{{ playbook_dir }}/../../helper-scripts/contracts_data/fairManagerComponents.json"
-  tags: upload_fair
-
-- name: Ensure group vars all
-  file:
-    state: touch
-    path: "{{ playbook_dir }}/group_vars/all"
-  tags: upload_fair
-
-- name: Get Fair Contract Address
-  shell: "jq -r '.Committee' {{ playbook_dir }}/../../helper-scripts/contracts_data/fair.json"
-  register: mm_address_output
-  changed_when: false
-  tags: upload_fair
-
-- name: Save Fair Contract Address to variable
-  set_fact:
-    fair_contracts: "{{ mm_address_output.stdout }}"
-  tags: upload_fair
-
-- name: Save Fair Contract Address to group vars
-  lineinfile:
-    path: "{{ playbook_dir }}/group_vars/all"
-    insertafter: EOF
-    regexp: "^fair_contracts:"
-    line: 'fair_contracts: "{{ fair_contracts }}"'
-    state: present
-  tags: upload_fair
