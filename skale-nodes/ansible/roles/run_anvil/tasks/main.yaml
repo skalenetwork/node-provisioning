@@ -22,6 +22,7 @@
           - --block-base-fee-per-gas
           - "0"
           - --disable-min-priority-fee
+          - -vvvv
         published_ports:
           - "8545:8545"
         detach: true
