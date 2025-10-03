@@ -1,3 +1,7 @@
+- name: Set node_type to fair for migration
+  set_fact:
+    node_type: "fair"
+
 - name: Fair migrate
   command:
     cmd: "fair node migrate {{ base_path }}/init-env --yes"
