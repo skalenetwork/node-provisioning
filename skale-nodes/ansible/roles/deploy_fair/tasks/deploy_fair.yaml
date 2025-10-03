@@ -58,3 +58,11 @@
     line: 'fair_contracts: "{{ fair_contracts }}"'
     state: present
   tags: upload_fair
+
+- name: Publish fair_contracts to all nodes for subsequent plays
+  set_fact:
+    fair_contracts: "{{ fair_contracts }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['nodes'] }}"
+  run_once: true
