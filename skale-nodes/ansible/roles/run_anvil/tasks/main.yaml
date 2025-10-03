@@ -11,7 +11,8 @@
     - name: Run anvil container
       docker_container:
         name: anvil
-        image: ghcr.io/foundry-rs/foundry:latest
+        image: "ghcr.io/foundry-rs/foundry:v1.4.0-rc1"
+        memory: "2g"
         entrypoint: anvil
         command:
           - --host
