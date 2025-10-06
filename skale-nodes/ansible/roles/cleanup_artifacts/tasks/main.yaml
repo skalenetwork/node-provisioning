@@ -9,7 +9,7 @@
     state: absent
     regexp: "{{ item }}"
     path: "{{ playbook_dir }}/group_vars/all"
-  loop: ["^manager_contracts", "^ima_contracts", "^fair_contracts",  "^allowed_ts_diff"]
+  loop: ["^manager_contracts", "^ima_contracts", "^fair_contracts",  "^allowed_ts_diff",  "^anvil_private_key", "^endpoint"]
   tags:
     - group_vars_cleanup
     - contract_data_cleanup
@@ -38,6 +38,12 @@
   file:
     state: absent
     path: "{{ playbook_dir }}/../../helper-scripts/contracts_data/ima-openzeppelin"
+  tags: contract_data_cleanup
+
+- name: Cleanup contracts data
+  file:
+    state: absent
+    path: "{{ playbook_dir }}/../../helper-scripts/contracts_data/.openzeppelin"
   tags: contract_data_cleanup
 
 - name: Remove validator-id and validator-key files
