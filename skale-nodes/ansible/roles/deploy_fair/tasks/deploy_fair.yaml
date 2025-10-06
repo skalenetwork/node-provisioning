@@ -1,5 +1,5 @@
 - name: Wait for chain to start on boot nodes
-  ansible.builtin.uri:
+  uri:
     url: "{{ boot_endpoint }}"
     method: POST
     body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
