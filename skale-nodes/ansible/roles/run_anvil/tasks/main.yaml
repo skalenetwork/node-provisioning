@@ -8,20 +8,19 @@
         name: anvil
         state: absent
 
-#    - name: Create directory for anvil state on host
-#      file:
-#        path: /var/lib/anvil-state
-#        state: directory
-#        owner: '1000'
-#        group: '1000'
-#        mode: '0755'
+    - name: Create directory for anvil state on host
+      file:
+        path: /var/lib/anvil-state
+        state: directory
+        owner: '1000'
+        group: '1000'
+        mode: '0755'
 
     - name: Run anvil container
       docker_container:
         name: anvil
         image: "ghcr.io/foundry-rs/foundry:rc-3"
-#        restart_policy: always
-#        memory: "2g"
+        restart_policy: always
         entrypoint: anvil
         command:
           - --host
@@ -30,18 +29,18 @@
           - "0"
           - --block-base-fee-per-gas
           - "0"
-          - --block-time
-          - "1"
-#          - --state
-#          - /state/anvil-state.json
-#          - --state-interval
-#          - "5"
+#          - --block-time
+#          - "1"
+          - --state
+          - /state/anvil-state.json
+          - --state-interval
+          - "10"
           - --disable-min-priority-fee
           - -vvvvv
         published_ports:
           - "8545:8545"
-#        volumes:
-#          - /var/lib/anvil-state:/state
+        volumes:
+          - /var/lib/anvil-state:/state
         detach: true
         state: started
 
