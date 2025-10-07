@@ -39,4 +39,4 @@ def init_fair() -> FairManager:
 if __name__ == '__main__':
     fair = init_fair()
     skale_rng = fair.committee.skale_rng()
-    fair.committee.set_rng(RNG_ADDRESS)
+    fair.committee.set_rng(RNG_ADDRESS, skip_dry_run=True)

@@ -27,16 +27,16 @@
         path: /var/lib/anvil-state
         state: absent
 
-#- name: Execute set_rng script
-#  script: set_rng.py
-#  environment:
-#    BASE_DIR: "files"
-#    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
-#    ENDPOINT: "{{ boot_endpoint }}"
-#    FAIR_CONTRACTS: "{{ fair_contracts }}"
-#  args:
-#    executable: python3
-#  delegate_to: localhost
-#  run_once: true
-#  become: false
-#  tags: set_rng
+- name: Execute set_rng script
+  script: set_rng.py
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ boot_endpoint }}"
+    FAIR_CONTRACTS: "{{ fair_contracts }}"
+  args:
+    executable: python3
+  delegate_to: localhost
+  run_once: true
+  become: false
+  tags: set_rng
