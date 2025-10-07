@@ -11,6 +11,22 @@
   debug:
     msg: "{{ migrate_cmd.stdout }}"
 
+- name: Clean up anvil resources
+  delegate_to: "{{ groups['nodes'][0] }}"
+  run_once: true
+  when: anvil is defined and anvil
+  tags: stop_anvil
+  block:
+    - name: Stop and remove anvil container
+      docker_container:
+        name: anvil
+        state: absent
+
+    - name: Remove anvil state directory
+      file:
+        path: /var/lib/anvil-state
+        state: absent
+
 #- name: Execute set_rng script
 #  script: set_rng.py
 #  environment:
@@ -24,12 +40,3 @@
 #  run_once: true
 #  become: false
 #  tags: set_rng
-
-- name: Stop and remove anvil container
-  docker_container:
-    name: anvil
-    state: absent
-  delegate_to: "{{ groups['nodes'][0] }}"
-  run_once: true
-  when: anvil is defined and anvil
-  tags: stop_anvil
