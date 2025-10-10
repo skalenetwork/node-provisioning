@@ -1,0 +1,7 @@
+- name: Set node_type to fair_boot
+  hosts: 127.0.0.1
+  connection: local
+  roles:
+    - role: set_fair_boot_node_type
+      tags:
+        - set_fair_boot
