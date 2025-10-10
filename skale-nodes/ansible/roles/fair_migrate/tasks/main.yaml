@@ -44,5 +44,5 @@
 - name: Remove node_type from group_vars/all
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
-    regexp: '^node_type: fair_boot$'
+    regexp: '^node_type'
     state: absent

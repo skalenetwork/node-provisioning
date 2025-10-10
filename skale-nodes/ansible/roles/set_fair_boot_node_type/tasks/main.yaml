@@ -1,8 +1,14 @@
-- name: Set node_type fact for all nodes including localhost
+- name: Set node_type to fair_boot
+  set_fact:
+    node_type: "fair_boot"
+
+- name: Publish node_type to all nodes for subsequent plays
   set_fact:
     node_type: "fair_boot"
   delegate_to: "{{ item }}"
-  loop: "{{ ['localhost'] + groups['nodes'] }}"
+  delegate_facts: true
+  loop: "{{ groups['nodes'] }}"
+  run_once: true
 
 - name: Save node_type to group_vars/all for future runs
   lineinfile:
