@@ -1,0 +1,12 @@
+- name: Set node_type fact for all nodes including localhost
+  set_fact:
+    node_type: "fair_boot"
+  delegate_to: "{{ item }}"
+  loop: "{{ ['localhost'] + groups['nodes'] }}"
+
+- name: Save node_type to group_vars/all for future runs
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^node_type:"
+    line: "node_type: fair_boot"
