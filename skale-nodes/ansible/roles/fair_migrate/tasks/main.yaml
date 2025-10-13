@@ -44,6 +44,7 @@
 - name: Remove node_type from group_vars/all
   delegate_to: localhost
   run_once: true
+  become: false
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
     regexp: '^node_type'
