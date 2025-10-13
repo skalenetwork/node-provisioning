@@ -19,7 +19,7 @@
     - name: Run anvil container
       docker_container:
         name: anvil
-        image: "ghcr.io/foundry-rs/foundry:rc-3"
+        image: "ghcr.io/foundry-rs/foundry:v1.4.0"
         restart_policy: always
         entrypoint: anvil
         command:
