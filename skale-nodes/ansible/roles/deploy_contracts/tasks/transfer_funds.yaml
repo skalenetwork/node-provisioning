@@ -1,0 +1,61 @@
+- name: Set allowed_ts_diff based on anvil variable
+  set_fact:
+    allowed_ts_diff: "{{ -1 if anvil is defined and anvil else 300 }}"
+  run_once: yes
+  tags:
+    - anvil
+
+- name: Save allowed_ts_diff to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^allowed_ts_diff:"
+    line: "allowed_ts_diff: {{ allowed_ts_diff }}"
+  run_once: yes
+  tags:
+    - anvil
+
+- name: Show anvil_private_key
+  debug:
+    msg: "{{ anvil_private_key }}"
+
+- name: Set endpoint for anvil
+  set_fact:
+    endpoint: "http://{{ hostvars[groups['nodes'][0]].ansible_host }}:8545"
+  run_once: true
+  when: anvil is defined and anvil
+  tags: [anvil]
+
+- name: Save endpoint for anvil to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^endpoint:"
+    line: "endpoint: {{ endpoint }}"
+  run_once: yes
+  when: anvil is defined and anvil
+  tags: [anvil]
+
+- name: Publish endpoint to all nodes for subsequent plays
+  set_fact:
+    endpoint: "{{ endpoint }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['nodes'] }}"
+  run_once: true
+  when: anvil is defined and anvil
+  tags: [anvil]
+
+- name: Transfer funds from the base anvil account to main one
+  run_once: yes
+  tags: anvil_funds
+  script: transfer_funds.py
+  environment:
+    ETH_PRIVATE_KEY: "{{ anvil_private_key }}"
+    TARGET_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+    BASE_DIR: "files"
+    AMOUNT: "{{ anvil_eth_amount | default(10) }}"
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
+  args:
+    executable: python3

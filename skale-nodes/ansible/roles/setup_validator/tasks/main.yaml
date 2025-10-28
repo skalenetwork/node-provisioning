@@ -13,5 +13,6 @@
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
     COMMISSION_RATE: "1"
     NODES_NUMBER: "{{ hosts|length }}"
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
   args:
     executable: python3

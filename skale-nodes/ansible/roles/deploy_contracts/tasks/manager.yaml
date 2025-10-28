@@ -16,12 +16,6 @@
     dest: "{{ playbook_dir }}/../../helper-scripts/contracts_data/skaleManagerComponents.json"
   tags: upload_sm
 
-- name: Ensure group vars all
-  file:
-    state: touch
-    path: "{{ playbook_dir }}/group_vars/all"
-  tags: upload_sm
-
 - name: Get SM Contract Address
   shell: "jq -r '.skale_manager_address' {{ playbook_dir }}/../../helper-scripts/contracts_data/manager.json"
   register: sm_address_output
@@ -36,11 +30,26 @@
 - name: Save SM URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
-    insertafter: EOF
+    create: yes
     regexp: "^manager_contracts:"
-    line: 'manager_contracts: "{{ manager_contracts }}"'
-    state: present
+    line: "manager_contracts: '{{ manager_contracts }}'"
   tags: upload_sm
+
+- name: Set allowed_ts_diff based on anvil variable
+  set_fact:
+    allowed_ts_diff: "{{ -1 if anvil is defined and anvil else 300 }}"
+  run_once: yes
+  tags: fix_zero_node
+
+- name: Save allowed_ts_diff to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^allowed_ts_diff:"
+    line: "allowed_ts_diff: {{ allowed_ts_diff }}"
+  run_once: yes
+  tags: fix_zero_node
+
 
 - name: Hotfix for zero node in Fair
   run_once: yes
@@ -50,6 +59,7 @@
     ETH_PRIVATE_KEY: "{{ eth_private_key }}"
     ENDPOINT: "{{ endpoint }}"
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
   args:
     executable: python3
   tags: fix_zero_node

@@ -1,3 +1,19 @@
+- name: Wait for chain to start on boot nodes
+  uri:
+    url: "{{ boot_endpoint }}"
+    method: POST
+    body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+    status_code: 200
+  register: block_number_response
+  until: "block_number_response.json.result is defined and (block_number_response.json.result | int(base=16)) > 1"
+  retries: 90
+  delay: 10
+  run_once: true
+  tags: deploy_fair
+
 - name: Deploy Fair manager contracts (this may take a while, logs - {{ playbook_dir }}/logs/fair-deploy.log)
   shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_fair.sh 2>&1 | tee {{ playbook_dir }}/logs/fair-deploy.log
   run_once: yes
@@ -42,3 +58,11 @@
     line: 'fair_contracts: "{{ fair_contracts }}"'
     state: present
   tags: upload_fair
+
+- name: Publish fair_contracts to all nodes for subsequent plays
+  set_fact:
+    fair_contracts: "{{ fair_contracts }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['nodes'] }}"
+  run_once: true

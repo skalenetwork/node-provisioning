@@ -7,6 +7,7 @@
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
     CHAIN_NAME: "{{ chain_name }}"
     CHAIN_TYPE: "{{ chain_type }}"
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
   args:
     executable: python3
   tags: create_chain

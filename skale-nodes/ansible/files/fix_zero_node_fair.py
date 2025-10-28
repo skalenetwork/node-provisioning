@@ -36,6 +36,7 @@ ETH_AMOUNT = 0.2
 ENDPOINT = os.environ['ENDPOINT']
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
 MANAGER_CONTRACTS = os.environ['MANAGER_CONTRACTS']
+ALLOWED_TS_DIFF = int(os.getenv('ALLOWED_TS_DIFF'))
 
 
 def init_skale_manager(
@@ -47,7 +48,6 @@ def init_skale_manager(
 
 
 def setup_validator(skale: SkaleManager):
-    """Create and activate a validator"""
     set_test_msr(skale, msr=0)
     print('Address', skale.wallet.address)
     if not validator_exist(skale):
@@ -60,7 +60,6 @@ def setup_validator(skale: SkaleManager):
 
 
 def wait_for_next_block(web3):
-    """Wait for the next block to be mined"""
     current_block = web3.eth.block_number
     print(f'Current block: {current_block}, waiting for next block...')
     while web3.eth.block_number == current_block:
@@ -72,7 +71,8 @@ def wait_for_next_block(web3):
 def fix_zero_node(skale):
     wallet = generate_wallet(skale.web3)
     print(f'Node Address: {wallet.address}')
-    wait_for_next_block(skale.web3)
+    if ALLOWED_TS_DIFF > 0:
+        wait_for_next_block(skale.web3)
 
     send_eth(skale.web3, skale.wallet, wallet.address, ETH_AMOUNT)
     add_test_permissions(skale)

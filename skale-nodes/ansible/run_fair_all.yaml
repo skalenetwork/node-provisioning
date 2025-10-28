@@ -1,3 +1,4 @@
+- import_playbook: set_fair_boot_node_type.yaml
 - import_playbook: run_anvil.yaml
 - import_playbook: deploy_contracts.yaml
 - import_playbook: sgx_sim.yaml
@@ -6,3 +7,6 @@
 - import_playbook: signature.yaml
 - import_playbook: link_addresses.yaml
 - import_playbook: register.yaml
+- import_playbook: create_chain.yaml
+- import_playbook: deploy_fair_manager.yaml
+- import_playbook: fair_migrate.yaml
