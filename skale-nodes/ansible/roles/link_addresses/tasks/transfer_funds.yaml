@@ -9,6 +9,7 @@
     MANAGER_CONTRACTS: "{{ transfer_map[node_type].contracts }}"
     BASE_DIR: "files"
     AMOUNT: 0.2
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
   args:
     executable: python3
   with_fileglob: "node-info/*"
