@@ -16,27 +16,34 @@
         group: '1000'
         mode: '0755'
 
-    - name: Run anvil container
-      docker_container:
-        name: anvil
-        image: "ghcr.io/foundry-rs/foundry:v1.4.0"
-        restart_policy: always
-        entrypoint: anvil
-        command:
+    - name: Define base anvil command
+      set_fact:
+        anvil_cmd:
           - --host
           - 0.0.0.0
           - --gas-price
           - "0"
           - --block-base-fee-per-gas
           - "0"
-#          - --block-time
-#          - "1"
           - --state
           - /state/anvil-state.json
           - --state-interval
           - "10"
           - --disable-min-priority-fee
-          - -vvvvv
+          - -vvvv
+
+    - name: Add block-time for skale node type
+      set_fact:
+        anvil_cmd: "{{ anvil_cmd + ['--block-time', '1'] }}"
+      when: node_type == 'skale'
+
+    - name: Run anvil container
+      docker_container:
+        name: anvil
+        image: "ghcr.io/foundry-rs/foundry:v1.4.0"
+        restart_policy: always
+        entrypoint: anvil
+        command: "{{ anvil_cmd }}"
         published_ports:
           - "8545:8545"
         volumes:
