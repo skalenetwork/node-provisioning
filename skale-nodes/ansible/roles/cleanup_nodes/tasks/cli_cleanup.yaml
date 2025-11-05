@@ -4,6 +4,7 @@
   vars:
     command_prefixes:
       fair: "{{ 'fair passive-node' if (passive_node | default(false) | bool) else 'fair node' }}"
+      skale: "{{ 'skale passive-node' if (passive_node | default(false) | bool) else 'skale node' }}"
   when: node_type in command_prefixes
   register: cleanup_cmd
 
