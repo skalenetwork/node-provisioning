@@ -36,9 +36,8 @@
           - --state-interval
           - "10"
           - --disable-min-priority-fee
-          - -vvvvv
-        published_ports:
-          - "8545:8545"
+          - -v
+        network_mode: host
         volumes:
           - /var/lib/anvil-state:/state
         detach: true
