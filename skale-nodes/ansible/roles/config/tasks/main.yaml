@@ -79,14 +79,12 @@
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
       ENDPOINT={{ endpoint }}
       ENFORCE_BTRFS='True'
-      DOCKER_LVMPY_VERSION="{{ docker_lvmpy_version }}"
       ENV_TYPE="{{ env_type }}"
       SCHAIN_NAME="{{ schain_name }}"
       MANAGER_CONTRACTS={{ manager_contracts }}
       IMA_CONTRACTS={{ ima_contracts }}
       BLOCK_DEVICE={{ block_device }}
-      INFLUX_URL="{{ influx_url }}"
-      TELEGRAF="{{ telegraf }}"
+      FILEBEAT_HOST="{{ filebeat_host }}"
   when:
     - node_type == "skale"
     - (passive_node is defined and passive_node)
