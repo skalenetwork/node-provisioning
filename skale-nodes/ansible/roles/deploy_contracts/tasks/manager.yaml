@@ -63,3 +63,4 @@
   args:
     executable: python3
   tags: fix_zero_node
+  when: node_type == "fair_boot" or node_type == "fair"

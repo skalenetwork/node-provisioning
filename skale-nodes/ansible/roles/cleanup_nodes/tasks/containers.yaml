@@ -18,7 +18,7 @@
   with_items: "{{ monitoring_container_ids | default([]) }}"
 
 - name: Get all container ids
-  command: 'docker ps -a -q --filter="name=skale_" --filter="name=fair_"'
+  command: 'docker ps -a -q --filter="name=sk_"'
   become: true
   register: containers_output
   tags: containers_ids
@@ -28,7 +28,7 @@
   set_fact:
     skale_container_ids: "{{ containers_output.stdout.split('\n') }}"
 
-- name: Destroy skale admin container
+- name: Destroy skale/fair admin container
   become: true
   docker_container:
     name: "sk_admin"
@@ -36,27 +36,17 @@
     force_kill: yes
     keep_volumes: no
   tags: admin
-  when: node_type == "skale"
+  when: node_type == "skale" or node_type == "fair"
 
 - name: Destroy fair boot admin container
   become: true
   docker_container:
-    name: "fair_boot_admin"
+    name: "sk_boot_admin"
     state: absent
     force_kill: yes
     keep_volumes: no
   tags: admin
   when: node_type == "fair_boot"
-
-- name: Destroy fair admin container
-  become: true
-  docker_container:
-    name: "fair_admin"
-    state: absent
-    force_kill: yes
-    keep_volumes: no
-  tags: admin
-  when: node_type == "fair"
 
 - name: Destroy all containers
   become: true

@@ -27,10 +27,18 @@
   when:
     - build_type == "source"
 
+- name: Ensure builder container is removed before image operations
+  docker_container:
+    name: "node-cli-builder"
+    state: absent
+  when:
+    - build_type == "source"
+
 - name: Remove old binary builder image
   community.docker.docker_image:
     name: "node-cli-builder"
     state: absent
+    force_source: true
   when:
     - build_type == "source"
 
