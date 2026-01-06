@@ -14,8 +14,6 @@
 - name: Run docker-lvmpy cleanup
   import_tasks: docker_lvmpy.yaml
   tags: lvmpy_cleanup
-  when:
-    - (passive_node is not defined or not passive_node)
 
 - name: Run node artifacts cleanup
   import_tasks: node_artifacts.yaml
