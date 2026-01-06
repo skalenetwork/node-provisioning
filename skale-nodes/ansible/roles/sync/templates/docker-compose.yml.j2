@@ -61,8 +61,10 @@ services:
       INFLUX_URL: ${INFLUX_URL}
       MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
       IMA_CONTRACTS: ${IMA_CONTRACTS}
+      PASSIVE_NODE: ${PASSIVE_NODE}
+      SCHAIN_NAME: ${SCHAIN_NAME}
 
-    command: "python3 admin.py"
+    command: "python3 l2.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
@@ -108,6 +110,8 @@ services:
       ALLOWED_TS_DIFF: 300
       MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
       IMA_CONTRACTS: ${IMA_CONTRACTS}
+      SKALE_NETWORK_TYPE: "skale"
+      PASSIVE_NODE: ${PASSIVE_NODE}
     command: "gunicorn app:app -c gunicorn.conf.py"
     volumes:
       - /var/run/skale:/var/run/skale
@@ -184,6 +188,8 @@ services:
       FLASK_APP_PORT: 3010
       FLASK_APP_HOST: "127.0.0.1"
       FLASK_DEBUG_MODE: "False"
+      SKALE_NETWORK_TYPE: "skale"
+      PASSIVE_NODE: ${PASSIVE_NODE}
 
   nginx:
     <<: *sk_base
