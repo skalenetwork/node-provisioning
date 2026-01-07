@@ -64,7 +64,12 @@ services:
       PASSIVE_NODE: ${PASSIVE_NODE}
       SCHAIN_NAME: ${SCHAIN_NAME}
 
-    command: "python3 l2.py"
+    command: >
+      sh -c 'if [ "$$PASSIVE_NODE" = "True" ]; then
+        python3 skale_passive.py;
+      else
+        python3 admin.py;
+      fi'
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
