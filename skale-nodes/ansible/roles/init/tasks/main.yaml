@@ -48,14 +48,6 @@
   debug:
     msg: "{{ init_cmd.stdout }}"
 
-- name: Set permissions for redis data directory
-  file:
-    path: "{{ base_path }}/.skale/node_data/redis-data"
-    state: directory
-    owner: "999"
-    group: "1000"
-    recurse: yes
-
 - name: Pause to make sure skale-admin exchange certs with sgx server
   pause:
     seconds: 120
