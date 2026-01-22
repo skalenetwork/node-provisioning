@@ -61,11 +61,3 @@
     dest: "{{ base_path }}/skale-node/docker-compose-fair.yml"
   when:
     - node_type in ['fair_boot', 'fair']
-
-- name: Replace skale-node docker-compose-passive file
-  template:
-    src: docker-compose-passive.yml.j2
-    dest: "{{ base_path }}/skale-node/docker-compose-passive.yml"
-  when:
-    - node_type == "skale"
-    - passive_node is defined and passive_node
