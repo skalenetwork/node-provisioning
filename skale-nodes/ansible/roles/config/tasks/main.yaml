@@ -67,6 +67,7 @@
       ENV_TYPE="{{ env_type }}"
       INFLUX_URL="{{ influx_url }}"
       TELEGRAF="{{ telegraf }}"
+      BITE="{{ bite }}"
   when:
     - node_type == "skale"
     - (passive_node is not defined or not passive_node)
