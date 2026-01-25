@@ -86,6 +86,7 @@
       IMA_CONTRACTS={{ ima_contracts }}
       BLOCK_DEVICE={{ block_device }}
       FILEBEAT_HOST="{{ filebeat_host }}"
+      BITE="{{ bite }}"
   when:
     - node_type == "skale"
     - (passive_node is defined and passive_node)
