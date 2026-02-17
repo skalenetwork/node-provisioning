@@ -19,7 +19,7 @@
       ENDPOINT="{{ endpoint }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
       BLOCK_DEVICE="{{ block_device }}"
-      SGX_SERVER_URL="{{ sgx_url }}"
+      SGX_URL="{{ sgx_url }}"
       ENV_TYPE="{{ env_type }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
       ENFORCE_BTRFS='False'
@@ -40,9 +40,9 @@
   when: node_type == "fair"
   tags: env
 
-- name: Add SGX_SERVER_URL to env options if not passive
+- name: Add SGX_URL to env options if not passive
   set_fact:
-    env_options: "{{ env_options }}\nSGX_SERVER_URL={{ sgx_url }}"
+    env_options: "{{ env_options }}\nSGX_URL={{ sgx_url }}"
   when:
     - node_type == "fair"
     - passive_node is not defined or not passive_node
@@ -59,14 +59,13 @@
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
       DOCKER_LVMPY_VERSION="{{ docker_lvmpy_version }}"
       BLOCK_DEVICE="{{ block_device }}"
-      SGX_SERVER_URL="{{ sgx_url }}"
+      SGX_URL="{{ sgx_url }}"
       TG_API_KEY="{{ tg_api_key }}"
       TG_CHAT_ID="{{ tg_chat_id }}"
       MONITORING_CONTAINERS="{{ monitoring_containers }}"
       DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
       ENV_TYPE="{{ env_type }}"
       INFLUX_URL="{{ influx_url }}"
-      TELEGRAF="{{ telegraf }}"
   when:
     - node_type == "skale"
     - (passive_node is not defined or not passive_node)
