@@ -38,7 +38,7 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    command: "python3 admin.py"
+    command: "python3 skale_admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
@@ -64,7 +64,7 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    command: "gunicorn app:app -c gunicorn.conf.py"
+    command: "gunicorn skale_api:app -c gunicorn.conf.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
