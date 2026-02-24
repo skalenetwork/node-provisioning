@@ -30,6 +30,8 @@ env_type=''
 sgx_version=''
 cert_mode='certbot/custom'
 
+bite=False
+
 influx_url='http://example.com'
 
 ## dev variables (skip if env=test)
