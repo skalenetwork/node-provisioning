@@ -66,6 +66,7 @@
       DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
       ENV_TYPE="{{ env_type }}"
       INFLUX_URL="{{ influx_url }}"
+      BITE="{{ bite }}"
   when:
     - node_type == "skale"
     - (passive_node is not defined or not passive_node)
