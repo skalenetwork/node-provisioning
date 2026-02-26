@@ -1,26 +1,35 @@
 [all:vars]
 ansible_ssh_user='root'
 ansible_python_interpreter=/usr/bin/python3
-env=test
+
+# build_type should be 'git' or 'source'
+build_type=source
+
+# node_type should be be one of these - 'skale', 'fair_boot', 'fair'
+node_type=skale
+passive_node=False
+bite=False
+anvil=True
+
+chain_name=''
+chain_type=''
+
+node_version=''
 base_path=/root
 sgx_url=''
 block_device=''
 eth_private_key=''
 endpoint=''
-ima_endpoint=''
-db_user=''
-db_password=''
-db_root_password=''
-db_port=''
 docker_username=''
 docker_password=''
 filebeat_host=''
 manager_contracts=''
 ima_contracts=''
-container_configs_stream=''
+fair_contracts=''
 docker_lvmpy_stream=''
 container_configs_dir=''
 skale_cli_url=''
+fair_cli_url=''
 pem_cert_path=''
 tg_api_key=''
 tg_chat_id=''
@@ -30,17 +39,16 @@ env_type=''
 sgx_version=''
 cert_mode='certbot/custom'
 
-bite=False
-
 influx_url='http://example.com'
 
-## dev variables (skip if env=test)
+## dev variables (skip if build_type=git)
 
 skale_admin_path=''
 transaction_manager_path=''
 skale_node_path=''
 skale_node_cli_path=''
-
+bounty_agent_path=''
+skale_watchdog_path='
 
 # optional parameters
 
@@ -54,7 +62,10 @@ disable_ima=''
 ## contracts deployment
 
 manager_tag=''
+fair_tag=''
+ima_tag=''
 deploy_gas_price='2000000000' # 2 gwei
+default_gas_price_wei=''
 
 aws_key=''
 aws_secret=''
