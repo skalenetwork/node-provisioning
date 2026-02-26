@@ -20,9 +20,6 @@ services:
       network: host
     network_mode: host
     tty: true
-    environment:
-      SGX_URL: ${SGX_SERVER_URL}
-      ENDPOINT: ${ENDPOINT}
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -41,41 +38,11 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    environment:
-      SGX_SERVER_URL: ${SGX_SERVER_URL}
-      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
-      ENDPOINT: ${ENDPOINT}
-      SKALE_DIR_HOST: ${SKALE_DIR}
-      TG_API_KEY: ${TG_API_KEY}
-      TG_CHAT_ID: ${TG_CHAT_ID}
-      MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
-      BACKUP_RUN: ${BACKUP_RUN}
-      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      MAX_ALLOWED_LOG_TIME_DIFF: 600
-      ENV_TYPE: ${ENV_TYPE}
-      ALLOWED_TS_DIFF: 300
-      PULL_CONFIG_FOR_SCHAIN: ${PULL_CONFIG_FOR_SCHAIN}
-      TELEGRAF: ${TELEGRAF}
-      INFLUX_URL: ${INFLUX_URL}
-      MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
-      IMA_CONTRACTS: ${IMA_CONTRACTS}
-      PASSIVE_NODE: ${PASSIVE_NODE}
-      SCHAIN_NAME: ${SCHAIN_NAME}
-      BITE: ${BITE}
-
-    command: >
-      sh -c 'if [ "$$PASSIVE_NODE" = "True" ]; then
-        python3 skale_passive.py;
-      else
-        python3 admin.py;
-      fi'
+    command: "python3 skale_admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
-      - ${SKALE_LIB_PATH}:${SKALE_LIB_PATH}
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
     healthcheck:
       test: ["CMD", "python3", "healthchecks/admin.py"]
@@ -97,34 +64,11 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    environment:
-      SGX_SERVER_URL: ${SGX_SERVER_URL}
-      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
-      ENDPOINT: ${ENDPOINT}
-      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
-      FLASK_APP_PORT: 3007
-      FLASK_APP_HOST: "127.0.0.1"
-      FLASK_DEBUG_MODE: "False"
-      SKALE_DIR_HOST: ${SKALE_DIR}
-      TG_API_KEY: ${TG_API_KEY}
-      TG_CHAT_ID: ${TG_CHAT_ID}
-      MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
-      BACKUP_RUN: ${BACKUP_RUN}
-      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      ENV_TYPE: ${ENV_TYPE}
-      ALLOWED_TS_DIFF: 300
-      MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
-      IMA_CONTRACTS: ${IMA_CONTRACTS}
-      SKALE_NETWORK_TYPE: "skale"
-      PASSIVE_NODE: ${PASSIVE_NODE}
-    command: "gunicorn app:app -c gunicorn.conf.py"
+    command: "gunicorn skale_api:app -c gunicorn.conf.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
-      - ${SKALE_LIB_PATH}:${SKALE_LIB_PATH}
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
 
   celery:
@@ -137,10 +81,6 @@ services:
       network: host
     network_mode: host
     tty: true
-    environment:
-      TG_API_KEY: ${TG_API_KEY}
-      TG_CHAT_ID: ${TG_CHAT_ID}
-      SKALE_DIR_HOST: ${SKALE_DIR}
     command: "celery -A tools.notifications.tasks worker --loglevel=info"
 
     volumes:
@@ -168,16 +108,6 @@ services:
       dockerfile: Dockerfile
       network: host
     network_mode: host
-    environment:
-      SGX_SERVER_URL: ${SGX_SERVER_URL}
-      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
-      ENDPOINT: ${ENDPOINT}
-      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      ALLOWED_TS_DIFF: 300
-      MANAGER_CONTRACTS: ${MANAGER_CONTRACTS}
-      IMA_CONTRACTS: ${IMA_CONTRACTS}
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
@@ -191,13 +121,13 @@ services:
       dockerfile: Dockerfile
       network: host
     network_mode: host
+    volumes:
+      - ${SKALE_DIR}/node_data/settings:/settings:ro
     environment:
       ALLOWED_TS_DIFF: 300
       FLASK_APP_PORT: 3010
       FLASK_APP_HOST: "127.0.0.1"
       FLASK_DEBUG_MODE: "False"
-      SKALE_NETWORK_TYPE: "skale"
-      PASSIVE_NODE: ${PASSIVE_NODE}
 
   nginx:
     <<: *sk_base
