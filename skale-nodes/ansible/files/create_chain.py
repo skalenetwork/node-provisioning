@@ -24,13 +24,16 @@ from skale import SkaleManager
 from skale.utils.web3_utils import init_web3
 from skale.wallets import Web3Wallet
 from skale.utils.contracts_provision.main import add_test_permissions, create_schain
+from skale.dataclasses.schain_options import get_default_schain_options
 
 CHAIN_NAME = os.environ['CHAIN_NAME']
 ENDPOINT = os.environ['ENDPOINT']
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
 MANAGER_CONTRACTS = os.environ['MANAGER_CONTRACTS']
 CHAIN_TYPE = os.environ.get('CHAIN_TYPE', 'SMALL2').upper()
-
+MIN_GAS_PRICE = 47619047620
+MAX_GAS_PRICE = 1000000000000000000
+EXTERNAL_GAS_DIFFICULTY = '0x0'
 
 class SchainType(Enum):
     SMALL2 = [1, 2]
@@ -84,10 +87,16 @@ def prepare_and_create_chain(skale, chain_type=CHAIN_TYPE) -> None:
         add_schain_type(type_params[0], type_params[1])
         type_id = get_schain_type_id(skale, type_params)
 
+    schain_options = get_default_schain_options()
+    schain_options.min_gas_price = MIN_GAS_PRICE
+    schain_options.max_gas_price = MAX_GAS_PRICE
+    schain_options.external_gas_difficulty = HexStr(EXTERNAL_GAS_DIFFICULTY)
+
     create_schain(
         skale,
         schain_name=CHAIN_NAME,
         schain_type=type_id,
+        schain_options=schain_options,
     )
 
 

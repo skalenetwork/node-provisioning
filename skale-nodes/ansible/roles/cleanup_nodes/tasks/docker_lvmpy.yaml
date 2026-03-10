@@ -1,8 +1,16 @@
+- name: Check if docker-lvmpy service exists
+  stat:
+    path: /etc/systemd/system/docker-lvmpy.service
+  register: docker_lvmpy_service
+  when: node_type == "skale"
+
 - name: Disable docker-lvmpy
   systemd:
     state: stopped
     name: docker-lvmpy
-  when: node_type == "skale"
+  when:
+    - node_type == "skale"
+    - docker_lvmpy_service.stat.exists
 
 - name: Remove docker-lvmpy artifacts
   file:

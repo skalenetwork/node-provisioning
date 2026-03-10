@@ -80,11 +80,12 @@
       ENDPOINT={{ endpoint }}
       ENFORCE_BTRFS='True'
       ENV_TYPE="{{ env_type }}"
-      SCHAIN_NAME="{{ schain_name }}"
+      SCHAIN_NAME="{{ chain_name }}"
       MANAGER_CONTRACTS={{ manager_contracts }}
       IMA_CONTRACTS={{ ima_contracts }}
       BLOCK_DEVICE={{ block_device }}
       FILEBEAT_HOST="{{ filebeat_host }}"
+      BITE="{{ bite }}"
   when:
     - node_type == "skale"
     - (passive_node is defined and passive_node)

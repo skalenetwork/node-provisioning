@@ -1,60 +1,94 @@
 [all:vars]
 ansible_ssh_user='root'
 ansible_python_interpreter=/usr/bin/python3
-env=test
+
+# build_type should be 'git' or 'source'
+build_type=source
+
 base_path=/root
+container_configs_dir='/root/skale-node'
+
+# node_type should be be one of these - 'skale', 'fair_boot', 'fair'
+node_type=skale
+
+bite=False
+env_type=devnet
+passive_node=False
+snapshot=any
+
+anvil=True
+
+chain_name=''
+chain_type=''
+
+node_version=''
+sgx_version=''
 sgx_url=''
+sgx_simulator=True
+cleanup_sgx=True
+
 block_device=''
 eth_private_key=''
 endpoint=''
-ima_endpoint=''
-db_user=''
-db_password=''
-db_root_password=''
-db_port=''
-docker_username=''
-docker_password=''
-filebeat_host=''
+boot_endpoint=''
+
+######################################################################
+# Change this part with correct addresses after deployment if needed #
+######################################################################
 manager_contracts=''
 ima_contracts=''
-container_configs_stream=''
+fair_contracts=''
+######################################################################
+
+filebeat_host=''
+influx_url='http://example.com'
 docker_lvmpy_stream=''
-container_configs_dir=''
-skale_cli_url=''
-pem_cert_path=''
 tg_api_key=''
 tg_chat_id=''
-monitoring_containers=''
-base_domain_name=''
-env_type=''
-sgx_version=''
-cert_mode='certbot/custom'
+monitoring_containers=True
+default_gas_price_wei=''
+base_domain_name==skalenodes.com
 
-bite=False
+cert_mode='certbot'
 
-influx_url='http://example.com'
+skale_cli_url=''
+fair_cli_url=''
 
-## dev variables (skip if env=test)
-
+#########################################################################################
+# Change this part with your cloned repo filepaths (you can skip it if build_type=git)  #
+#########################################################################################
 skale_admin_path=''
 transaction_manager_path=''
 skale_node_path=''
 skale_node_cli_path=''
-
-
-# optional parameters
-
-email=
-do_token=
-
-## skale-node
-
-disable_ima=''
+bounty_agent_path=''
+skale_watchdog_path='
+#########################################################################################
 
 ## contracts deployment
 
 manager_tag=''
+fair_tag=''
+ima_tag=''
+
 deploy_gas_price='2000000000' # 2 gwei
+
+## optional parameters
+
+email=''
+do_token=''
+docker_username=''
+docker_password=''
+
+
+## geth parameters
+
+geth_image=ethereum/client-go:alltools-v1.13.11
+geth_password=12345
+etherbase="0x1aa5a64A25d58924a2A1059eE66Df835D6dB7Ce6"
+geth_subnet="10.3.155.0/24"
+
+## aws parameters
 
 aws_key=''
 aws_secret=''
