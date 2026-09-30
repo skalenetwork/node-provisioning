@@ -1,0 +1,40 @@
+- name: List existing VMs
+  command: virsh list --all --name
+  register: existing_vms
+  changed_when: false
+
+- name: List running VMs
+  command: virsh list --name
+  register: running_vms
+  changed_when: false
+
+- name: Stop VMs
+  command: virsh destroy {{ vm.name }}
+  loop: "{{ vms_plan | selectattr('name', 'in', running_vms.stdout_lines) | list }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Remove VM definitions
+  command: virsh undefine --managed-save --snapshots-metadata {{ vm.name }}
+  loop: "{{ vms_plan | selectattr('name', 'in', existing_vms.stdout_lines) | list }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Remove VM disks
+  file:
+    path: "{{ vm_dir }}/{{ item.0.name }}-{{ item.1 }}"
+    state: absent
+  loop: "{{ vms_plan | product(['root.qcow2', 'datadir.raw', 'seed.iso']) | list }}"
+  loop_control:
+    label: "{{ item.0.name }}-{{ item.1 }}"
+
+- name: Remove cloud-init configs
+  file:
+    path: "{{ vm_dir }}/cloud-init/{{ vm.name }}"
+    state: absent
+  loop: "{{ vms_plan }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"

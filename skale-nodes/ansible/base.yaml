@@ -1,5 +1,5 @@
 - name: Setup skale node
-  hosts: all
+  hosts: "{{ groups['all'] | difference(groups['kvm_host'] | default([])) }}"
   become: true
   roles:
     - role: base_provision

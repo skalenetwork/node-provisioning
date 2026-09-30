@@ -1,0 +1,9 @@
+- import_tasks: plan.yaml
+  tags: always
+
+- import_tasks: host.yaml
+
+- import_tasks: create.yaml
+
+- import_tasks: destroy.yaml
+  tags: [never, destroy]

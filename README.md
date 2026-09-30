@@ -30,6 +30,8 @@ NOTE: This is for QA and testing purposes only.
     - [Run main script without IMA deployment](#run-main-script-without-ima-deployment)
     - [Run skaled monitor](#run-skaled-monitor)
 
+- [Bare-metal VMs (KVM)](#bare-metal-vms-kvm)
+
 
 # Fair Node Provisioning
 
@@ -236,5 +238,54 @@ bash utils/generate_hosts.sh
 ```
 ```bash
 ansible-playbook -i inventory run_monitor.yaml
+```
+
+# Bare-metal VMs (KVM)
+
+`skale-nodes/ansible/vms.yaml` creates node machines as KVM VMs on your own server, so the
+playbooks above run on them the same way as on cloud machines.
+
+Add the server to the `kvm_host` group and every host that should become a VM to the `vms` group.
+Keep them in the same inventory file as your node groups. Each VM uses its `ansible_host` as its
+static LAN address:
+
+```
+[kvm_host]
+bm-1 ansible_host=<server-ip> vm_lan_iface=eno2
+
+[nodes]
+node-0 ansible_host=192.168.1.50
+node-1 ansible_host=192.168.1.51
+
+[vms:children]
+nodes
+
+[vms:vars]
+vm_cpus=2
+vm_ram_mb=8192
+vm_datadir_gb=80
+```
+
+Create the VMs (existing VMs are left as they are), then provision them as usual:
+
+```bash
+ansible-playbook -i inventory vms.yaml
+```
+```bash
+ansible-playbook -i inventory base.yaml
+```
+
+- With several servers, list them all in `kvm_host` and set `vm_kvm_host=<server name>` for a VM or a group.
+  VMs without it go to the first server.
+- Each VM has a NAT interface for internet access and a LAN interface on `vm_lan_iface` with the static IP.
+- The VM data disk is `/dev/sdb`, so set `block_device=/dev/sdb`.
+- `base.yaml` replaces root's `authorized_keys` with `files/authorized_keys`, so keep your key in that file.
+- Changes to VM size or IP apply only when the VM is recreated.
+- All settings and their defaults are in `roles/vms/defaults/main.yaml`.
+
+Remove the VMs and their disks:
+
+```bash
+ansible-playbook -i inventory vms.yaml --tags destroy
 ```
 

@@ -1,0 +1,5 @@
+#cloud-config
+disable_root: false
+ssh_pwauth: false
+ssh_authorized_keys:
+  - {{ lookup('file', vm_ssh_public_key_file) | to_json }}

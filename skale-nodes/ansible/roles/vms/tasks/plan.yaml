@@ -1,0 +1,47 @@
+- name: Check that the vms group is not empty
+  assert:
+    that: groups['vms'] | default([]) | length > 0
+    fail_msg: Add the hosts that should become VMs to the vms group
+
+- name: Check VM addresses
+  assert:
+    that: hostvars[item].ansible_host | default(item) is match('^([0-9]{1,3}[.]){3}[0-9]{1,3}$')
+    fail_msg: "{{ item }}: ansible_host must be an IPv4 address, it becomes the VM's static IP"
+    quiet: true
+  loop: "{{ groups['vms'] }}"
+
+- name: Check VM servers
+  assert:
+    that: hostvars[item].vm_kvm_host | default(groups['kvm_host'][0]) in groups['kvm_host']
+    fail_msg: "{{ item }}: vm_kvm_host must be a host from the kvm_host group"
+    quiet: true
+  loop: "{{ groups['vms'] }}"
+
+- name: Reset VMs list
+  set_fact:
+    vms_plan: []
+
+- name: Collect VMs for this server
+  set_fact:
+    vms_plan: "{{ vms_plan + [vm] }}"
+  vars:
+    ip: "{{ hostvars[item].ansible_host | default(item) }}"
+    octets: "{{ ip.split('.') }}"
+    mac_suffix: "{{ '%02x:%02x:%02x' | format(octets[1] | int, octets[2] | int, octets[3] | int) }}"
+    vm:
+      name: "{{ item }}"
+      ip: "{{ ip }}"
+      prefix_len: "{{ hostvars[item].vm_prefix_len | default(vm_prefix_len) }}"
+      cpus: "{{ hostvars[item].vm_cpus | default(vm_cpus) }}"
+      ram_mb: "{{ hostvars[item].vm_ram_mb | default(vm_ram_mb) }}"
+      root_gb: "{{ hostvars[item].vm_root_gb | default(vm_root_gb) }}"
+      datadir_gb: "{{ hostvars[item].vm_datadir_gb | default(vm_datadir_gb) }}"
+      lan_mac: "52:54:00:{{ mac_suffix }}"
+      nat_mac: "52:54:01:{{ mac_suffix }}"
+  loop: "{{ groups['vms'] }}"
+  when: (hostvars[item].vm_kvm_host | default(groups['kvm_host'][0])) == inventory_hostname
+
+- name: Check that VM IPs are unique
+  assert:
+    that: vms_plan | map(attribute='ip') | unique | list | length == vms_plan | length
+    fail_msg: Several VMs have the same ansible_host
