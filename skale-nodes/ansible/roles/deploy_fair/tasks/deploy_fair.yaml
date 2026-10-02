@@ -1,0 +1,68 @@
+- name: Wait for chain to start on boot nodes
+  uri:
+    url: "{{ boot_endpoint }}"
+    method: POST
+    body: '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+    status_code: 200
+  register: block_number_response
+  until: "block_number_response.json.result is defined and (block_number_response.json.result | int(base=16)) > 1"
+  retries: 90
+  delay: 10
+  run_once: true
+  tags: deploy_fair
+
+- name: Deploy Fair manager contracts (this may take a while, logs - {{ playbook_dir }}/logs/fair-deploy.log)
+  shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_fair.sh 2>&1 | tee {{ playbook_dir }}/logs/fair-deploy.log
+  run_once: yes
+  environment:
+    FAIR_TAG: "{{ fair_tag }}"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    MAINNET_ENDPOINT: "{{ endpoint }}"
+    ENDPOINT: "{{ boot_endpoint }}"
+    CHAIN_NAME: "{{ chain_name }}"
+    TARGET: "{{ manager_contracts }}"
+    EXPLORER_URL: "{{ explorer_url | default('') }}"
+  tags: deploy_fair
+
+- name: Copy Fair ABI
+  copy:
+    src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/fair.json"
+    dest: "{{ playbook_dir }}/../../helper-scripts/contracts_data/fairManagerComponents.json"
+  tags: upload_fair
+
+- name: Ensure group vars all
+  file:
+    state: touch
+    path: "{{ playbook_dir }}/group_vars/all"
+  tags: upload_fair
+
+- name: Get Fair Contract Address
+  shell: "jq -r '.Committee' {{ playbook_dir }}/../../helper-scripts/contracts_data/fair.json"
+  register: mm_address_output
+  changed_when: false
+  tags: upload_fair
+
+- name: Save Fair Contract Address to variable
+  set_fact:
+    fair_contracts: "{{ mm_address_output.stdout }}"
+  tags: upload_fair
+
+- name: Save Fair Contract Address to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    insertafter: EOF
+    regexp: "^fair_contracts:"
+    line: 'fair_contracts: "{{ fair_contracts }}"'
+    state: present
+  tags: upload_fair
+
+- name: Publish fair_contracts to all nodes for subsequent plays
+  set_fact:
+    fair_contracts: "{{ fair_contracts }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['nodes'] }}"
+  run_once: true

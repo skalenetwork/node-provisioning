@@ -1,0 +1,18 @@
+- name: Set node_type to fair_boot
+  set_fact:
+    node_type: "fair_boot"
+
+- name: Publish node_type to all nodes for subsequent plays
+  set_fact:
+    node_type: "fair_boot"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ groups['nodes'] }}"
+  run_once: true
+
+- name: Save node_type to group_vars/all for future runs
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^node_type:"
+    line: "node_type: fair_boot"

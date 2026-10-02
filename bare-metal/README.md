@@ -40,7 +40,7 @@ When Vagrant provision is completed `hosts` file will be created in `bare-metal/
 ansible-playbook -i inventory -v main.yaml
 ```
 
-Default `DISK_MOUNTPOINT` for VirtualBox VMs: `/dev/sdb`
+Default `BLOCK_DEVICE` for VirtualBox VMs: `/dev/sdb`
 
 ## Destroy machines
 

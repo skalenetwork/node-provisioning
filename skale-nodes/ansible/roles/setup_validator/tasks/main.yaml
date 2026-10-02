@@ -1,0 +1,18 @@
+- name: Set hosts
+  set_fact: hosts="{{ hosts|default([]) + [ item.value['ansible_host'] ] }}"
+  with_dict: "{{ hostvars }}"
+
+- name: Execute setup_validator script
+  script: setup_validator.py
+  environment:
+    BASE_DIR: "files"
+    ETH_AMOUNT: "0.2"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+    MIN_DELEGATION_AMOUNT: "0"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    COMMISSION_RATE: "1"
+    NODES_NUMBER: "{{ hosts|length }}"
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
+  args:
+    executable: python3

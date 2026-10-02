@@ -1,0 +1,10 @@
+- name: Execute register_passive_fair script
+  script: register_passive_fair.py
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ boot_endpoint }}"
+    FAIR_CONTRACTS: "{{ fair_contracts }}"
+    PASSIVE_FAIR_IP: "{{ hostvars[groups['nodes'][0]]['ansible_host'] }}"
+  args:
+    executable: python3

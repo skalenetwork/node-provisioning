@@ -1,36 +1,75 @@
-- name: Makedir dist
+# --- Download binary ---
+
+- name: Download the correct binary based on node type
+  when: build_type == "git"
+  tags: binary
+  get_url:
+    url: "{{ download_map[base_node_type].url }}"
+    dest: "{{ download_map[base_node_type].dest }}"
+    force: yes
+    mode: "0755"
+  vars:
+    base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
+    download_map:
+      skale:
+        url: "{{ skale_cli_url }}"
+        dest: "/usr/local/bin/skale"
+      fair:
+        url: "{{ fair_cli_url }}"
+        dest: "/usr/local/bin/fair"
+
+# --- Build binary from source ---
+
+- name: Makedir dist for CLI build
   file:
     state: directory
     path: "{{ base_path }}/node-cli/dist"
-  when: env is defined and env == "dev"
+  when:
+    - build_type == "source"
 
+- name: Ensure builder container is removed before image operations
+  docker_container:
+    name: "node-cli-builder"
+    state: absent
+  when:
+    - build_type == "source"
 
 - name: Remove old binary builder image
   community.docker.docker_image:
     name: "node-cli-builder"
     state: absent
-  when: env is defined and env == "dev"
-
+    force_source: true
+  when:
+    - build_type == "source"
 
 - name: Build binary builder image
   community.docker.docker_image_build:
     name: "node-cli-builder"
     network: host
     path: "{{ base_path }}/node-cli"
-  when: env is defined and env == "dev"
+  when:
+    - build_type == "source"
 
+- name: Determine and set build command based on node type
+  when: build_type == "source"
+  block:
+    - name: Determine build target from a simple map
+      set_fact:
+        _build_target: "{{ build_target_map[base_node_type] | default('') }}"
+      vars:
+        base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
+        build_target_map:
+          fair: "fair"
+          skale: "skale"
 
-- name: Set build command
-  set_fact:
-    build_cmd: "scripts/build.sh test test normal"
-  when: env is defined and env == "dev" and sync_node is not defined or not sync_node
+    - name: Fail if build target is unknown
+      fail:
+        msg: "Unsupported node_type: {{ node_type }}"
+      when: _build_target | length == 0
 
-
-- name: Add sync option to command
-  set_fact:
-    build_cmd: "scripts/build.sh test test sync"
-  when: env is defined and env == "dev" and sync_node is defined and sync_node
-
+    - name: Set full build command
+      set_fact:
+        build_cmd: "bash scripts/build.sh test test {{ _build_target }}"
 
 - name: Build binary
   docker_container:
@@ -40,44 +79,40 @@
     volumes:
       - "{{ base_path }}/node-cli/dist:/app/dist"
     command: "{{ build_cmd }}"
-  when: env is defined and env == "dev"
+  when:
+    - build_type == "source"
 
+- name: Copy source-built executable based on node type
+  when: build_type == "source"
+  block:
+    - name: Determine source and destination paths for the executable
+      set_fact:
+        executable_paths: "{{ path_map[base_node_type] | default({}) }}"
+      vars:
+        base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
+        path_map:
+          fair:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-fair"
+            dest: "/usr/local/bin/fair"
+          skale:
+            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
+            dest: "/usr/local/bin/skale"
 
-- name: Copy executable to /usr/bin/local for normal
-  copy: remote_src=True src="{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64" dest=/usr/local/bin/skale
-  when: env is defined and env == "dev" and (sync_node is not defined or not sync_node)
+    - name: Fail if executable paths could not be determined
+      fail:
+        msg: "Unsupported node_type for copy operation: {{ node_type }}"
+      when: executable_paths | length == 0 or executable_paths.src == ""
 
-
-- name: Copy executable to /usr/bin/local for sync
-  copy: remote_src=True src="{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-sync" dest=/usr/local/bin/skale
-  when: env is defined and env == "dev" and sync_node is defined and sync_node
-
+    - name: Copy the correct executable to /usr/local/bin
+      copy:
+        remote_src: true
+        src: "{{ executable_paths.src }}"
+        dest: "{{ executable_paths.dest }}"
+        mode: "0755"
 
 - name: Remove builder container
   docker_container:
     state: absent
     name: node-cli-builder
-  when: env is defined and env == "dev"
-
-
-- name: Download skale_cli from spaces
-  get_url:
-    url: "{{ skale_cli_url }}"
-    dest: "/usr/local/bin/skale"
-    force: yes
-    mode: 644
-  when: env is defined and env == "test"
-  tags: binary
-
-
-- name: Add execute permission to skale executable
-  file:
-    path: /usr/local/bin/skale
-    mode: '0555'
-  tags: binary
-
-
-- name: Register skale command
-  set_fact:
-    skale: "/usr/local/bin/skale"
-  tags: binary
+  when:
+    - build_type == "source"

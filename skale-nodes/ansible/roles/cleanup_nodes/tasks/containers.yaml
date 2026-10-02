@@ -1,14 +1,12 @@
 - name: Get monitoring container ids
-  command: 'docker ps -a -q --filter="name=monitoring_"'
+  command: 'docker ps -a -q --filter="name=monitor_"'
   become: true
   register: containers_output
-
 
 - name: Split monitoring container ids output
   register: containers_output
   set_fact:
     monitoring_container_ids: "{{ containers_output.stdout.split('\n') }}"
-
 
 - name: Destroy monitoring container ids
   become: true
@@ -19,29 +17,36 @@
     keep_volumes: no
   with_items: "{{ monitoring_container_ids | default([]) }}"
 
-
 - name: Get all container ids
-  command: 'docker ps -a -q --filter="name=skale_"'
+  command: 'docker ps -a -q --filter="name=sk_"'
   become: true
   register: containers_output
   tags: containers_ids
-
 
 - name: Split containers ids output
   register: containers_output
   set_fact:
     skale_container_ids: "{{ containers_output.stdout.split('\n') }}"
 
-
-- name: Destroy admin container
+- name: Destroy skale/fair admin container
   become: true
   docker_container:
-    name: "skale_admin"
+    name: "sk_admin"
     state: absent
     force_kill: yes
     keep_volumes: no
   tags: admin
+  when: node_type == "skale" or node_type == "fair"
 
+- name: Destroy fair boot admin container
+  become: true
+  docker_container:
+    name: "sk_boot_admin"
+    state: absent
+    force_kill: yes
+    keep_volumes: no
+  tags: admin
+  when: node_type == "fair_boot"
 
 - name: Destroy all containers
   become: true
@@ -52,18 +57,16 @@
     keep_volumes: no
   with_items: "{{ skale_container_ids | default([]) }}"
 
-
 - name: Prune docker
   command:
     cmd: "docker system prune -af"
-
+  when: prune_docker is defined and prune_docker
 
 - name: Umount shared-space
   command:
     cmd: "umount /mnt/schains-shared-space"
   failed_when: False
   tags: umount
-
 
 - name: Register /mnt folders
   find:
@@ -73,7 +76,6 @@
   tags:
     - mounts
 
-
 - name: Cleanup /mnt dir
   file:
     path: "{{ item.path }}"
@@ -82,7 +84,6 @@
   tags:
     - mounts
 
-
 - name: Remove all data-dir volumes
   lvg:
     vg: "schains"
@@ -90,3 +91,19 @@
     force: yes
   tags:
     - lvm_artifacts
+
+- name: Clean up anvil resources
+  delegate_to: "{{ groups['nodes'][0] }}"
+  run_once: true
+  when: anvil is defined and anvil
+  tags: stop_anvil
+  block:
+    - name: Stop and remove anvil container
+      docker_container:
+        name: anvil
+        state: absent
+
+    - name: Remove anvil state directory
+      file:
+        path: /var/lib/anvil-state
+        state: absent

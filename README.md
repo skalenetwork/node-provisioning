@@ -1,10 +1,19 @@
-# SKALE Node Provisoning
+# SKALE and Fair Node Provisioning
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 
-This repo will help deploy and register multiple SKALE nodes in the cloud automatically.
+This repo will help deploy and register multiple SKALE and Fair nodes in the cloud automatically.
 
 NOTE: This is for QA and testing purposes only.
+
+- [Fair Node Provisoning](#fair-node-provisoning)
+  - [Fair network creating](#fair-network-creating)
+    - [Setup Fair boot nodes](#1-prepare-inventory)
+    - [Prepare inventory](#2-setup-fair-boot-nodes)
+    - [Create schain](#3-create-schain)
+    - [Deploy Fair contracts](#4-deploy-fair-contracts) 
+    - [Migrate Fair boot nodes](#5-migrate-fair-boot-nodes)
+    - [Setup Fair nodes](#6-setup-fair-nodes)
 
 - [SKALE Node Provisoning](#skale-node-provisoning)
   - [Host requirements](#host-requirements)
@@ -20,6 +29,57 @@ NOTE: This is for QA and testing purposes only.
     - [Upload authorized_keys to nodes](#upload-authorized_keys-to-nodes)
     - [Run main script without IMA deployment](#run-main-script-without-ima-deployment)
     - [Run skaled monitor](#run-skaled-monitor)
+
+
+# Fair Node Provisioning
+
+## Fair network creation
+
+### 1. Prepare inventory
+1) Set `node_type=fair_boot`
+2) Set `build_type=git` (to use Docker image versions specified in the corresponding branch of the 
+`skale-node` repository on GitHub), or `build_type=source` (to build from source). In the second 
+case, set the appropriate local paths to the required cloned repositories and set  
+`container_configs_dir` variable (usually it's `/root/skale-node`).
+3) Don't forget to set all other necessary variables like `eth_private_key`, `endpoint`, etc.
+
+### 2. Setup Fair boot nodes
+```bash
+ansible-playbook -i inventory main.yaml
+```
+The following playbooks are processed here: _deploy_contracts.yaml, sgx_sim.yaml, setup.yaml, 
+validator.yaml, signature.yaml, link_addresses.yaml, register.yaml_
+
+### 3. Create schain
+1) Set the schain name (it must match the name specified in the `fair_static_params.yaml` file for 
+the corresponding network in the relevant branch of the `skale-node` repository). For example, for 
+the **devnet**, the typical name is `fair-devnet1`.
+2) Set the desired `chain_type` (for example, LARGE4 - for 4-nodes chain )
+3) Run the following playbook:
+```bash
+ansible-playbook -i inventory create_chain.yaml
+```
+### 4. Deploy Fair contracts
+1) Set `fair_tag` variable (Fair manager version)
+2) Set `boot_endpoint` variable (endpoint of schain that was created before)
+3) Run the following playbook: 
+```bash
+ansible-playbook -i inventory deploy_fair_manager.yaml
+```
+### 5. Migrate Fair boot nodes
+1) Set `node_type=fair`
+2) Run the following playbook:
+```bash
+ansible-playbook -i inventory fair_migrate.yaml
+```
+### 6. Setup Fair nodes
+1) Set `node_type=fair`
+2) Run the following playbook:
+```bash
+ansible-playbook -i inventory main_fair.yaml
+```
+
+# SKALE Node Provisioning
 
 ## Host requirements
 
@@ -177,3 +237,4 @@ bash utils/generate_hosts.sh
 ```bash
 ansible-playbook -i inventory run_monitor.yaml
 ```
+

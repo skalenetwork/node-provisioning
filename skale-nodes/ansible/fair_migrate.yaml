@@ -1,0 +1,19 @@
+- name: Migrate Fair boot node to regular Fair node
+  hosts: nodes
+  become: true
+  pre_tasks:
+    - name: Set node_type to fair for migration
+      set_fact:
+        node_type: "fair"
+      when: node_type is defined and node_type == 'fair_boot'
+
+  roles:
+    - role: sync
+      when: build_type == "source"
+      tags: sync
+
+    - role: config
+      tags: config
+
+    - role: fair_migrate
+      tags: fair_migrate

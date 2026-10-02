@@ -4,7 +4,7 @@
   roles:
     - role: sync
       tags: sync
-      when: env is defined and env == "dev"
+      when: build_type == "source"
 
     - role: skale_cli
       tags: cli

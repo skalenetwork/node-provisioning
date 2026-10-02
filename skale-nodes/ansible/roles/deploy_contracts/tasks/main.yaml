@@ -1,2 +1,4 @@
+- import_tasks: transfer_funds.yaml
+  when: anvil is defined and anvil
 - import_tasks: manager.yaml
 - import_tasks: ima.yaml

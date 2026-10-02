@@ -1,9 +1,9 @@
 - name: Update skale node
-  hosts: nodes
+  hosts: nodes,archive
   become: true
   roles:
     - role: sync
-      when: env is defined and env == "dev"
+      when: build_type == "source"
       tags: sync
 
     - role: config

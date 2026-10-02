@@ -1,20 +1,18 @@
-version: '3.4'
+x-sk-base: &sk_base
+  restart: unless-stopped
+  labels:
+    com.skale.prefix: "node"
+  cpu_shares: 128
+  logging:
+    driver: "json-file"
+    options:
+      max-file: "5"
+      max-size: "10m"
 
 services:
-  base: &skale_base
-    image: kubernetes/pause
-    restart: unless-stopped
-    labels:
-      com.skale.prefix: "node"
-    logging:
-      driver: "json-file"
-      options:
-        max-file: "5"
-        max-size: "10m"
-
   transaction-manager:
-    <<: *skale_base
-    container_name: skale_transaction-manager
+    <<: *sk_base
+    container_name: sk_tm
     image: "skalenetwork/transaction-manager:${TAG:-latest}"
     build:
       context: "{{ base_path }}/transaction-manager"
@@ -22,17 +20,13 @@ services:
       network: host
     network_mode: host
     tty: true
-    environment:
-      SGX_URL: ${SGX_SERVER_URL}
-      ENDPOINT: ${ENDPOINT}
-      ALLOWED_TS_DIFF: 10000
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
 
-  skale-admin:
-    <<: *skale_base
-    container_name: skale_admin
+  admin:
+    <<: *sk_base
+    container_name: sk_admin
     image: "skale-admin:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-admin"
@@ -44,32 +38,11 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    environment:
-      TM_URL: http://127.0.0.1:3008
-      SGX_SERVER_URL: ${SGX_SERVER_URL}
-      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
-      ENDPOINT: ${ENDPOINT}
-      IMA_ENDPOINT: ${IMA_ENDPOINT}
-      SKALE_DIR_HOST: ${SKALE_DIR}
-      TG_API_KEY: ${TG_API_KEY}
-      TG_CHAT_ID: ${TG_CHAT_ID}
-      MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
-      BACKUP_RUN: ${BACKUP_RUN}
-      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      MAX_ALLOWED_LOG_TIME_DIFF: 600
-      DISABLE_IMA: ${DISABLE_IMA}
-      ENV_TYPE: ${ENV_TYPE}
-      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
-      ALLOWED_TS_DIFF: 10000
-      TELEGRAF: "${TELEGRAF}"
-      INFLUX_URL: "${INFLUX_URL}"
-    command: "python3 admin.py"
+    command: "python3 skale_admin.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
-      - ${SKALE_DIR}/node_data:/skale_node_data
+      - ${SKALE_LIB_PATH}:${SKALE_LIB_PATH}
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
     healthcheck:
       test: ["CMD", "python3", "healthchecks/admin.py"]
@@ -78,9 +51,9 @@ services:
       retries: 2
       start_period: 30s
 
-  skale-api:
-    <<: *skale_base
-    container_name: skale_api
+  api:
+    <<: *sk_base
+    container_name: sk_api
     image: "skale-admin:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-admin"
@@ -91,32 +64,7 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    environment:
-      TM_URL: http://127.0.0.1:3008
-      SGX_SERVER_URL: ${SGX_SERVER_URL}
-      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
-      ENDPOINT: ${ENDPOINT}
-      IMA_ENDPOINT: ${IMA_ENDPOINT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_PORT: ${DB_PORT}
-      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
-      FLASK_APP_PORT: 3007
-      FLASK_APP_HOST: "127.0.0.1"
-      FLASK_DEBUG_MODE: "False"
-      SKALE_DIR_HOST: ${SKALE_DIR}
-      TG_API_KEY: ${TG_API_KEY}
-      TG_CHAT_ID: ${TG_CHAT_ID}
-      MONITORING_CONTAINERS: ${MONITORING_CONTAINERS}
-      BACKUP_RUN: ${BACKUP_RUN}
-      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      ENV_TYPE: ${ENV_TYPE}
-      DEFAULT_TIMEOUT: ${DEFAULT_TIMEOUT}
-      ALLOWED_TS_DIFF: 10000
-    command: "gunicorn app:app -c gunicorn.conf.py"
+    command: "gunicorn skale_api:app -c gunicorn.conf.py"
     volumes:
       - /var/run/skale:/var/run/skale
       - ${SKALE_DIR}:/skale_vol
@@ -124,7 +72,7 @@ services:
       - /etc/nft.conf.d/skale/chains:/etc/nft.conf.d/skale/chains
 
   celery:
-    <<: *skale_base
+    <<: *sk_base
     container_name: celery
     image: "skale-admin:${TAG:-latest}"
     build:
@@ -133,19 +81,15 @@ services:
       network: host
     network_mode: host
     tty: true
-    environment:
-      TG_API_KEY: ${TG_API_KEY}
-      TG_CHAT_ID: ${TG_CHAT_ID}
-      SKALE_DIR_HOST: ${SKALE_DIR}
     command: "celery -A tools.notifications.tasks worker --loglevel=info"
 
     volumes:
       - /var/run/skale:/var/run/skale
 
   redis:
-    <<: *skale_base
-    container_name: skale_redis
-    image: "redis:6.0.10-alpine"
+    <<: *sk_base
+    container_name: sk_redis
+    image: "redis:8.4.0-alpine"
     network_mode: host
     tty: true
     environment:
@@ -156,48 +100,39 @@ services:
       - ${SKALE_DIR}/config/redis.conf:/data/redis.conf
 
   bounty:
-    <<: *skale_base
-    container_name: skale_bounty
+    <<: *sk_base
+    container_name: sk_bounty
     image: "bounty-agent:${TAG:-latest}"
     build:
       context: "{{ base_path }}/bounty-agent"
       dockerfile: Dockerfile
       network: host
     network_mode: host
-    environment:
-      SGX_SERVER_URL: ${SGX_SERVER_URL}
-      SGX_CERTIFICATES_DIR_NAME: ${SGX_CERTIFICATES_DIR_NAME}
-      ENDPOINT: ${ENDPOINT}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      DB_PORT: ${DB_PORT}
-      DISABLE_DRY_RUN: ${DISABLE_DRY_RUN}
-      DEFAULT_GAS_LIMIT: ${DEFAULT_GAS_LIMIT}
-      DEFAULT_GAS_PRICE_WEI: ${DEFAULT_GAS_PRICE_WEI}
-      ALLOWED_TS_DIFF: 10000
     volumes:
       - ${SKALE_DIR}:/skale_vol
       - ${SKALE_DIR}/node_data:/skale_node_data
 
   watchdog:
-    <<: *skale_base
-    container_name: skale_watchdog
+    <<: *sk_base
+    container_name: sk_watchdog
     image: "skale-watchdog:${TAG:-latest}"
     build:
       context: "{{ base_path }}/skale-watchdog"
       dockerfile: Dockerfile
       network: host
     network_mode: host
+    volumes:
+      - ${SKALE_DIR}/node_data/settings:/settings:ro
     environment:
+      ALLOWED_TS_DIFF: 300
       FLASK_APP_PORT: 3010
       FLASK_APP_HOST: "127.0.0.1"
       FLASK_DEBUG_MODE: "False"
 
   nginx:
-    <<: *skale_base
-    image: nginx:1.19.6
-    container_name: skale_nginx
+    <<: *sk_base
+    image: nginx:1.20.2
+    container_name: sk_nginx
     network_mode: host
     depends_on:
       - watchdog
@@ -213,19 +148,20 @@ services:
         read_only: true
 
   advisor:
-    <<: *skale_base
+    <<: *sk_base
+    image: gcr.io/cadvisor/cadvisor-amd64:v0.50.0
     container_name: monitor_cadvisor
-    image: google/cadvisor:latest
     cpu_shares: 128
     network_mode: host
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
 
   node-exporter:
-    <<: *skale_base
+    <<: *sk_base
     container_name: monitor_node_exporter
     image: quay.io/prometheus/node-exporter
     volumes:
@@ -240,14 +176,15 @@ services:
     network_mode: host
 
   filebeat:
-    <<: *skale_base
-    container_name: skale_filebeat
+    <<: *sk_base
+    container_name: sk_filebeat
     user: root
-    image: docker.elastic.co/beats/filebeat:7.3.1
+    image: elastic/filebeat:9.1.5
     network_mode: host
     environment:
       FILEBEAT_HOST: ${FILEBEAT_HOST}
     volumes:
       - ${SKALE_DIR}/node_data/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
       - /var/lib/docker:/var/lib/docker:ro
+      - /var/log/docker-lvmpy:/var/log/docker-lvmpy:ro
       - /var/run/skale:/var/run/skale

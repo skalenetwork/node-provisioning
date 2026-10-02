@@ -1,39 +1,54 @@
-- name: Define cmd for regular node
+- name: Get FAIR passive node ID (for passive FAIR nodes only)
+  run_once: yes
   set_fact:
-    skale_cmd: "skale node init {{ base_path }}/init-env"
-  when: sync_node is not defined or not sync_node
+    passive_node_id: "{{ lookup('file', 'files/passive-id.txt') }}"
+  when:
+    - node_type == 'fair'
+    - passive_node is defined and passive_node
 
-- name: Define cmd for sync node
+- name: Set sync_flags based on passive_node status
   set_fact:
-    skale_cmd: "skale sync-node init {{ base_path }}/init-env"
-  when: sync_node is defined and sync_node
+    sync_flags: "{{ '--id ' ~ passive_node_id if node_type == 'fair' and (passive_node | default(false) | bool) else '' }}"
 
-- name: Add --catchup if needed
+- name: Add --indexer if needed
   set_fact:
-    skale_cmd: "{{ skale_cmd }} --catchup"
-  when: sync_node is defined and sync_node and catchup is defined and catchup
+    sync_flags: "{{ sync_flags }} --indexer"
+  when:
+    - passive_node is defined and passive_node
+    - indexer is defined and indexer
 
 - name: Add --archive if needed
   set_fact:
-    skale_cmd: "{{ skale_cmd }} --archive"
-  when: sync_node is defined and sync_node and archive is defined and archive
+    sync_flags: "{{ sync_flags }} --archive"
+  when:
+    - passive_node is defined and passive_node
+    - archive is defined and archive
 
-- name: Add --historic-state if needed
+- name: Add --snapshot if needed
   set_fact:
-    skale_cmd: "{{ skale_cmd }} --historic-state"
-  when: sync_node is defined and sync_node and historic_state is defined and historic_state
-- name: Show skale_cmd
-  debug:
-    msg: "{{ skale_cmd }}"
+    sync_flags: "{{ sync_flags }} --snapshot {{ snapshot }}"
+  when:
+    - node_type == 'fair'
+    - passive_node is defined and passive_node
+    - snapshot is defined
+    - snapshot == 'any' or 'http' in snapshot
 
-- name: Execute skale_cmd
+- name: Build and execute init command
   command:
-    cmd: "{{ skale_cmd }}"
-  environment:
-    LANG: en_US.utf-8
-    LC_ALL: en_US.utf-8
+    cmd: "{{ command_prefixes[node_type] }} init {{ base_path }}/init-env {{ sync_flags }}"
+  vars:
+    command_prefixes:
+      fair_boot: "fair boot"
+      fair: "{{ 'fair passive-node' if (passive_node | default(false) | bool) else 'fair node' }}"
+      skale: "{{ 'skale passive-node' if (passive_node | default(false) | bool) else 'skale node' }}"
+  when: node_type in command_prefixes
+  register: init_cmd
+
+- name: Show init command output
+  debug:
+    msg: "{{ init_cmd.stdout }}"
 
 - name: Pause to make sure skale-admin exchange certs with sgx server
   pause:
     seconds: 120
-  tags: init
+  when: passive_node is not defined or not passive_node

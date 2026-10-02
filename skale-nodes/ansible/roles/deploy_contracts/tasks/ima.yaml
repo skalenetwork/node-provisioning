@@ -9,45 +9,24 @@
   tags:
     - deploy_ima
 
-- name: Generate random string
+- name: Get IMA Contract Address
+  shell: "jq -r '.message_proxy_mainnet_address' {{ playbook_dir }}/../../helper-scripts/contracts_data/ima.json"
+  register: ima_address_output
+  changed_when: false
+  tags:
+    - upload_ima
+
+- name: Save IMA Contract Address to variable
   set_fact:
-    random_str: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=15') }}"
-  tags:
-    - upload_ima
-
-- name: Upload IMA ABI to S3
-  aws_s3:
-    aws_access_key: "{{ aws_key }}"
-    aws_secret_key: "{{ aws_secret }}"
-    bucket: "skale-abis"
-    src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/ima.json"
-    object: 'ima-abi-{{ ima_tag }}-{{ random_str }}.json'
-    region: 'eu-central-1'
-    mode: put
-    permission: "public-read"
-  tags:
-    - upload_ima
-  register: url_output
-
-- name: Format download URL
-  shell:  echo "{{ url_output.url }}" | cut -f1 -d"?"
-  register: ima_url
-  tags:
-    - upload_ima
-
-- name: Show ABIs download URL
-  debug:
-   msg: >-
-      ABIs download URL: {{ ima_url.stdout }}
-  tags:
-    - upload_ima
+    ima_contracts: "{{ ima_address_output.stdout }}"
+  tags: upload_ima
 
 - name: Save IMA URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
-    insertafter: EOF
-    regexp: '^ima_url:'
-    line: "ima_url: {{ ima_url.stdout }}"
-    state: present
+    create: yes
+    regexp: "^ima_contracts:"
+    line: "ima_contracts: '{{ ima_contracts }}'"
+  run_once: yes
   tags:
     - upload_ima

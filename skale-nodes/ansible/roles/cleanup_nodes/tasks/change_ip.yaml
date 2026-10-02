@@ -1,0 +1,21 @@
+- name: Generate random IP address
+  script: generate_ip.py
+  environment:
+    BASE_DIR: "files"
+  args:
+    executable: python3
+  register: random_ip
+  changed_when: false
+
+- name: Show generated IP
+  debug:
+    msg: "{{ random_ip }}"
+
+- name: Change node IP
+  command:
+    cmd: "fair node change-ip {{ random_ip.stdout | trim }}"
+  register: change_ip_cmd
+
+- name: Show change-ip command output
+  debug:
+    msg: "{{ change_ip_cmd.stdout }}"

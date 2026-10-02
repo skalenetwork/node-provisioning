@@ -1,0 +1,51 @@
+- name: Set node_type to fair for migration
+  set_fact:
+    node_type: "fair"
+
+- name: Fair migrate
+  command:
+    cmd: "fair node migrate {{ base_path }}/init-env --yes"
+  register: migrate_cmd
+
+- name: Show migrate command output
+  debug:
+    msg: "{{ migrate_cmd.stdout }}"
+
+- name: Clean up anvil resources
+  delegate_to: "{{ groups['nodes'][0] }}"
+  run_once: true
+  when: anvil is defined and anvil
+  tags: stop_anvil
+  block:
+    - name: Stop and remove anvil container
+      docker_container:
+        name: anvil
+        state: absent
+
+    - name: Remove anvil state directory
+      file:
+        path: /var/lib/anvil-state
+        state: absent
+
+- name: Execute set_rng script
+  script: set_rng.py
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ boot_endpoint }}"
+    FAIR_CONTRACTS: "{{ fair_contracts }}"
+  args:
+    executable: python3
+  delegate_to: localhost
+  run_once: true
+  become: false
+  tags: set_rng
+
+- name: Remove node_type from group_vars/all
+  delegate_to: localhost
+  run_once: true
+  become: false
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    regexp: '^node_type'
+    state: absent

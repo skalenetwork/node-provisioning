@@ -1,0 +1,4 @@
+- import_playbook: sgx_sim.yaml
+- import_playbook: setup.yaml
+- import_playbook: transfer_funds.yaml
+- import_playbook: register.yaml

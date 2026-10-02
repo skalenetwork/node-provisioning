@@ -1,8 +1,7 @@
-- name: Setup validators
+- name: Setup validator
   hosts: 127.0.0.1
   connection: local
-  tasks:
-    - name: Generate and configure validator
-      import_role:
-        name: validators
-        tasks_from: generate
+  roles:
+    - role: setup_validator
+      tags:
+        - setup_validator

@@ -7,62 +7,60 @@
     ENDPOINT: "{{ endpoint }}"
     GAS_PRICE: "{{ deploy_gas_price }}"
     NETWORK: "custom"
+    ETHERSCAN: "{{ etherscan }}"
   tags: deploy_sm
 
-
-- name: Save SM URL to group vars
+- name: Copy SM ABI
   copy:
     src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/manager.json"
     dest: "{{ playbook_dir }}/../../helper-scripts/contracts_data/skaleManagerComponents.json"
   tags: upload_sm
 
+- name: Get SM Contract Address
+  shell: "jq -r '.skale_manager_address' {{ playbook_dir }}/../../helper-scripts/contracts_data/manager.json"
+  register: sm_address_output
+  changed_when: false
+  tags: upload_sm
 
-- name: Generate random string
+- name: Save SM Contract Address to variable
   set_fact:
-    random_str: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=15') }}"
+    manager_contracts: "{{ sm_address_output.stdout }}"
   tags: upload_sm
-
-
-- name: Upload SM ABI to S3
-  aws_s3:
-    aws_access_key: "{{ aws_key }}"
-    aws_secret_key: "{{ aws_secret }}"
-    bucket: "skale-abis"
-    src: "{{ playbook_dir }}/../../helper-scripts/contracts_data/manager.json"
-    object: "skale-manager-abi-{{ manager_tag }}-{{ random_str }}.json"
-    region: "eu-central-1"
-    mode: put
-    permission: "public-read"
-  tags: upload_sm
-  register: url_output
-
-
-- name: Format download URL
-  shell:  echo "{{ url_output.url }}" | cut -f1 -d"?"
-  register: sm_url
-  tags: upload_sm
-
-
-- name: Show ABIs download URL
-  debug:
-   msg: >-
-      ABIs download URL: {{ sm_url.stdout }}
-  tags:
-    - upload_sm
-
-
-- name: Ensure group vars all
-  file:
-    state: touch
-    path: "{{ playbook_dir }}/group_vars/all"
-  tags: upload_sm
-
 
 - name: Save SM URL to group vars
   lineinfile:
     path: "{{ playbook_dir }}/group_vars/all"
-    insertafter: EOF
-    regexp: '^sm_url:'
-    line: "sm_url: {{ sm_url.stdout }}"
-    state: present
+    create: yes
+    regexp: "^manager_contracts:"
+    line: "manager_contracts: '{{ manager_contracts }}'"
   tags: upload_sm
+
+- name: Set allowed_ts_diff based on anvil variable
+  set_fact:
+    allowed_ts_diff: "{{ -1 if anvil is defined and anvil else 300 }}"
+  run_once: yes
+  tags: fix_zero_node
+
+- name: Save allowed_ts_diff to group vars
+  lineinfile:
+    path: "{{ playbook_dir }}/group_vars/all"
+    create: yes
+    regexp: "^allowed_ts_diff:"
+    line: "allowed_ts_diff: {{ allowed_ts_diff }}"
+  run_once: yes
+  tags: fix_zero_node
+
+
+- name: Hotfix for zero node in Fair
+  run_once: yes
+  script: fix_zero_node_fair.py
+  environment:
+    BASE_DIR: "files"
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    ENDPOINT: "{{ endpoint }}"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
+  args:
+    executable: python3
+  tags: fix_zero_node
+  when: node_type == "fair_boot" or node_type == "fair"

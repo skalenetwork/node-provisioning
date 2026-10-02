@@ -14,18 +14,19 @@ wallets/*
 # ansible
 skale-nodes/ansible/my-inventory
 skale-nodes/ansible/inventory/
+skale-nodes/ansible/inventory*
 skale-nodes/ansible/files/base-key*.txt
 skale-nodes/ansible/files/dev*
 skale-nodes/ansible/files/authorized_keys
 skale-nodes/ansible/files/validator-id*.txt
 skale-nodes/ansible/terraform/do/hosts
 skale-nodes/ansible/terraform/aws/hosts*
-skale-nodes/ansible/ansible.cfg
 skale-nodes/ansible/sgx/ansible.cfg
 
 skale-nodes/ansible/files/base-key.txt
 skale-nodes/ansible/files/validator-key.txt
 skale-nodes/ansible/files/validator-id.txt
+skale-nodes/ansible/files/passive-id.txt
 
 skale-nodes/ansible/files/cert.pem
 skale-nodes/ansible/files/privkey.pem
@@ -54,3 +55,4 @@ bare-metal/ansible/files/restart_vm*
 bare-metal/ansible/conf*
 
 skale-nodes/ansible/group_vars/all
+skale-nodes/ansible/roles/base_provision/files/files/authorized_keys

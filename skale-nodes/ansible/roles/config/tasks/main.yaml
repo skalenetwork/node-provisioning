@@ -1,85 +1,95 @@
-  # - name: Get block device from lvm-block-device file created by terraform
-  #   shell: cat "{{ base_path }}/lvm-block-device"
-  #   register: block_device
-
-- name: Set SM download URL
+- name: Set IMA contract address
   set_fact:
-    manager_contracts: "{{ sm_url }}"
-  when: manager_contracts is undefined
-  tags: contracts
-
-- name: Crash if no SM ABIs URL provided
-  fail:
-    msg: manager_contracts is undefined
-  when: manager_contracts is undefined
-  tags: contracts
-
-- name: Set IMA download URL
-  set_fact:
-    ima_contracts: "{{ ima_url }}"
+    ima_contracts: "{{ hostvars['localhost']['ima_contracts'] }}"
   when: ima_contracts is undefined
   tags: contracts
 
-- name: Crash if no IMA ABIs URL provided
+- name: Crash if no IMA contract address provided
   fail:
     msg: ima_contracts is undefined
   when: ima_contracts is undefined
   tags: contracts
 
-- name: Download contracts
-  get_url:
-    url: "{{ manager_contracts }}"
-    dest: "{{ base_path }}/manager.json"
-    mode: 0644
-    force: true
-  tags: contracts
-
-- name: Set sgx url
+- name: Set env options for Fair boot node
   set_fact:
-    sgx_url: "https://{{ hostvars['sgx0'].ansible_host }}:1026"
-  when: sgx_url is not defined or sgx_url == ''
+    env_options: |
+      MANAGER_CONTRACTS="{{ manager_contracts }}"
+      IMA_CONTRACTS="{{ ima_contracts }}"
+      NODE_VERSION="{{ node_version }}"
+      ENDPOINT="{{ endpoint }}"
+      CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
+      BLOCK_DEVICE="{{ block_device }}"
+      SGX_URL="{{ sgx_url }}"
+      ENV_TYPE="{{ env_type }}"
+      FILEBEAT_HOST="{{ filebeat_host }}"
+      ENFORCE_BTRFS='False'
+  when: node_type == "fair_boot"
+  tags: env
 
-- name: Set env options
+- name: Set common env options for regular Fair node
+  set_fact:
+    env_options: |
+      FAIR_CONTRACTS="{{ fair_contracts }}"
+      NODE_VERSION="{{ node_version }}"
+      BOOT_ENDPOINT="{{ boot_endpoint }}"
+      CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
+      BLOCK_DEVICE="{{ block_device }}"
+      ENV_TYPE="{{ env_type }}"
+      FILEBEAT_HOST="{{ filebeat_host }}"
+      ENFORCE_BTRFS='False'
+  when: node_type == "fair"
+  tags: env
+
+- name: Add SGX_URL to env options if not passive
+  set_fact:
+    env_options: "{{ env_options }}\nSGX_URL={{ sgx_url }}"
+  when:
+    - node_type == "fair"
+    - passive_node is not defined or not passive_node
+  tags: env
+
+- name: Set env options for regular SKALE node
   set_fact:
     env_options: |
       ENDPOINT="{{ endpoint }}"
-      IMA_ENDPOINT="{{ ima_endpoint }}"
-      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      NODE_VERSION="{{ node_version }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
-      MANAGER_CONTRACTS_ABI_URL="{{ manager_contracts }}"
-      IMA_CONTRACTS_ABI_URL="{{ ima_contracts }}"
-      CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
-      DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
-      DISK_MOUNTPOINT="{{ block_device }}"
-      SGX_SERVER_URL="{{ sgx_url }}"
+      MANAGER_CONTRACTS="{{ manager_contracts }}"
+      IMA_CONTRACTS="{{ ima_contracts }}"
+      CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
+      DOCKER_LVMPY_VERSION="{{ docker_lvmpy_version }}"
+      BLOCK_DEVICE="{{ block_device }}"
+      SGX_URL="{{ sgx_url }}"
       TG_API_KEY="{{ tg_api_key }}"
       TG_CHAT_ID="{{ tg_chat_id }}"
       MONITORING_CONTAINERS="{{ monitoring_containers }}"
       DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
       ENV_TYPE="{{ env_type }}"
-      DISABLE_IMA="{{ disable_ima }}"
       INFLUX_URL="{{ influx_url }}"
-      TELEGRAF="{{ telegraf }}"
-
-  when: sync_node is not defined or not sync_node
+      BITE="{{ bite }}"
+  when:
+    - node_type == "skale"
+    - (passive_node is not defined or not passive_node)
   tags: env
 
-- name: Set env options sync node
+- name: Set env options for SKALE sync node
   set_fact:
     env_options: |
-      CONTAINER_CONFIGS_STREAM="{{ container_configs_stream }}"
+      NODE_VERSION="{{ node_version }}"
       CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
       ENDPOINT={{ endpoint }}
       ENFORCE_BTRFS='True'
-      DOCKER_LVMPY_STREAM="{{ docker_lvmpy_stream }}"
       ENV_TYPE="{{ env_type }}"
-      SCHAIN_NAME="{{ schain_name }}"
-      MANAGER_CONTRACTS_ABI_URL={{ manager_contracts }}
-      IMA_CONTRACTS_ABI_URL={{ ima_contracts }}
-      DISK_MOUNTPOINT={{ block_device }}
-      INFLUX_URL="{{ influx_url }}"
-      TELEGRAF="{{ telegraf }}"
-  when: sync_node is defined and sync_node
+      SCHAIN_NAME="{{ chain_name }}"
+      MANAGER_CONTRACTS={{ manager_contracts }}
+      IMA_CONTRACTS={{ ima_contracts }}
+      BLOCK_DEVICE={{ block_device }}
+      FILEBEAT_HOST="{{ filebeat_host }}"
+      BITE="{{ bite }}"
+  when:
+    - node_type == "skale"
+    - (passive_node is defined and passive_node)
+  tags: env
 
 - name: Show env
   debug:

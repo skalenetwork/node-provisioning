@@ -1,8 +1,7 @@
-- name: Restore node from backup tarball
+- name: Restore SKALE or FAIR nodes from backup tarball
   hosts: nodes
-  vars:
-    - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
 
   roles:
     - role: node_restore
+      when: node_type is defined and node_type in ['skale', 'fair']
       tags: restore_node
