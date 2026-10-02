@@ -261,6 +261,7 @@ node-1 ansible_host=192.168.1.51
 nodes
 
 [vms:vars]
+ansible_ssh_user=root
 vm_cpus=2
 vm_ram_mb=8192
 vm_datadir_gb=80
@@ -279,6 +280,11 @@ ansible-playbook -i inventory base.yaml
   VMs without it go to the first server.
 - Each VM has a NAT interface for internet access and a LAN interface on `vm_lan_iface` with the static IP.
 - The VM data disk is `/dev/sdb`, so set `block_device=/dev/sdb`.
+- root on each VM accepts your `~/.ssh/id_ed25519`, `id_ecdsa` and `id_rsa` keys (whichever exist on the machine
+  running Ansible). Set `vm_ssh_public_key_file` to use a different key.
+- When a VM is created, its old SSH host key is removed from `~/.ssh/known_hosts` on that machine.
+- `vms.yaml` always logs into the VMs as root. Other playbooks use the inventory user, so keep
+  `ansible_ssh_user=root` in `[vms:vars]`.
 - `base.yaml` replaces root's `authorized_keys` with `files/authorized_keys`, so keep your key in that file.
 - Changes to VM size or IP apply only when the VM is recreated.
 - All settings and their defaults are in `roles/vms/defaults/main.yaml`.

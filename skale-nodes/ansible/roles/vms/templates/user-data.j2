@@ -2,4 +2,6 @@
 disable_root: false
 ssh_pwauth: false
 ssh_authorized_keys:
-  - {{ lookup('file', vm_ssh_public_key_file) | to_json }}
+{% for key_file in vm_ssh_public_keys %}
+  - {{ lookup('file', key_file) | to_json }}
+{% endfor %}

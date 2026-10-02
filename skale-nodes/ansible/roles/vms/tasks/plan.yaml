@@ -1,7 +1,10 @@
 - name: Check that the vms group is not empty
   assert:
     that: groups['vms'] | default([]) | length > 0
-    fail_msg: Add the hosts that should become VMs to the vms group
+    fail_msg: >-
+      The vms group has no hosts. Define it in the same inventory file as the groups it
+      lists (e.g. [vms:children] followed by nodes) and fix any "Unable to parse" inventory
+      warnings above.
 
 - name: Check VM addresses
   assert:

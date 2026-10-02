@@ -1,0 +1,11 @@
+- name: Find SSH public keys for the VMs
+  set_fact:
+    vm_ssh_public_keys: "{{ ([vm_ssh_public_key_file] if vm_ssh_public_key_file else vm_ssh_default_key_files)
+                            | map('expanduser') | select('file') | list }}"
+
+- name: Check SSH public keys
+  assert:
+    that: vm_ssh_public_keys | length > 0
+    fail_msg: >-
+      No SSH public key found on this machine ({{ vm_ssh_public_key_file or vm_ssh_default_key_files | join(', ') }}).
+      Set vm_ssh_public_key_file to the public part of the key Ansible logs in with.
