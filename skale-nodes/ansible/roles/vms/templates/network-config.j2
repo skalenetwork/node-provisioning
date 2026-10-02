@@ -1,0 +1,12 @@
+version: 2
+ethernets:
+  nat:
+    match:
+      macaddress: "{{ vm.nat_mac }}"
+    dhcp4: true
+  lan:
+    match:
+      macaddress: "{{ vm.lan_mac }}"
+    dhcp4: false
+    addresses:
+      - {{ vm.ip }}/{{ vm.prefix_len }}

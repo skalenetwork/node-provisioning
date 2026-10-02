@@ -1,0 +1,92 @@
+- name: Check that KVM is available
+  stat:
+    path: /dev/kvm
+  register: kvm_device
+
+- name: Fail if KVM is not available
+  fail:
+    msg: >-
+      /dev/kvm is missing. Enable VT-x/AMD-V in the BIOS and load kvm_intel or kvm_amd.
+      If this server ran the VirtualBox setup, stop its VMs, remove "blacklist kvm-intel"
+      from /etc/modprobe.d/blacklist.conf and run "modprobe kvm_intel" (or reboot).
+  when: not kvm_device.stat.exists
+
+- name: Check the LAN interface
+  assert:
+    that: (vm_lan_bridge or vm_lan_iface) in ansible_interfaces
+    fail_msg: "Interface {{ vm_lan_bridge or vm_lan_iface }} not found, set vm_lan_iface or vm_lan_bridge"
+
+- name: Install KVM and libvirt
+  apt:
+    name:
+      - qemu-system-x86
+      - qemu-utils
+      - libvirt-daemon-system
+      - libvirt-clients
+      - virtinst
+      - cloud-image-utils
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Start libvirtd
+  systemd:
+    name: libvirtd
+    state: started
+    enabled: yes
+
+- name: Shut VMs down cleanly when the server shuts down
+  lineinfile:
+    path: /etc/default/libvirt-guests
+    regexp: "^#?{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+    create: yes
+  loop:
+    - { key: ON_SHUTDOWN, value: shutdown }
+    - { key: SHUTDOWN_TIMEOUT, value: 300 }
+
+- name: List active libvirt networks
+  command: virsh net-list --name
+  register: active_networks
+  changed_when: false
+
+- name: List autostarted libvirt networks
+  command: virsh net-list --all --autostart --name
+  register: autostart_networks
+  changed_when: false
+
+- name: Start NAT network
+  command: virsh net-start {{ vm_nat_network }}
+  when: vm_nat_network not in active_networks.stdout_lines
+
+- name: Autostart NAT network
+  command: virsh net-autostart {{ vm_nat_network }}
+  when: vm_nat_network not in autostart_networks.stdout_lines
+
+- name: Mount storage device for VM disks
+  mount:
+    path: "{{ vm_dir }}"
+    src: "{{ vm_storage_device }}"
+    fstype: ext4
+    opts: rw
+    state: mounted
+  when: vm_storage_device | length > 0
+
+- name: Create VM directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0711"
+  loop: ["{{ vm_dir }}", "{{ vm_dir }}/cloud-init"]
+
+- name: Check base image
+  stat:
+    path: "{{ vm_base_image }}"
+  register: base_image
+
+- name: Download base image
+  get_url:
+    url: "{{ vm_image_url }}"
+    dest: "{{ vm_base_image }}"
+    checksum: "{{ vm_image_checksum }}"
+  when: not base_image.stat.exists

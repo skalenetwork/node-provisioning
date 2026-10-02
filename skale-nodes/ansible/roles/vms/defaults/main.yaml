@@ -1,0 +1,29 @@
+# VM settings, can be overridden in [vms:vars] or per host.
+# Set vm_kvm_host on a host to pick its server (default: first host in kvm_host).
+vm_cpus: 1
+vm_ram_mb: 4096
+vm_root_gb: 100
+vm_datadir_gb: 80
+vm_prefix_len: 24
+
+# Server settings
+vm_dir: /var/lib/libvirt/images/skale-vms
+# Optional ext4 device to mount at vm_dir (it is not formatted here)
+vm_storage_device: ''
+# Host NIC for the VMs' LAN interface (macvtap). The server itself can't reach
+# the VMs over macvtap: set vm_lan_bridge to an existing Linux bridge if it must.
+vm_lan_iface: eno2
+vm_lan_bridge: ''
+# libvirt network that gives the VMs internet access (NAT)
+vm_nat_network: default
+vm_image_url: https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+vm_image_checksum: "sha256:{{ vm_image_url | dirname }}/SHA256SUMS"
+vm_base_image: "{{ vm_dir }}/{{ vm_image_url | basename }}"
+vm_os_variant: ubuntu24.04
+# Public key for root on the VMs, read on the machine running Ansible.
+# Empty: every key from vm_ssh_default_key_files that exists.
+vm_ssh_public_key_file: ''
+vm_ssh_default_key_files:
+  - ~/.ssh/id_ed25519.pub
+  - ~/.ssh/id_ecdsa.pub
+  - ~/.ssh/id_rsa.pub

@@ -1,0 +1,123 @@
+- name: List existing VMs
+  command: virsh list --all --name
+  register: existing_vms
+  changed_when: false
+
+- name: List running VMs
+  command: virsh list --name
+  register: running_vms
+  changed_when: false
+
+- name: Select VMs to create and to start
+  set_fact:
+    vms_to_create: "{{ vms_plan | rejectattr('name', 'in', existing_vms.stdout_lines) | list }}"
+    vms_to_start: "{{ vms_plan | selectattr('name', 'in', existing_vms.stdout_lines)
+                      | rejectattr('name', 'in', running_vms.stdout_lines) | list }}"
+
+- name: Forget old SSH host keys for the new VMs
+  known_hosts:
+    name: "{{ vm.ip }}"
+    state: absent
+  delegate_to: localhost
+  become: false
+  throttle: 1
+  loop: "{{ vms_to_create }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Create cloud-init directories
+  file:
+    path: "{{ vm_dir }}/cloud-init/{{ vm.name }}"
+    state: directory
+  loop: "{{ vms_to_create }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Write cloud-init configs
+  template:
+    src: "{{ item.1 }}.j2"
+    dest: "{{ vm_dir }}/cloud-init/{{ item.0.name }}/{{ item.1 }}"
+  vars:
+    vm: "{{ item.0 }}"
+  loop: "{{ vms_to_create | product(['meta-data', 'user-data', 'network-config']) | list }}"
+  loop_control:
+    label: "{{ item.0.name }}/{{ item.1 }}"
+
+- name: Build cloud-init seed images
+  command:
+    argv:
+      - cloud-localds
+      - --network-config={{ vm_dir }}/cloud-init/{{ vm.name }}/network-config
+      - "{{ vm_dir }}/{{ vm.name }}-seed.iso"
+      - "{{ vm_dir }}/cloud-init/{{ vm.name }}/user-data"
+      - "{{ vm_dir }}/cloud-init/{{ vm.name }}/meta-data"
+  loop: "{{ vms_to_create }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Create root disks from the base image
+  command:
+    argv: [qemu-img, convert, -O, qcow2, "{{ vm_base_image }}", "{{ vm_dir }}/{{ vm.name }}-root.qcow2"]
+  loop: "{{ vms_to_create }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Resize root disks
+  command:
+    argv: [qemu-img, resize, "{{ vm_dir }}/{{ vm.name }}-root.qcow2", "{{ vm.root_gb }}G"]
+  loop: "{{ vms_to_create }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Create datadir disks
+  command:
+    argv: [qemu-img, create, -f, raw, "{{ vm_dir }}/{{ vm.name }}-datadir.raw", "{{ vm.datadir_gb }}G"]
+  loop: "{{ vms_to_create }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+# Disks go on virtio-scsi, so the datadir disk is /dev/sdb inside the VM
+- name: Create and start VMs
+  command:
+    argv:
+      - virt-install
+      - --name={{ vm.name }}
+      - --memory={{ vm.ram_mb }}
+      - --vcpus={{ vm.cpus }}
+      - --cpu=host-passthrough
+      - --os-variant={{ vm_os_variant }}
+      - --import
+      - --controller=type=scsi,model=virtio-scsi
+      - --disk=path={{ vm_dir }}/{{ vm.name }}-root.qcow2,format=qcow2,bus=scsi,discard=unmap
+      - --disk=path={{ vm_dir }}/{{ vm.name }}-datadir.raw,format=raw,bus=scsi,discard=unmap
+      - --disk=path={{ vm_dir }}/{{ vm.name }}-seed.iso,device=cdrom
+      - --network=network={{ vm_nat_network }},model=virtio,mac={{ vm.nat_mac }}
+      - --network={{ lan_network }},model=virtio,mac={{ vm.lan_mac }}
+      - --graphics=none
+      - --noautoconsole
+  vars:
+    lan_network: "{{ ('bridge=' ~ vm_lan_bridge) if vm_lan_bridge else ('type=direct,source=' ~ vm_lan_iface ~ ',source_mode=bridge') }}"
+  loop: "{{ vms_to_create }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Start VMs on server boot
+  command: virsh autostart {{ vm.name }}
+  loop: "{{ vms_to_create }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"
+
+- name: Start stopped VMs
+  command: virsh start {{ vm.name }}
+  loop: "{{ vms_to_start }}"
+  loop_control:
+    loop_var: vm
+    label: "{{ vm.name }}"

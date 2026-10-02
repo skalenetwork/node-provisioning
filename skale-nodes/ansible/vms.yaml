@@ -1,0 +1,29 @@
+- name: Create KVM VMs on bare-metal servers
+  hosts: kvm_host
+  become: true
+  roles:
+    - role: vms
+
+- name: Wait for VMs to finish first boot
+  hosts: vms
+  gather_facts: no
+  become: true
+  tasks:
+    - name: Wait for SSH
+      wait_for_connection:
+        timeout: 600
+
+    - name: Wait for cloud-init
+      command: cloud-init status --wait
+      register: cloud_init_status
+      changed_when: false
+      failed_when: cloud_init_status.rc not in [0, 2]
+
+    - name: Wait for first-boot apt jobs
+      command:
+        argv:
+          - systemd-run
+          - --property=After=apt-daily.service apt-daily-upgrade.service
+          - --wait
+          - /bin/true
+      changed_when: false
