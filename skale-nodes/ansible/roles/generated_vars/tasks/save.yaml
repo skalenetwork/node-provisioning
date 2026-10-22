@@ -1,0 +1,15 @@
+# Saves the generated_vars_save dict for later runs with this inventory
+- import_tasks: check.yaml
+
+- name: Save generated values next to the inventory
+  lineinfile:
+    path: "{{ generated_vars_file }}"
+    create: yes
+    regexp: "^{{ item.key }}:"
+    line: "{{ item.key }}: {{ item.value | to_json }}"
+  loop: "{{ generated_vars_save | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  delegate_to: localhost
+  run_once: true
+  become: false

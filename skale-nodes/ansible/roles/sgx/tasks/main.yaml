@@ -8,11 +8,28 @@
     msg: "{{ sgx_status.stdout_lines }}"
   tags: deb
 
+- name: Check whether the node is initialized
+  stat:
+    path: "{{ base_path }}/.skale"
+  register: skale_dir
+  tags: sgx
+
+# sgx-data holds the keys of an initialized node. cleanup.yaml removes both to start over.
 - name: Cleanup sgx folder
   file:
     state: absent
     path: "{{ base_path }}/sgx-data"
-  when: cleanup_sgx is defined and cleanup_sgx
+  when:
+    - cleanup_sgx is defined and cleanup_sgx
+    - not skale_dir.stat.exists
+  tags: sgx
+
+- name: Keep sgx-data of the initialized node
+  debug:
+    msg: "Not removing {{ base_path }}/sgx-data: the node is initialized. Run cleanup.yaml to start over."
+  when:
+    - cleanup_sgx is defined and cleanup_sgx
+    - skale_dir.stat.exists
   tags: sgx
 
 - name: Create sgx folder

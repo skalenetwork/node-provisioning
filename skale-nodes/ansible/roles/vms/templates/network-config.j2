@@ -4,9 +4,18 @@ ethernets:
     match:
       macaddress: "{{ vm.nat_mac }}"
     dhcp4: true
+{% if vm.lan_gateway %}
+    dhcp4-overrides:
+      use-routes: false
+{% endif %}
   lan:
     match:
       macaddress: "{{ vm.lan_mac }}"
     dhcp4: false
     addresses:
       - {{ vm.ip }}/{{ vm.prefix_len }}
+{% if vm.lan_gateway %}
+    routes:
+      - to: 0.0.0.0/0
+        via: {{ vm.lan_gateway }}
+{% endif %}

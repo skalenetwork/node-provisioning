@@ -1,5 +1,5 @@
 - name: Restore schains on node
-  include: restore_schain_on_node.yaml
+  include_tasks: restore_schain_on_node.yaml
   vars:
     schain: "{{ schain_name }}"
   loop_control:

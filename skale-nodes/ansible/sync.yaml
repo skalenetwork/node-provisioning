@@ -1,3 +1,6 @@
+- import_playbook: preflight.yaml
+  vars:
+    preflight_stages: [node]
 - import_playbook: base.yaml
 - import_playbook: setup.yaml
 - import_playbook: ssl.yaml

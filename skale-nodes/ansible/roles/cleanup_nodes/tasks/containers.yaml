@@ -6,7 +6,7 @@
 - name: Split monitoring container ids output
   register: containers_output
   set_fact:
-    monitoring_container_ids: "{{ containers_output.stdout.split('\n') }}"
+    monitoring_container_ids: "{{ containers_output.stdout_lines }}"
 
 - name: Destroy monitoring container ids
   become: true
@@ -26,7 +26,7 @@
 - name: Split containers ids output
   register: containers_output
   set_fact:
-    skale_container_ids: "{{ containers_output.stdout.split('\n') }}"
+    skale_container_ids: "{{ containers_output.stdout_lines }}"
 
 - name: Destroy skale/fair admin container
   become: true

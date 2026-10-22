@@ -25,7 +25,8 @@ node_version=''
 sgx_version=''
 sgx_url=''
 sgx_simulator=True
-cleanup_sgx=True
+# Remove sgx-data before starting SGX (initialized nodes always keep theirs)
+cleanup_sgx=False
 
 block_device=''
 eth_private_key=''
@@ -42,12 +43,12 @@ fair_contracts=''
 
 filebeat_host=''
 influx_url='http://example.com'
-docker_lvmpy_stream=''
+docker_lvmpy_version=''
 tg_api_key=''
 tg_chat_id=''
 monitoring_containers=True
 default_gas_price_wei=''
-base_domain_name==skalenodes.com
+base_domain_name=skalenodes.com
 
 cert_mode='certbot'
 
@@ -62,7 +63,7 @@ transaction_manager_path=''
 skale_node_path=''
 skale_node_cli_path=''
 bounty_agent_path=''
-skale_watchdog_path='
+skale_watchdog_path=''
 #########################################################################################
 
 ## contracts deployment

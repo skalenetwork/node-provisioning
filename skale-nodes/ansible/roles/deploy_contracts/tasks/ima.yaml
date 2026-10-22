@@ -1,5 +1,7 @@
 - name: Deploy IMA contracts (this may take a while, logs - {{ playbook_dir }}/logs/ima-deploy.log)
-  shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_ima.sh 2>&1 | tee {{ playbook_dir }}/logs/ima-deploy.log
+  shell: set -o pipefail && bash {{ playbook_dir }}/../../helper-scripts/deploy_ima.sh 2>&1 | tee {{ playbook_dir }}/logs/ima-deploy.log
+  args:
+    executable: /bin/bash
   run_once: yes
   environment:
     IMA_TAG: "{{ ima_tag }}"
@@ -13,6 +15,7 @@
   shell: "jq -r '.message_proxy_mainnet_address' {{ playbook_dir }}/../../helper-scripts/contracts_data/ima.json"
   register: ima_address_output
   changed_when: false
+  failed_when: ima_address_output.rc != 0 or ima_address_output.stdout in ['', 'null']
   tags:
     - upload_ima
 
@@ -21,12 +24,12 @@
     ima_contracts: "{{ ima_address_output.stdout }}"
   tags: upload_ima
 
-- name: Save IMA URL to group vars
-  lineinfile:
-    path: "{{ playbook_dir }}/group_vars/all"
-    create: yes
-    regexp: "^ima_contracts:"
-    line: "ima_contracts: '{{ ima_contracts }}'"
-  run_once: yes
+- name: Save IMA Contract Address for later runs
+  import_role:
+    name: generated_vars
+    tasks_from: save
+  vars:
+    generated_vars_save:
+      ima_contracts: "{{ ima_contracts }}"
   tags:
     - upload_ima

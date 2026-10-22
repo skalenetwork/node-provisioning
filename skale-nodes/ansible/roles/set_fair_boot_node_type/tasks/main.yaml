@@ -10,9 +10,11 @@
   loop: "{{ groups['nodes'] }}"
   run_once: true
 
-- name: Save node_type to group_vars/all for future runs
-  lineinfile:
-    path: "{{ playbook_dir }}/group_vars/all"
-    create: yes
-    regexp: "^node_type:"
-    line: "node_type: fair_boot"
+# fair_migrate removes it once the boot nodes are regular Fair nodes
+- name: Save node_type for later runs
+  import_role:
+    name: generated_vars
+    tasks_from: save
+  vars:
+    generated_vars_save:
+      node_type: fair_boot

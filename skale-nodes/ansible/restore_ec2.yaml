@@ -2,7 +2,7 @@
   hosts: nodes
   gather_facts: false
   vars:
-    - ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
+    ip_address: "{{ hostvars[inventory_hostname].ansible_host }}"
   vars_files:
     - "files/node-backup/{{ ip_address }}/aws_info"
 

@@ -1,0 +1,12 @@
+- name: Whitelist passive node IPs in SyncManager
+  script: whitelist_passive_skale.py
+  environment:
+    ETH_PRIVATE_KEY: "{{ eth_private_key }}"
+    # Grants SYNC_MANAGER_ROLE to eth_private_key when it doesn't have it
+    ANVIL_PRIVATE_KEY: "{{ anvil_private_key if anvil | default(false) | bool else '' }}"
+    ENDPOINT: "{{ endpoint }}"
+    MANAGER_CONTRACTS: "{{ manager_contracts }}"
+    ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
+    NODE_IPS: "{{ dict(groups['nodes'] | zip(groups['nodes'] | map('extract', hostvars, 'ansible_host'))) | to_json }}"
+  args:
+    executable: python3

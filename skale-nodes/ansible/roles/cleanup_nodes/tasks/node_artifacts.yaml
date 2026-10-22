@@ -36,8 +36,15 @@
     flush: yes
   with_items: ["INPUT", "FORWARD", "OUTPUT"]
 
+- name: Check for nftables configuration
+  stat:
+    path: /etc/nftables.conf
+  register: nftables_conf
+  tags: cleanup_firewall
+
 - name: Load firewall rules from configuration file
   ansible.builtin.command:
     cmd: "nft -f /etc/nftables.conf"
   register: nft_load_result
+  when: nftables_conf.stat.exists
   tags: cleanup_firewall

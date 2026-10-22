@@ -40,7 +40,10 @@
           node_schains: "{{ hostvars['localhost'].node_schains }}"
 
       - name: Make snapshot
-        include: tasks/node_schains_restore.yaml
+        include_tasks:
+          file: tasks/node_schains_restore.yaml
+          apply:
+            tags: schain_nodes
         vars:
           schains: "{{ node_schains[ip_address] }}"
         when: ip_address in node_schains

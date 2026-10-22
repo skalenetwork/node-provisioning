@@ -1,0 +1,8 @@
+- name: Check source repository paths
+  assert:
+    that: lookup('vars', item, default='') | regex_replace('/+$', '') is directory
+    fail_msg: "{{ item }} must be the path of a local clone on this machine (got '{{ lookup('vars', item, default='') }}')"
+    quiet: true
+  loop: "{{ ['skale_admin_path', 'transaction_manager_path', 'skale_watchdog_path', 'skale_node_path', 'skale_node_cli_path']
+            + (['bounty_agent_path'] if node_type | default('') == 'skale' else []) }}"
+  run_once: true

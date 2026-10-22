@@ -1,3 +1,4 @@
 ansible==11.3.0
 skale.py==7.11dev6
 boto3==1.17.34
+ruamel.yaml==0.19.1

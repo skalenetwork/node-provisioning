@@ -7,6 +7,14 @@
     cmd: "fair node migrate {{ base_path }}/init-env --yes"
   register: migrate_cmd
 
+# Right after the migration, so a later failure doesn't leave the nodes saved as boot nodes
+- name: Stop saving node_type, the nodes are regular Fair nodes now
+  import_role:
+    name: generated_vars
+    tasks_from: remove
+  vars:
+    generated_vars_drop: [node_type]
+
 - name: Show migrate command output
   debug:
     msg: "{{ migrate_cmd.stdout }}"
@@ -27,6 +35,15 @@
         path: /var/lib/anvil-state
         state: absent
 
+- name: Forget the endpoint, key and contracts of the removed anvil
+  import_role:
+    name: generated_vars
+    tasks_from: remove
+  vars:
+    generated_vars_drop: [endpoint, anvil_private_key, manager_contracts, ima_contracts]
+  when: anvil is defined and anvil
+  tags: stop_anvil
+
 - name: Execute set_rng script
   script: set_rng.py
   environment:
@@ -40,12 +57,3 @@
   run_once: true
   become: false
   tags: set_rng
-
-- name: Remove node_type from group_vars/all
-  delegate_to: localhost
-  run_once: true
-  become: false
-  lineinfile:
-    path: "{{ playbook_dir }}/group_vars/all"
-    regexp: '^node_type'
-    state: absent

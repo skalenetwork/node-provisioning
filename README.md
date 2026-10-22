@@ -30,6 +30,8 @@ NOTE: This is for QA and testing purposes only.
     - [Run main script without IMA deployment](#run-main-script-without-ima-deployment)
     - [Run skaled monitor](#run-skaled-monitor)
 
+- [Pipelines](#pipelines)
+
 - [Bare-metal VMs (KVM)](#bare-metal-vms-kvm)
 
 
@@ -240,6 +242,41 @@ bash utils/generate_hosts.sh
 ansible-playbook -i inventory run_monitor.yaml
 ```
 
+# Pipelines
+
+`skale_pipeline.yaml` and `fair_pipeline.yaml` run a whole setup (anvil, contracts, SGX simulator,
+nodes, registration, chain; Fair also deploys its contracts and migrates the boot nodes).
+`fair_node.yaml`, `skale_node_passive.yaml` and `fair_node_passive.yaml` set up more nodes.
+
+`skale_node_passive.yaml` first whitelists the nodes' IPs in SyncManager
+(`whitelist_passive_skale.yaml`), so the sChain nodes let them sync. Each IP that no range covers
+yet gets a one-address range named `<host>-<ip>`. Adding ranges needs `SYNC_MANAGER_ROLE` for
+`eth_private_key`; when it doesn't have it, the script grants it with the key anvil provided
+(`anvil_private_key`, which `run_anvil.yaml` saves next to the inventory). Without anvil,
+`eth_private_key` has to be a SyncManager admin to grant it to itself.
+
+They start with `preflight.yaml`, which checks the inventory values they need (keys, contract
+tags, CLI URLs or source paths, `base_domain_name`, `chain_name`, ...) before changing anything.
+
+Values the playbooks produce for later runs (contract addresses, the anvil endpoint and key,
+`node_type` while Fair boot nodes are set up) are saved in `group_vars/all` next to the inventory,
+e.g. `inventory/group_vars/all` (or `group_vars/all/generated.yml` when `group_vars/all` is a
+directory), so each inventory keeps its own. They take precedence over `[all:vars]` in the
+inventory file: delete a line, or run `cleanup_local.yaml` to clear them all. Older versions saved
+them in `skale-nodes/ansible/group_vars/all`, where they apply to every inventory: the pipelines stop
+until you move those lines next to the inventory they belong to, or delete them.
+
+With `build_type=source`, each local clone is mirrored into a fixed directory under `base_path`
+(`skale-admin`, `node-cli`, ...), whatever the clone is called. The nodes use the compose file
+from your skale-node clone: `files/compose_from_source.py` adds a build section and a local image
+name to the services built from those repos (admin, api, transaction-manager, ...) and leaves
+everything else as it is. If skale-node adds a service that should be built from source, add it to
+`SERVICES` in that script. To see what it changes:
+
+```bash
+diff <skale-node>/docker-compose.yml <(python3 files/compose_from_source.py <skale-node>/docker-compose.yml /root)
+```
+
 # Bare-metal VMs (KVM)
 
 `skale-nodes/ansible/vms.yaml` creates node machines as KVM VMs on your own server, so the
@@ -279,6 +316,11 @@ ansible-playbook -i inventory base.yaml
 - With several servers, list them all in `kvm_host` and set `vm_kvm_host=<server name>` for a VM or a group.
   VMs without it go to the first server.
 - Each VM has a NAT interface for internet access and a LAN interface on `vm_lan_iface` with the static IP.
+  The default route goes through NAT, so replies to hosts outside the LAN subnet are dropped: only
+  machines on that subnet, including the one running Ansible, can connect to the VMs. Set
+  `vm_lan_gateway=<LAN router>` to route through the LAN instead.
+- The server can't reach its own VMs over macvtap, so it can't be an SSH jump host for them. Set
+  `vm_lan_bridge` to an existing bridge on the server if it must.
 - The VM data disk is `/dev/sdb`, so set `block_device=/dev/sdb`.
 - root on each VM accepts your `~/.ssh/id_ed25519`, `id_ecdsa` and `id_rsa` keys (whichever exist on the machine
   running Ansible). Set `vm_ssh_public_key_file` to use a different key.

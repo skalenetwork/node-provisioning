@@ -18,42 +18,51 @@
   when: not no_downtime is defined or not no_downtime
   become: true
 
-- name: Ensure backup path
-  file:
-    state: directory
-    path: "{{ backup_path }}"
+- name: Create backup archives
   become: true
+  block:
+    - name: Ensure backup path
+      file:
+        state: directory
+        path: "{{ backup_path }}"
 
-- name: Create backup archive
-  command:
-    cmd: "{{ node_cmd_prefix }} node backup {{ backup_path }}"
-  become: true
+    - name: Create backup archive
+      command:
+        cmd: "{{ node_cmd_prefix }} node backup {{ backup_path }}"
 
-- name: Create sgx sim backup
-  archive:
-    path: "{{ base_path }}/sgx-data"
-    dest: "{{ backup_path }}/sgx-data-{{ ansible_date_time.epoch }}.tar.gz"
-    format: gz
-  when: local_sgx_sim is defined and local_sgx_sim
-  become: true
+    - name: Create sgx sim backup
+      archive:
+        path: "{{ base_path }}/sgx-data"
+        dest: "{{ backup_path }}/sgx-data-{{ ansible_date_time.epoch }}.tar.gz"
+        format: gz
+      register: sgx_backup
+      when: local_sgx_sim is defined and local_sgx_sim
 
-- name: Turn on the node back
-  command:
-    cmd: "{{ node_cmd_prefix }} node turn-on {{ base_path }}/init-env --yes"
-  when: not no_downtime is defined or not no_downtime
-  become: true
+  # Also when the backup fails, so the node isn't left turned off
+  always:
+    - name: Turn on the node back
+      command:
+        cmd: "{{ node_cmd_prefix }} node turn-on {{ base_path }}/init-env --yes"
+      when: not no_downtime is defined or not no_downtime
 
 - name: Find backup files
   find:
     path: "{{ backup_path }}"
+    excludes: "sgx-data-*"
   register: backup_files
 
 - name: Download backup archive
   fetch:
     src: "{{ (backup_files.files | sort(attribute='mtime', reverse=true) | first).path }}"
     dest: "artifacts/node-backup/{{ inventory_hostname }}/"
-    patterns: "skale-node*"
     flat: yes
+
+- name: Download sgx sim backup
+  fetch:
+    src: "{{ sgx_backup.dest }}"
+    dest: "artifacts/node-backup/{{ inventory_hostname }}/"
+    flat: yes
+  when: local_sgx_sim is defined and local_sgx_sim
 
 - name: Download init-env
   fetch:
