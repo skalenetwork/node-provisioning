@@ -29,6 +29,7 @@ NOTE: This is for QA and testing purposes only.
     - [Upload authorized_keys to nodes](#upload-authorized_keys-to-nodes)
     - [Run main script without IMA deployment](#run-main-script-without-ima-deployment)
     - [Run skaled monitor](#run-skaled-monitor)
+    - [Upgrade OS packages](#upgrade-os-packages)
 
 - [Pipelines](#pipelines)
 
@@ -241,6 +242,19 @@ bash utils/generate_hosts.sh
 ```bash
 ansible-playbook -i inventory run_monitor.yaml
 ```
+
+### Upgrade OS packages
+
+Runs `apt update && apt upgrade` on every host in the inventory, one host at a time, so the nodes
+of a chain don't all restart Docker at once. Use `--limit` to pick hosts (e.g. `--limit kvm_host`
+for the bare-metal servers, `--limit nodes`) and `-e upgrade_serial=<n>` to upgrade more at a time:
+
+```bash
+ansible-playbook -i inventory upgrade_packages.yaml
+```
+
+Hosts that need a reboot afterwards are listed; they are rebooted, one at a time, only with
+`-e upgrade_reboot=true`. Rebooting a bare-metal server also restarts all its VMs.
 
 # Pipelines
 
