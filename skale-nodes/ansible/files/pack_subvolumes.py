@@ -20,7 +20,6 @@
 import glob
 import logging
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -92,9 +91,15 @@ def umount(name: str) -> None:
 
 
 def cleanup(name: str, was_mounted: bool) -> None:
-    if not was_mounted:
+    if was_mounted:
+        # Someone else mounted it: leave it as it was
+        return
+    mountpoint = get_mountpoint(name)
+    if os.path.ismount(mountpoint):
         umount(name)
-    shutil.rmtree(get_mountpoint(name))
+    # rmdir, not rmtree: it refuses to delete anything if the volume is still mounted
+    if os.path.isdir(mountpoint):
+        os.rmdir(mountpoint)
 
 
 def is_mounted(name: str) -> bool:

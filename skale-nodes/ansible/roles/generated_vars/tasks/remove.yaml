@@ -1,0 +1,14 @@
+# Removes the generated_vars_drop names from the saved values, including any an older
+# version saved in the playbook directory
+- name: Remove generated values
+  lineinfile:
+    path: "{{ item.0 }}"
+    regexp: "^{{ item.1 }}:"
+    state: absent
+  loop: "{{ ([generated_vars_file] + ([generated_vars_legacy_file] if generated_vars_legacy_file is file else []))
+            | unique | product(generated_vars_drop) | list }}"
+  loop_control:
+    label: "{{ item.1 }}"
+  delegate_to: localhost
+  run_once: true
+  become: false

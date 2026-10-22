@@ -1,63 +1,76 @@
+- import_tasks: check.yaml
+  tags: always
+
+# Each repo is mirrored into its own directory, whatever the local clone is called, so
+# `delete` never touches anything else in base_path
 - name: Synchronization of skale-admin repo
   synchronize:
-    src: "{{ skale_admin_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ skale_admin_path | regex_replace('/+$', '') }}/"
+    dest: "{{ base_path }}/skale-admin/"
     delete: yes
     recursive: yes
   tags: admin
 
 - name: Synchronization of transaction-manager repo
   synchronize:
-    src: "{{ transaction_manager_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ transaction_manager_path | regex_replace('/+$', '') }}/"
+    dest: "{{ base_path }}/transaction-manager/"
     delete: yes
     recursive: yes
   tags: tm
 
 - name: Synchronization of skale-watchdog repo
   synchronize:
-    src: "{{ skale_watchdog_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ skale_watchdog_path | regex_replace('/+$', '') }}/"
+    dest: "{{ base_path }}/skale-watchdog/"
     delete: yes
     recursive: yes
   tags: watchdog
 
 - name: Synchronization of skale-node repo
   synchronize:
-    src: "{{ skale_node_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ skale_node_path | regex_replace('/+$', '') }}/"
+    dest: "{{ base_path }}/skale-node/"
     delete: yes
     recursive: yes
   tags: skale-node
 
 - name: Synchronization of node-cli repo
   synchronize:
-    src: "{{ skale_node_cli_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ skale_node_cli_path | regex_replace('/+$', '') }}/"
+    dest: "{{ base_path }}/node-cli/"
     delete: yes
     recursive: yes
   tags: cli
 
 - name: Synchronization of bounty-agent repo
   synchronize:
-    src: "{{ bounty_agent_path }}"
-    dest: "{{ base_path }}"
+    src: "{{ bounty_agent_path | regex_replace('/+$', '') }}/"
+    dest: "{{ base_path }}/bounty-agent/"
     delete: yes
     recursive: yes
   when:
     - node_type == "skale"
   tags: bounty
 
-- name: Replace skale-node docker-compose file
-  template:
-    src: docker-compose.yml.j2
-    dest: "{{ base_path }}/skale-node/docker-compose.yml"
-  when:
-    - node_type == "skale"
+# skale-node's own compose file, with the SKALE containers built from the synced repos
+- name: Build containers from source
+  vars:
+    compose_file: "{{ 'docker-compose.yml' if node_type == 'skale' else 'docker-compose-fair.yml' }}"
+  block:
+    - name: Add build sections to the skale-node compose file
+      script: >-
+        compose_from_source.py
+        {{ (skale_node_path | regex_replace('/+$', '') ~ '/' ~ compose_file) | quote }}
+        {{ base_path | quote }}
+      args:
+        executable: "{{ ansible_playbook_python }}"
+      delegate_to: localhost
+      become: false
+      changed_when: false
+      register: source_compose
 
-- name: Replace fair-node docker-compose-fair file
-  template:
-    src: docker-compose-fair.yml.j2
-    dest: "{{ base_path }}/skale-node/docker-compose-fair.yml"
-  when:
-    - node_type in ['fair_boot', 'fair']
+    - name: Replace the skale-node compose file
+      copy:
+        content: "{{ source_compose.stdout }}"
+        dest: "{{ base_path }}/skale-node/{{ compose_file }}"

@@ -1,3 +1,8 @@
+- import_playbook: preflight.yaml
+  vars:
+    preflight_stages: [contracts, sgx, node, chain, fair]
+    # set_fair_boot_node_type.yaml sets it for the rest of the pipeline
+    node_type: fair_boot
 - import_playbook: set_fair_boot_node_type.yaml
 - import_playbook: run_anvil.yaml
 - import_playbook: deploy_contracts.yaml

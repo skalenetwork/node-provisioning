@@ -1,14 +1,12 @@
-- name: Propagate manager_contracts to nodes
+# The config role checks that the addresses are set
+- name: Propagate contract addresses to nodes
   hosts: nodes,archive
   gather_facts: no
   tasks:
-    - name: Set manager_contracts fact for each node
+    - name: Set manager_contracts and ima_contracts facts for each node
       set_fact:
-        manager_contracts: "{{ hostvars['localhost']['manager_contracts'] | default(manager_contracts, true) }}"
-    - name: Crash if no SM contract address/alias provided
-      fail:
-        msg: manager_contracts is undefined
-      when: manager_contracts is undefined
+        manager_contracts: "{{ hostvars['localhost']['manager_contracts'] | default(manager_contracts | default(''), true) }}"
+        ima_contracts: "{{ hostvars['localhost']['ima_contracts'] | default(ima_contracts | default(''), true) }}"
 
 - name: Setup skale node
   hosts: nodes,archive

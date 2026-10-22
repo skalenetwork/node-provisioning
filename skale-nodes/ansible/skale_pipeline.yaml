@@ -1,3 +1,6 @@
+- import_playbook: preflight.yaml
+  vars:
+    preflight_stages: [contracts, sgx, node, chain]
 - import_playbook: run_anvil.yaml
 - import_playbook: deploy_contracts.yaml
 - import_playbook: sgx_sim.yaml

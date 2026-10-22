@@ -1,3 +1,6 @@
+- import_playbook: preflight.yaml
+  vars:
+    preflight_stages: [sgx, node]
 - import_playbook: cleanup.yaml
 - import_playbook: sgx_sim.yaml
 - import_playbook: setup.yaml

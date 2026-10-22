@@ -13,6 +13,13 @@
     quiet: true
   loop: "{{ groups['vms'] }}"
 
+- name: Check VM gateways
+  assert:
+    that: hostvars[item].vm_lan_gateway | default(vm_lan_gateway) is match('^(([0-9]{1,3}[.]){3}[0-9]{1,3})?$')
+    fail_msg: "{{ item }}: vm_lan_gateway must be empty or an IPv4 address"
+    quiet: true
+  loop: "{{ groups['vms'] }}"
+
 - name: Check VM servers
   assert:
     that: hostvars[item].vm_kvm_host | default(groups['kvm_host'][0]) in groups['kvm_host']
@@ -35,6 +42,7 @@
       name: "{{ item }}"
       ip: "{{ ip }}"
       prefix_len: "{{ hostvars[item].vm_prefix_len | default(vm_prefix_len) }}"
+      lan_gateway: "{{ hostvars[item].vm_lan_gateway | default(vm_lan_gateway) }}"
       cpus: "{{ hostvars[item].vm_cpus | default(vm_cpus) }}"
       ram_mb: "{{ hostvars[item].vm_ram_mb | default(vm_ram_mb) }}"
       root_gb: "{{ hostvars[item].vm_root_gb | default(vm_root_gb) }}"

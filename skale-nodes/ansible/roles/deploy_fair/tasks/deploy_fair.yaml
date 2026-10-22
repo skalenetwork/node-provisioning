@@ -15,7 +15,9 @@
   tags: deploy_fair
 
 - name: Deploy Fair manager contracts (this may take a while, logs - {{ playbook_dir }}/logs/fair-deploy.log)
-  shell: bash {{ playbook_dir }}/../../helper-scripts/deploy_fair.sh 2>&1 | tee {{ playbook_dir }}/logs/fair-deploy.log
+  shell: set -o pipefail && bash {{ playbook_dir }}/../../helper-scripts/deploy_fair.sh 2>&1 | tee {{ playbook_dir }}/logs/fair-deploy.log
+  args:
+    executable: /bin/bash
   run_once: yes
   environment:
     FAIR_TAG: "{{ fair_tag }}"
@@ -33,16 +35,11 @@
     dest: "{{ playbook_dir }}/../../helper-scripts/contracts_data/fairManagerComponents.json"
   tags: upload_fair
 
-- name: Ensure group vars all
-  file:
-    state: touch
-    path: "{{ playbook_dir }}/group_vars/all"
-  tags: upload_fair
-
 - name: Get Fair Contract Address
   shell: "jq -r '.Committee' {{ playbook_dir }}/../../helper-scripts/contracts_data/fair.json"
   register: mm_address_output
   changed_when: false
+  failed_when: mm_address_output.rc != 0 or mm_address_output.stdout in ['', 'null']
   tags: upload_fair
 
 - name: Save Fair Contract Address to variable
@@ -50,13 +47,13 @@
     fair_contracts: "{{ mm_address_output.stdout }}"
   tags: upload_fair
 
-- name: Save Fair Contract Address to group vars
-  lineinfile:
-    path: "{{ playbook_dir }}/group_vars/all"
-    insertafter: EOF
-    regexp: "^fair_contracts:"
-    line: 'fair_contracts: "{{ fair_contracts }}"'
-    state: present
+- name: Save Fair Contract Address for later runs
+  import_role:
+    name: generated_vars
+    tasks_from: save
+  vars:
+    generated_vars_save:
+      fair_contracts: "{{ fair_contracts }}"
   tags: upload_fair
 
 - name: Publish fair_contracts to all nodes for subsequent plays

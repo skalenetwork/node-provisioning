@@ -1,0 +1,8 @@
+- name: Whitelist passive SKALE node IPs
+  hosts: 127.0.0.1
+  connection: local
+  roles:
+    - role: whitelist_passive_skale
+      tags:
+        - whitelist_passive_skale
+      when: passive_node | default(false) | bool

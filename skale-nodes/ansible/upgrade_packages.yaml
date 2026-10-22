@@ -1,0 +1,39 @@
+# apt update && apt upgrade on every host in the inventory, or the ones picked with --limit.
+# Hosts go one at a time (upgrade_serial), so the nodes of a chain don't all restart Docker,
+# which is upgraded with everything else, at the same time. Reboots happen only with
+# -e upgrade_reboot=true; rebooting a server also restarts its VMs.
+- name: Upgrade OS packages
+  hosts: all
+  serial: "{{ upgrade_serial | default(1) }}"
+  become: true
+  tasks:
+    - name: Update the package index and upgrade packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+        lock_timeout: 300
+      register: apt_upgrade
+
+    - name: Show upgraded packages
+      debug:
+        msg: "{{ apt_upgrade.stdout_lines | default([]) | select('match', '^Setting up ') | list }}"
+      when: apt_upgrade is changed
+
+    - name: Check whether a reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Reboot
+      reboot:
+        reboot_timeout: 900
+      when:
+        - reboot_required.stat.exists
+        - upgrade_reboot | default(false) | bool
+
+    - name: Report a pending reboot
+      debug:
+        msg: "{{ inventory_hostname }} needs a reboot: run again with -e upgrade_reboot=true"
+      when:
+        - reboot_required.stat.exists
+        - not (upgrade_reboot | default(false) | bool)

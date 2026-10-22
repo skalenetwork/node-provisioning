@@ -1,0 +1,19 @@
+- name: Check that generated values can be saved next to the inventory
+  assert:
+    that: generated_vars_dir is directory
+    fail_msg: "Can't save generated values next to the inventory {{ generated_vars_inventory }}: use an inventory file or directory"
+    quiet: true
+  run_once: true
+
+- name: Check for generated values saved by older versions
+  assert:
+    that: >-
+      generated_vars_legacy_file == generated_vars_file
+      or generated_vars_legacy_file is not file
+      or lookup('file', generated_vars_legacy_file) is not search('^(' ~ generated_vars_keys | join('|') ~ '):', multiline=true)
+    fail_msg: >-
+      {{ generated_vars_legacy_file }} has values saved by an older version (contract addresses,
+      endpoint, ...). Ansible loads that file for every inventory, ahead of {{ generated_vars_file }}.
+      Move the lines to {{ generated_vars_file }} if they belong to this inventory, otherwise delete them.
+    quiet: true
+  run_once: true

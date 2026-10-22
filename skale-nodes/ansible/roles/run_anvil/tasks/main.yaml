@@ -74,13 +74,12 @@
   delegate_facts: true
   run_once: true
 
-- name: Save anvil_private_key to group vars
-  lineinfile:
-    path: "{{ playbook_dir }}/group_vars/all"
-    create: yes
-    regexp: "^anvil_private_key:"
-    line: "anvil_private_key: '{{ anvil_private_key }}'"
-  run_once: yes
-  delegate_to: localhost
+- name: Save anvil_private_key for later runs
+  import_role:
+    name: generated_vars
+    tasks_from: save
+  vars:
+    generated_vars_save:
+      anvil_private_key: "{{ anvil_private_key }}"
   tags:
     - anvil

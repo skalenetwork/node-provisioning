@@ -1,0 +1,19 @@
+# Values the playbooks produce and later runs reuse: contract addresses, the anvil endpoint and
+# key, and node_type while Fair boot nodes are set up. They are saved in group_vars/all next to
+# the inventory, so each inventory keeps its own and Ansible loads them with it. Like any
+# group_vars file, they take precedence over [all:vars] in the inventory file.
+generated_vars_inventory: "{{ ansible_inventory_sources[0] }}"
+generated_vars_dir: "{{ generated_vars_inventory if generated_vars_inventory is directory else generated_vars_inventory | dirname }}"
+# group_vars/all can be a file or a directory of files
+generated_vars_file: "{{ generated_vars_dir }}/group_vars/all{{ '/generated.yml' if (generated_vars_dir ~ '/group_vars/all') is directory else '' }}"
+# Older versions saved them here, where Ansible loads them for every inventory
+generated_vars_legacy_file: "{{ playbook_dir }}/group_vars/all"
+generated_vars_keys:
+  - anvil_private_key
+  - endpoint
+  - manager_contracts
+  - ima_contracts
+  - fair_contracts
+  # Only saved by older versions
+  - allowed_ts_diff
+  - node_type

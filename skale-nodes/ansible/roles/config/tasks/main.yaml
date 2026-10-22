@@ -1,13 +1,10 @@
-- name: Set IMA contract address
-  set_fact:
-    ima_contracts: "{{ hostvars['localhost']['ima_contracts'] }}"
-  when: ima_contracts is undefined
-  tags: contracts
-
-- name: Crash if no IMA contract address provided
-  fail:
-    msg: ima_contracts is undefined
-  when: ima_contracts is undefined
+- name: Check contract addresses
+  assert:
+    that:
+      - manager_contracts | default('') | length > 0
+      - ima_contracts | default('') | length > 0
+    fail_msg: Set manager_contracts and ima_contracts in the inventory, or run deploy_contracts.yaml first
+  when: node_type in ['skale', 'fair_boot']
   tags: contracts
 
 - name: Set env options for Fair boot node

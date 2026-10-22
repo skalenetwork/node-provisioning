@@ -1,3 +1,4 @@
+# fair_boot nodes have no CLI cleanup: the other cleanup tasks remove them
 - name: Build and execute cleanup command
   command:
     cmd: "{{ command_prefixes[node_type] }} cleanup --yes"
@@ -7,7 +8,10 @@
       skale: "{{ 'skale passive-node' if (passive_node | default(false) | bool) else 'skale node' }}"
   when: node_type in command_prefixes
   register: cleanup_cmd
+  # Keep cleaning up when the CLI can't, e.g. on a node that was never initialized
+  ignore_errors: true
 
 - name: Show cleanup command output
   debug:
     msg: "{{ cleanup_cmd.stdout }}"
+  when: cleanup_cmd is not skipped

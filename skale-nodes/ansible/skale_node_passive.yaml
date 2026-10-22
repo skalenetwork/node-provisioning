@@ -1,1 +1,5 @@
+- import_playbook: preflight.yaml
+  vars:
+    preflight_stages: [whitelist, node]
+- import_playbook: whitelist_passive_skale.yaml
 - import_playbook: setup.yaml

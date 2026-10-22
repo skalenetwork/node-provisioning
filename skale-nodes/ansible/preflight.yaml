@@ -1,0 +1,114 @@
+# Checks the inventory before a pipeline starts, so a missing or mistyped value fails here
+# instead of halfway through a run. Pipelines import it with the stages they run:
+#   contracts  deploy_contracts.yaml
+#   sgx        sgx_sim.yaml
+#   node       setup.yaml and register.yaml
+#   chain      create_chain.yaml
+#   fair       deploy_fair_manager.yaml and fair_migrate.yaml
+#   whitelist  whitelist_passive_skale.yaml
+- name: Check the inventory
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+  vars:
+    preflight_stages: []
+  tasks:
+    - name: Check generated values
+      import_role:
+        name: generated_vars
+        tasks_from: check
+
+    - name: Check settings for contract deployment
+      assert:
+        that: lookup('vars', item, default='') | string | length > 0
+        fail_msg: "Set {{ item }} in the inventory"
+        quiet: true
+      loop: "{{ ['eth_private_key', 'manager_tag', 'ima_tag'] + ([] if anvil | default(false) | bool else ['endpoint']) }}"
+      when: "'contracts' in preflight_stages"
+
+    - name: Check chain settings
+      assert:
+        that: chain_name | default('') | string | length > 0
+        fail_msg: Set chain_name in the inventory
+      when: "'chain' in preflight_stages"
+
+    - name: Check Fair settings
+      assert:
+        that: lookup('vars', item, default='') | string | length > 0
+        fail_msg: "Set {{ item }} in the inventory"
+        quiet: true
+      loop: [fair_tag, boot_endpoint]
+      when: "'fair' in preflight_stages"
+
+    - name: Check settings for whitelisting passive nodes
+      assert:
+        that: lookup('vars', item, default='') | string | length > 0
+        fail_msg: "Set {{ item }} in the inventory"
+        quiet: true
+      loop: "{{ ['eth_private_key', 'endpoint', 'manager_contracts'] + (['anvil_private_key'] if anvil | default(false) | bool else []) }}"
+      when: "'whitelist' in preflight_stages"
+
+# Runs against the nodes (nothing connects to them) to see their own values
+- name: Check node settings
+  hosts: nodes,archive
+  gather_facts: false
+  vars:
+    preflight_stages: []
+    preflight_passive: "{{ passive_node | default(false) | bool }}"
+  tasks:
+    - name: Check node_type and build_type
+      assert:
+        that:
+          - node_type | default('') in ['skale', 'fair_boot', 'fair']
+          - build_type | default('') in ['git', 'source']
+        fail_msg: >-
+          node_type must be skale, fair_boot or fair and build_type must be git or source
+          (got '{{ node_type | default('') }}' and '{{ build_type | default('') }}')
+      when: "'node' in preflight_stages"
+
+    - name: Check node values
+      assert:
+        that: lookup('vars', item, default='') | string | length > 0
+        fail_msg: "Set {{ item }} in the inventory"
+        quiet: true
+      loop: >-
+        {{ ['block_device']
+           + ([('skale_cli_url' if node_type | default('') == 'skale' else 'fair_cli_url')] if build_type | default('') == 'git' else [])
+           + (['manager_contracts', 'ima_contracts']
+              if node_type | default('') in ['skale', 'fair_boot'] and 'contracts' not in preflight_stages else [])
+           + (['fair_contracts', 'boot_endpoint'] if node_type | default('') == 'fair' else []) }}
+      when: "'node' in preflight_stages"
+
+    - name: Check base_domain_name
+      assert:
+        that: base_domain_name | default('') is match('^([a-z0-9]([a-z0-9-]*[a-z0-9])?[.])+[a-z]{2,}$', ignorecase=true)
+        fail_msg: >-
+          base_domain_name '{{ base_domain_name | default('') }}' is not a domain name
+          (nodes register as {{ inventory_hostname }}.<base_domain_name>)
+      when:
+        - "'node' in preflight_stages"
+        - node_type in ['skale', 'fair_boot']
+        - not preflight_passive
+
+    - name: Check docker_lvmpy_version
+      assert:
+        that: docker_lvmpy_version is defined
+        fail_msg: Add docker_lvmpy_version to the inventory (older templates called it docker_lvmpy_stream)
+      when:
+        - "'node' in preflight_stages"
+        - node_type == 'skale'
+        - not preflight_passive
+
+    - name: Check SGX settings
+      assert:
+        that: sgx_version | default('') | string | length > 0
+        fail_msg: Set sgx_version in the inventory
+      when: "'sgx' in preflight_stages"
+
+    - name: Check source repositories
+      import_role:
+        name: sync
+        tasks_from: check
+      when:
+        - "'node' in preflight_stages"
+        - build_type == 'source'

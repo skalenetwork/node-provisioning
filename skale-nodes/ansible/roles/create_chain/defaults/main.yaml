@@ -1,0 +1,2 @@
+# With anvil, -1 turns off skale.py's stale block check (it raises StaleBlockchain there)
+allowed_ts_diff: "{{ -1 if anvil | default(false) | bool else 300 }}"

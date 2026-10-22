@@ -1,20 +1,3 @@
-- name: Set allowed_ts_diff based on anvil variable
-  set_fact:
-    allowed_ts_diff: "{{ -1 if anvil is defined and anvil else 300 }}"
-  run_once: yes
-  tags:
-    - anvil
-
-- name: Save allowed_ts_diff to group vars
-  lineinfile:
-    path: "{{ playbook_dir }}/group_vars/all"
-    create: yes
-    regexp: "^allowed_ts_diff:"
-    line: "allowed_ts_diff: {{ allowed_ts_diff }}"
-  run_once: yes
-  tags:
-    - anvil
-
 - name: Show anvil_private_key
   debug:
     msg: "{{ anvil_private_key }}"
@@ -26,13 +9,13 @@
   when: anvil is defined and anvil
   tags: [anvil]
 
-- name: Save endpoint for anvil to group vars
-  lineinfile:
-    path: "{{ playbook_dir }}/group_vars/all"
-    create: yes
-    regexp: "^endpoint:"
-    line: "endpoint: {{ endpoint }}"
-  run_once: yes
+- name: Save endpoint for anvil for later runs
+  import_role:
+    name: generated_vars
+    tasks_from: save
+  vars:
+    generated_vars_save:
+      endpoint: "{{ endpoint }}"
   when: anvil is defined and anvil
   tags: [anvil]
 
