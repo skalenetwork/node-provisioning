@@ -14,7 +14,7 @@
       IMA_CONTRACTS="{{ ima_contracts }}"
       NODE_VERSION="{{ node_version }}"
       ENDPOINT="{{ endpoint }}"
-      CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
+      CONTAINER_CONFIGS_DIR="{{ base_path ~ '/skale-node' if build_type == 'source' else '' }}"
       BLOCK_DEVICE="{{ block_device }}"
       SGX_URL="{{ sgx_url }}"
       ENV_TYPE="{{ env_type }}"
@@ -28,8 +28,8 @@
     env_options: |
       FAIR_CONTRACTS="{{ fair_contracts }}"
       NODE_VERSION="{{ node_version }}"
-      BOOT_ENDPOINT="{{ boot_endpoint }}"
-      CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
+      ENDPOINT="{{ boot_endpoint }}"
+      CONTAINER_CONFIGS_DIR="{{ base_path ~ '/skale-node' if build_type == 'source' else '' }}"
       BLOCK_DEVICE="{{ block_device }}"
       ENV_TYPE="{{ env_type }}"
       FILEBEAT_HOST="{{ filebeat_host }}"
@@ -42,7 +42,7 @@
     env_options: "{{ env_options }}\nSGX_URL={{ sgx_url }}"
   when:
     - node_type == "fair"
-    - passive_node is not defined or not passive_node
+    - not (passive_node | default(false) | bool)
   tags: env
 
 - name: Set env options for regular SKALE node
@@ -53,27 +53,26 @@
       FILEBEAT_HOST="{{ filebeat_host }}"
       MANAGER_CONTRACTS="{{ manager_contracts }}"
       IMA_CONTRACTS="{{ ima_contracts }}"
-      CONTAINER_CONFIGS_DIR="{{ container_configs_dir if (build_type | default('')) == 'source' else ''}}"
+      CONTAINER_CONFIGS_DIR="{{ base_path ~ '/skale-node' if build_type == 'source' else '' }}"
       DOCKER_LVMPY_VERSION="{{ docker_lvmpy_version }}"
       BLOCK_DEVICE="{{ block_device }}"
       SGX_URL="{{ sgx_url }}"
       TG_API_KEY="{{ tg_api_key }}"
       TG_CHAT_ID="{{ tg_chat_id }}"
       MONITORING_CONTAINERS="{{ monitoring_containers }}"
-      DEFAULT_GAS_PRICE_WEI="{{ default_gas_price_wei }}"
       ENV_TYPE="{{ env_type }}"
       INFLUX_URL="{{ influx_url }}"
       BITE="{{ bite }}"
   when:
     - node_type == "skale"
-    - (passive_node is not defined or not passive_node)
+    - not (passive_node | default(false) | bool)
   tags: env
 
 - name: Set env options for SKALE sync node
   set_fact:
     env_options: |
       NODE_VERSION="{{ node_version }}"
-      CONTAINER_CONFIGS_DIR="{{ container_configs_dir }}"
+      CONTAINER_CONFIGS_DIR="{{ base_path ~ '/skale-node' if build_type == 'source' else '' }}"
       ENDPOINT={{ endpoint }}
       ENFORCE_BTRFS='True'
       ENV_TYPE="{{ env_type }}"
@@ -85,7 +84,7 @@
       BITE="{{ bite }}"
   when:
     - node_type == "skale"
-    - (passive_node is defined and passive_node)
+    - passive_node | default(false) | bool
   tags: env
 
 - name: Show env

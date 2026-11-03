@@ -1,23 +1,15 @@
-- name: Add docker GPG apt key
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-    state: present
-
-
 - name: Add docker repository
-  apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu bionic stable
-    state: present
+  deb822_repository:
+    name: docker
+    types: deb
+    uris: https://download.docker.com/linux/ubuntu
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: stable
+    signed_by: https://download.docker.com/linux/ubuntu/gpg
+    install_python_debian: true
 
-
-- name: Update apt and install docker-ce
-  apt: update_cache=yes name=docker-ce state=latest
-
-
-- name: Install docker-compose
-  get_url:
-    url: "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-Linux-x86_64"
-    dest: "/usr/local/bin/docker-compose"
-    mode: "0744"
-    checksum: "sha512:8237edeb7855475c02a38f7738fba3ac854b6fb42d621bcde2348c20c5762e453cf9ce2175df470f72fe00ef11fc4e0cea196586f4427750b8ff4a6915a46bc3"
-  tags: docker-compose
+- name: Install docker
+  apt:
+    name: [docker-ce, docker-ce-cli, containerd.io, docker-buildx-plugin, docker-compose-plugin]
+    state: latest
+    update_cache: true

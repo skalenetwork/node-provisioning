@@ -21,46 +21,20 @@
   tags: ulimits
 
 - name: Install packages
-  apt: name={{ item }} update_cache=yes state=latest
-  loop: [
-    "apt-transport-https",
-    "ca-certificates",
-    "curl",
-    "software-properties-common",
-    "virtualenv",
-    "python3-setuptools",
-    "python3-dev",
-    "iptables-persistent",
-    "python3-pip"
-    ]
+  apt:
+    name: [ca-certificates, curl, iptables-persistent]
+    state: latest
+    update_cache: true
   tags: apt
 
 - import_tasks: docker.yaml
   tags: docker
 
-- name: Update pip
-  pip:
-    name: pip
-    state: latest
-
-- name: Uninstall pyOpenSSL
-  pip:
-    name: pyOpenSSL
-    state: absent
-  tags:
-    - pip
-    - openssl
-
-- name: Enable timedatectl
-  shell: sudo timedatectl set-ntp on
-  become: true
-  tags: ntp
-
 - name: Enable timesyncd service
   systemd:
     name: systemd-timesyncd
+    enabled: true
     state: started
-  become: true
   tags: ntp
 
 - name: Disable IPv6 in UFW configuration

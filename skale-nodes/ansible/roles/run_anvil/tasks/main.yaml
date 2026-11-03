@@ -40,7 +40,7 @@
     - name: Run anvil container
       docker_container:
         name: anvil
-        image: "ghcr.io/foundry-rs/foundry:v1.4.0"
+        image: "ghcr.io/foundry-rs/foundry:v1.9.0"
         restart_policy: always
         entrypoint: anvil
         command: "{{ anvil_cmd }}"

@@ -8,7 +8,7 @@
     ENDPOINT: "{{ endpoint }}"
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
   args:
-    executable: python3
+    executable: "{{ ansible_playbook_python }}"
   tags:
     - cleanup_chains
 
@@ -22,6 +22,6 @@
     ENDPOINT: "{{ endpoint }}"
     MANAGER_CONTRACTS: "{{ manager_contracts }}"
   args:
-    executable: python3
+    executable: "{{ ansible_playbook_python }}"
   tags:
     - cleanup_nodes

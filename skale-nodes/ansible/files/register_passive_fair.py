@@ -17,11 +17,9 @@
 #   You should have received a copy of the GNU Affero General Public License
 #   along with node-provisioning.  If not, see <https://www.gnu.org/licenses/>.
 
-import codecs
 import logging
 import os
 
-from eth_keys import keys
 from eth_typing import HexStr
 from skale import FairManager
 from skale.utils.helper import init_default_logger
@@ -49,14 +47,7 @@ def init_fair() -> FairManager:
 if __name__ == '__main__':
     fair = init_fair()
     fair.nodes.register_passive(PASSIVE_FAIR_IP, PASSIVE_FAIR_PORT)
-    pk = ETH_PRIVATE_KEY
-    if pk and pk.startswith('0x'):
-        pk = pk[2:]
-    private_key_bytes = codecs.decode(pk, 'hex')
-    priv_key = keys.PrivateKey(private_key_bytes)
-    pub_key = priv_key.public_key
-    address = pub_key.to_checksum_address()
-    passive_ids = fair.nodes.get_passive_node_ids_for_address(address)
+    passive_ids = fair.nodes.get_passive_node_ids_for_address(fair.wallet.address)
     logger.info(f'All passive nodes for current address: {passive_ids}')
     if len(passive_ids):
         new_passive_node_id = passive_ids[-1]

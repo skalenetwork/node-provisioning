@@ -1,0 +1,1 @@
+cli_type: "{{ 'skale' if node_type == 'skale' else 'fair' }}"

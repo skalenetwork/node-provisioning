@@ -94,16 +94,11 @@
 - name: Setup prometheus container
   docker_container:
     name: "prom"
-    image: bitnami/prometheus:2.49.1
+    image: prom/prometheus:v3.15.1
     ports: 9090
     state: started
     memory: 1GB
     network_mode: host
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
     volumes:
       - "{{ prom_path }}/data:/prometheus"
       - "{{ prom_path }}/config:/etc/prometheus"
@@ -112,7 +107,7 @@
 - name: Setup influxdb container
   docker_container:
     name: "influx"
-    image: influxdb:2.7.5
+    image: influxdb:2.9.1
     ports: 2359
     state: started
     memory: 2GB
@@ -126,11 +121,10 @@
 
 - name: Setup vm container
   docker_container:
-    image: victoriametrics/victoria-metrics
+    image: victoriametrics/victoria-metrics:v1.155.0
     name: vm
     state: started
     ports: 8428
-    state: started
     network_mode: host
     memory: 1GB
     volumes:
@@ -141,7 +135,7 @@
 - name: Setup grafana container
   docker_container:
     name: "grafana"
-    image: grafana/grafana:10.0.3
+    image: grafana/grafana:13.3.0
     ports: 3000
     state: started
     memory: 2GB
@@ -149,5 +143,5 @@
     command:
       - '--config=/etc/grafana/grafana.ini'
     volumes:
-      - "{{ grafana_path }}/data:/opt/grafana/data"
+      - "{{ grafana_path }}/data:/var/lib/grafana"
       - "{{ grafana_path }}/config:/etc/grafana"

@@ -7,4 +7,4 @@
     ENDPOINT: "{{ boot_endpoint }}"
     FAIR_CONTRACTS: "{{ fair_contracts }}"
   args:
-    executable: python3
+    executable: "{{ ansible_playbook_python }}"

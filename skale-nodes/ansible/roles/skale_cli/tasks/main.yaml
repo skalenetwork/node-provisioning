@@ -1,118 +1,35 @@
-# --- Download binary ---
-
-- name: Download the correct binary based on node type
+- name: Download the CLI binary
   when: build_type == "git"
   tags: binary
   get_url:
-    url: "{{ download_map[base_node_type].url }}"
-    dest: "{{ download_map[base_node_type].dest }}"
-    force: yes
+    url: "{{ skale_cli_url if cli_type == 'skale' else fair_cli_url }}"
+    dest: "/usr/local/bin/{{ cli_type }}"
+    force: true
     mode: "0755"
-  vars:
-    base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
-    download_map:
-      skale:
-        url: "{{ skale_cli_url }}"
-        dest: "/usr/local/bin/skale"
-      fair:
-        url: "{{ fair_cli_url }}"
-        dest: "/usr/local/bin/fair"
 
-# --- Build binary from source ---
-
-- name: Makedir dist for CLI build
-  file:
-    state: directory
-    path: "{{ base_path }}/node-cli/dist"
-  when:
-    - build_type == "source"
-
-- name: Ensure builder container is removed before image operations
-  docker_container:
-    name: "node-cli-builder"
-    state: absent
-  when:
-    - build_type == "source"
-
-- name: Remove old binary builder image
-  community.docker.docker_image:
-    name: "node-cli-builder"
-    state: absent
-    force_source: true
-  when:
-    - build_type == "source"
-
-- name: Build binary builder image
-  community.docker.docker_image_build:
-    name: "node-cli-builder"
-    network: host
-    path: "{{ base_path }}/node-cli"
-  when:
-    - build_type == "source"
-
-- name: Determine and set build command based on node type
+- name: Build the CLI from source
   when: build_type == "source"
   block:
-    - name: Determine build target from a simple map
-      set_fact:
-        _build_target: "{{ build_target_map[base_node_type] | default('') }}"
-      vars:
-        base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
-        build_target_map:
-          fair: "fair"
-          skale: "skale"
+    - name: Build the node-cli builder image
+      community.docker.docker_image_build:
+        name: node-cli-builder
+        path: "{{ base_path }}/node-cli"
+        network: host
+        rebuild: always
 
-    - name: Fail if build target is unknown
-      fail:
-        msg: "Unsupported node_type: {{ node_type }}"
-      when: _build_target | length == 0
+    - name: Build the CLI binary
+      community.docker.docker_container:
+        name: node-cli-builder
+        image: node-cli-builder
+        command: "bash scripts/build.sh test test {{ cli_type }}"
+        volumes:
+          - "{{ base_path }}/node-cli/dist:/app/dist"
+        detach: false
+        cleanup: true
 
-    - name: Set full build command
-      set_fact:
-        build_cmd: "bash scripts/build.sh test test {{ _build_target }}"
-
-- name: Build binary
-  docker_container:
-    image: node-cli-builder
-    name: node-cli-builder
-    detach: false
-    volumes:
-      - "{{ base_path }}/node-cli/dist:/app/dist"
-    command: "{{ build_cmd }}"
-  when:
-    - build_type == "source"
-
-- name: Copy source-built executable based on node type
-  when: build_type == "source"
-  block:
-    - name: Determine source and destination paths for the executable
-      set_fact:
-        executable_paths: "{{ path_map[base_node_type] | default({}) }}"
-      vars:
-        base_node_type: "{{ 'fair' if node_type == 'fair_boot' else node_type }}"
-        path_map:
-          fair:
-            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64-fair"
-            dest: "/usr/local/bin/fair"
-          skale:
-            src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64"
-            dest: "/usr/local/bin/skale"
-
-    - name: Fail if executable paths could not be determined
-      fail:
-        msg: "Unsupported node_type for copy operation: {{ node_type }}"
-      when: executable_paths | length == 0 or executable_paths.src == ""
-
-    - name: Copy the correct executable to /usr/local/bin
+    - name: Install the CLI binary
       copy:
         remote_src: true
-        src: "{{ executable_paths.src }}"
-        dest: "{{ executable_paths.dest }}"
+        src: "{{ base_path }}/node-cli/dist/skale-test-Linux-x86_64{{ '-fair' if cli_type == 'fair' else '' }}"
+        dest: "/usr/local/bin/{{ cli_type }}"
         mode: "0755"
-
-- name: Remove builder container
-  docker_container:
-    state: absent
-    name: node-cli-builder
-  when:
-    - build_type == "source"

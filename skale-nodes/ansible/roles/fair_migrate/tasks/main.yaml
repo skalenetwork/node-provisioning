@@ -22,7 +22,7 @@
 - name: Clean up anvil resources
   delegate_to: "{{ groups['nodes'][0] }}"
   run_once: true
-  when: anvil is defined and anvil
+  when: anvil | default(false) | bool
   tags: stop_anvil
   block:
     - name: Stop and remove anvil container
@@ -41,7 +41,7 @@
     tasks_from: remove
   vars:
     generated_vars_drop: [endpoint, anvil_private_key, manager_contracts, ima_contracts]
-  when: anvil is defined and anvil
+  when: anvil | default(false) | bool
   tags: stop_anvil
 
 - name: Execute set_rng script
@@ -52,7 +52,7 @@
     ENDPOINT: "{{ boot_endpoint }}"
     FAIR_CONTRACTS: "{{ fair_contracts }}"
   args:
-    executable: python3
+    executable: "{{ ansible_playbook_python }}"
   delegate_to: localhost
   run_once: true
   become: false

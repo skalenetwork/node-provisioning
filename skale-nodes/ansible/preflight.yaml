@@ -45,7 +45,7 @@
         that: lookup('vars', item, default='') | string | length > 0
         fail_msg: "Set {{ item }} in the inventory"
         quiet: true
-      loop: "{{ ['eth_private_key', 'endpoint', 'manager_contracts'] + (['anvil_private_key'] if anvil | default(false) | bool else []) }}"
+      loop: [eth_private_key, endpoint, manager_contracts]
       when: "'whitelist' in preflight_stages"
 
 # Runs against the nodes (nothing connects to them) to see their own values

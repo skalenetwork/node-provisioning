@@ -7,12 +7,15 @@ on:
       - develop
       - beta
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
       with:
         submodules: true
 
@@ -25,16 +28,10 @@ jobs:
         export VERSION=$(bash ./helper-scripts/calculate_version.sh)
         echo "VERSION=$VERSION" >> $GITHUB_ENV
         echo "Version $VERSION"
-        export RELEASE=true
-        echo "RELEASE=$RELEASE" >> $GITHUB_ENV
 
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ env.VERSION }}
-        release_name: ${{ env.VERSION }}
-        draft: false
-        prerelease: true
+        target_commitish: ${{ github.sha }}
+        prerelease: ${{ github.base_ref != 'stable' }}

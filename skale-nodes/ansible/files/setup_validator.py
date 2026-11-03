@@ -42,8 +42,6 @@ COMMISSION_RATE = int(os.getenv('COMMISSION_RATE'))
 BASE_KEY_FILEPATH = os.path.join(BASE_DIR, 'validator-key.txt')
 VALIDATOR_ID_FILEPATH = os.path.join(BASE_DIR, 'validator-id.txt')
 
-NODES_NUMBER = int(os.getenv('NODES_NUMBER'))
-
 web3 = init_web3(ENDPOINT)
 wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
 skale = SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
@@ -88,7 +86,7 @@ def whitelist_validator(validator_id):
 
 
 def generate_random_name(length=5):
-    return ''.join(random.choice(string.ascii_uppercase + string.digits))
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
 
 
 def setup_validator():

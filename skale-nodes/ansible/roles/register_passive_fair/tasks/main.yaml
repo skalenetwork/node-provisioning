@@ -7,4 +7,4 @@
     FAIR_CONTRACTS: "{{ fair_contracts }}"
     PASSIVE_FAIR_IP: "{{ hostvars[groups['nodes'][0]]['ansible_host'] }}"
   args:
-    executable: python3
+    executable: "{{ ansible_playbook_python }}"

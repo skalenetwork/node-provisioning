@@ -37,14 +37,14 @@
 - name: Compose regular cmd
   set_fact:
     cmd: "{{ node_cmd_prefix }} node restore {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
-  when: config_only is not defined or not config_only
+  when: not (config_only | default(false) | bool)
 
 - name: Compose cmd with config only
   set_fact:
     cmd: "{{ node_cmd_prefix }} node restore --config-only {{ base_path }}/backup.tar.gz {{ base_path }}/init-env"
   when:
     - node_type == "skale"
-    - config_only is defined and config_only
+    - config_only | default(false) | bool
 
 - name: Run skale/fair node restore
   shell:

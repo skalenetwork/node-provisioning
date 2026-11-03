@@ -1,0 +1,22 @@
+name: Lint
+on: [push]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.6"
+      - run: uvx ruff@0.17.3 check
+      - run: uv venv && uv pip install -r skale-nodes/ansible/requirements.txt
+      - run: .venv/bin/ansible-galaxy collection install -r skale-nodes/ansible/requirements.yml
+      - name: Syntax check
+        working-directory: skale-nodes/ansible
+        run: |
+          printf '[nodes]\nnode-0\n' > "$RUNNER_TEMP/hosts"
+          for p in *.yaml; do ../../.venv/bin/ansible-playbook -i inventory-template/dev -i "$RUNNER_TEMP/hosts" --syntax-check "$p"; done

@@ -10,7 +10,7 @@
 
 - name: Test renewal procedure
   command: "certbot renew --dns-digitalocean --dns-digitalocean-credentials {{ do_config }} -d {{ domain }}"
-  when: cert.stat.exists and test_renewal is defined and test_renewal
+  when: cert.stat.exists and test_renewal | default(false) | bool
 
 - name: Run renewal procedure
   command: "certbot renew --quiet --dns-digitalocean --dns-digitalocean-credentials {{ do_config }}"

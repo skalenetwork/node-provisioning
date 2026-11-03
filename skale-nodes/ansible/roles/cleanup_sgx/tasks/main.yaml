@@ -6,7 +6,7 @@
     force_kill: yes
     keep_volumes: no
   tags: sgx
-  when: sgx_simulator is not defined or not sgx_simulator
+  when: not (sgx_simulator | default(false) | bool)
 
 - name: Destroy sgx-sim container
   become: true
@@ -16,7 +16,7 @@
     force_kill: yes
     keep_volumes: no
   tags: sgx
-  when: sgx_simulator is defined and sgx_simulator
+  when: sgx_simulator | default(false) | bool
 
 - name: Remove sgx-data directory
   become: true
