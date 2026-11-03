@@ -6,6 +6,9 @@
       when: build_type == "source"
       tags: sync
 
+    - role: skale_cli
+      tags: cli
+
     - role: config
       tags: config
 

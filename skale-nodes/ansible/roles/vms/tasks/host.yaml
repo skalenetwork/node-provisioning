@@ -13,7 +13,7 @@
 
 - name: Check the LAN interface
   assert:
-    that: (vm_lan_bridge or vm_lan_iface) in ansible_interfaces
+    that: (vm_lan_bridge or vm_lan_iface) in ansible_facts['interfaces']
     fail_msg: "Interface {{ vm_lan_bridge or vm_lan_iface }} not found, set vm_lan_iface or vm_lan_bridge"
 
 - name: Install KVM and libvirt

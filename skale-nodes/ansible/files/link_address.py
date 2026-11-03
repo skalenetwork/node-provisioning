@@ -17,7 +17,6 @@ def main():
     web3 = init_web3(ENDPOINT)
     wallet = Web3Wallet(ETH_PRIVATE_KEY, web3)
     skale = SkaleManager(ENDPOINT, MANAGER_CONTRACTS, wallet)
-    print(f'PK: {ETH_PRIVATE_KEY}')
     print(f'Node address: {ADDRESS}')
     print(f'Signature: {SIGNATURE}')
     checksum_address = to_checksum_address(ADDRESS)

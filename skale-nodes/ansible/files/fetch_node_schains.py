@@ -40,7 +40,7 @@ def dropped_irrelevant(node_data):
 
 
 def get_nodes_by_schain(skale, schain):
-    node_ids = skale.schains_internal.get_node_ids_for_schain(schain)
+    node_ids = skale.schains_internal.node_ids_for_schain(schain)
     return sorted(
         [dropped_irrelevant(skale.nodes.get(nid)) for nid in node_ids],
         key=lambda node: node['name'],
@@ -49,9 +49,8 @@ def get_nodes_by_schain(skale, schain):
 
 def get_all_schains(skale):
     return [
-        skale.schains.get(sid)['name']
-        for sid in skale.schains_internal.get_all_schains_ids()
-        if sid
+        skale.schains.get(schain_hash).name
+        for schain_hash in skale.schains_internal.all_schain_hashes()
     ]
 
 

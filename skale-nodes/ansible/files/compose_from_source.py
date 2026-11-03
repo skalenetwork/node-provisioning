@@ -32,14 +32,6 @@ from ruamel.yaml.comments import CommentedMap
 from ruamel.yaml.scalarstring import DoubleQuotedScalarString
 from ruamel.yaml.util import load_yaml_guess_indent
 
-# Image built from each repo
-IMAGES = {
-    'skale-admin': 'skale-admin:${TAG:-latest}',
-    'transaction-manager': 'skalenetwork/transaction-manager:${TAG:-latest}',
-    'bounty-agent': 'bounty-agent:${TAG:-latest}',
-    'skale-watchdog': 'skale-watchdog:${TAG:-latest}',
-}
-
 # Repo each service is built from. Add new skale-node services here.
 SERVICES = {
     'transaction-manager': 'transaction-manager',
@@ -59,7 +51,7 @@ def build_from_source(compose: CommentedMap, base_path: str) -> list[str]:
         repo = SERVICES.get(name)
         if repo is None:
             continue
-        image = DoubleQuotedScalarString(IMAGES[repo])
+        image = DoubleQuotedScalarString(f'{repo}:${{TAG:-latest}}')
         build = CommentedMap(
             context=DoubleQuotedScalarString(f'{base_path}/{repo}'),
             dockerfile='Dockerfile',

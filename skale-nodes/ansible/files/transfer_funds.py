@@ -35,7 +35,6 @@ ETH_PRIVATE_KEY = os.getenv('ETH_PRIVATE_KEY')
 ADDRESS = os.getenv('ADDRESS')
 AMOUNT = float(os.getenv('AMOUNT'))
 TARGET_PRIVATE_KEY = os.getenv('TARGET_PRIVATE_KEY')
-ALLOWED_TS_DIFF = int(os.getenv('ALLOWED_TS_DIFF', 300))
 
 logger = logging.getLogger(__name__)
 init_default_logger()
@@ -43,15 +42,6 @@ init_default_logger()
 
 def main():
     web3 = init_web3(ENDPOINT)
-
-    # If using anvil, disable the stale check middleware to prevent StaleBlockchain errors
-    if ALLOWED_TS_DIFF < 0:
-        if 'stalecheck' in web3.middleware_onion:
-            logger.info("Disabling stalecheck middleware for anvil.")
-            web3.middleware_onion.remove('stalecheck')
-        else:
-            logger.info("Stalecheck middleware not found, no action needed.")
-
     wallet = Web3Wallet(HexStr(ETH_PRIVATE_KEY), web3)
 
     target_address = None

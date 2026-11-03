@@ -60,7 +60,7 @@
 - name: Prune docker
   command:
     cmd: "docker system prune -af"
-  when: prune_docker is defined and prune_docker
+  when: prune_docker | default(false) | bool
 
 - name: Umount shared-space
   command:
@@ -95,7 +95,7 @@
 - name: Clean up anvil resources
   delegate_to: "{{ groups['nodes'][0] }}"
   run_once: true
-  when: anvil is defined and anvil
+  when: anvil | default(false) | bool
   tags: stop_anvil
   block:
     - name: Stop and remove anvil container

@@ -6,7 +6,7 @@
   set_fact:
     endpoint: "http://{{ hostvars[groups['nodes'][0]].ansible_host }}:8545"
   run_once: true
-  when: anvil is defined and anvil
+  when: anvil | default(false) | bool
   tags: [anvil]
 
 - name: Save endpoint for anvil for later runs
@@ -16,7 +16,7 @@
   vars:
     generated_vars_save:
       endpoint: "{{ endpoint }}"
-  when: anvil is defined and anvil
+  when: anvil | default(false) | bool
   tags: [anvil]
 
 - name: Publish endpoint to all nodes for subsequent plays
@@ -26,7 +26,7 @@
   delegate_facts: true
   loop: "{{ groups['nodes'] }}"
   run_once: true
-  when: anvil is defined and anvil
+  when: anvil | default(false) | bool
   tags: [anvil]
 
 - name: Transfer funds from the base anvil account to main one
@@ -41,4 +41,4 @@
     AMOUNT: "{{ anvil_eth_amount | default(10) }}"
     ALLOWED_TS_DIFF: "{{ allowed_ts_diff }}"
   args:
-    executable: python3
+    executable: "{{ ansible_playbook_python }}"

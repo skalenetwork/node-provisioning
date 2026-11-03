@@ -5,4 +5,4 @@
     - role: register_passive_fair
       tags:
         - register_passive_fair
-      when: passive_node is defined and passive_node
+      when: passive_node | default(false) | bool

@@ -34,7 +34,7 @@
 
 - name: Get wallet data from json
   set_fact:
-    wallet_data: "{{ wallet_info_cmd.stdout | to_json | from_json }}"
+    wallet_data: "{{ wallet_info_cmd.stdout | from_json }}"
 
 - name: Get node signature
   command:

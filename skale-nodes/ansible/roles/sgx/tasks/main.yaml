@@ -20,7 +20,7 @@
     state: absent
     path: "{{ base_path }}/sgx-data"
   when:
-    - cleanup_sgx is defined and cleanup_sgx
+    - cleanup_sgx | default(false) | bool
     - not skale_dir.stat.exists
   tags: sgx
 
@@ -28,7 +28,7 @@
   debug:
     msg: "Not removing {{ base_path }}/sgx-data: the node is initialized. Run cleanup.yaml to start over."
   when:
-    - cleanup_sgx is defined and cleanup_sgx
+    - cleanup_sgx | default(false) | bool
     - skale_dir.stat.exists
   tags: sgx
 
@@ -40,8 +40,8 @@
 
 - import_tasks: sgx_sim.yaml
   tags: sgx_container
-  when: sgx_simulator is defined and sgx_simulator
+  when: sgx_simulator | default(false) | bool
 
 - import_tasks: sgx.yaml
   tags: sgx_container
-  when: sgx_simulator is not defined or not sgx_simulator
+  when: not (sgx_simulator | default(false) | bool)

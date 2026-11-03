@@ -7,7 +7,7 @@ from skale import SkaleManager
 from skale.wallets import Web3Wallet
 from skale.utils.web3_utils import init_web3
 from skale.utils.helper import init_default_logger
-from skale.utils.contracts_provision.main import cleanup_nodes
+from skale.utils.contracts_provision.main import cleanup_nodes, cleanup_schains
 
 logger = logging.getLogger(__name__)
 init_default_logger()
@@ -31,22 +31,9 @@ def remove_active_nodes(skale):
     logger.info('Finished removing active nodes')
 
 
-def get_all_schains_names(skale):
-    schains_ids = skale.schains_internal.get_all_schains_ids()
-    logger.info(f'Found chain IDs: {schains_ids}')
-    names = [skale.schains.get(sid).name for sid in schains_ids]
-    return names
-
-
 def remove_all_schains(skale):
     logger.info('Removing all chains...')
-    schain_names = get_all_schains_names(skale)
-    if not schain_names:
-        logger.info('No chains found to remove')
-        return
-    for name in schain_names:
-        logger.info(f'Deleting chain: {name}')
-        skale.manager.delete_schain(name, wait_for=True)
+    cleanup_schains(skale)
     logger.info('Finished removing chains')
 
 

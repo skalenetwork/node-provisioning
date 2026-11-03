@@ -1,4 +1,3 @@
 - import_playbook: cleanup_nodes.yaml
 - import_playbook: cleanup_sgx.yaml
-- import_playbook: cleanup_geth.yaml
 - import_playbook: cleanup_local.yaml

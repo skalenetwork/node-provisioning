@@ -1,6 +1,0 @@
-- name: Deploy geth
-  hosts: geth
-  become: true
-  roles:
-    - role: geth
-      tags: geth

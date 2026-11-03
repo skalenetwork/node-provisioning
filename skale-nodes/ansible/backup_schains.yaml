@@ -20,7 +20,7 @@
         MANAGER_CONTRACTS: "{{ manager_contracts }}"
         BASE_DIR: "files"
       args:
-        executable: python3
+        executable: "{{ ansible_playbook_python }}"
       register: schain_node_out
       tags: node_schains
 

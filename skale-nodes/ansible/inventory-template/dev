@@ -6,7 +6,6 @@ ansible_python_interpreter=/usr/bin/python3
 build_type=source
 
 base_path=/root
-container_configs_dir='/root/skale-node'
 
 # node_type should be be one of these - 'skale', 'fair_boot', 'fair'
 node_type=skale
@@ -47,7 +46,6 @@ docker_lvmpy_version=''
 tg_api_key=''
 tg_chat_id=''
 monitoring_containers=True
-default_gas_price_wei=''
 base_domain_name=skalenodes.com
 
 cert_mode='certbot'
@@ -80,20 +78,3 @@ email=''
 do_token=''
 docker_username=''
 docker_password=''
-
-
-## geth parameters
-
-geth_image=ethereum/client-go:alltools-v1.13.11
-geth_password=12345
-etherbase="0x1aa5a64A25d58924a2A1059eE66Df835D6dB7Ce6"
-geth_subnet="10.3.155.0/24"
-
-## aws parameters
-
-aws_key=''
-aws_secret=''
-aws_region=''
-aws_keyname=''
-aws_instance_type=''
-aws_security_group=''

@@ -41,8 +41,6 @@ init_default_logger()
 ENDPOINT = os.environ['ENDPOINT']
 MANAGER_CONTRACTS = os.environ['MANAGER_CONTRACTS']
 ETH_PRIVATE_KEY = os.environ['ETH_PRIVATE_KEY']
-# The key anvil provided, empty without anvil
-ANVIL_PRIVATE_KEY = os.getenv('ANVIL_PRIVATE_KEY')
 NODE_IPS = json.loads(os.environ['NODE_IPS'])
 
 
@@ -66,10 +64,8 @@ def ensure_sync_manager_role(skale: SkaleManager) -> None:
     address = skale.wallet.address
     if sync_manager.contract.functions.hasRole(role, address).call():
         return
-    # Without anvil, this works only when the key is a SyncManager admin itself
-    granter = init_skale_manager(ANVIL_PRIVATE_KEY) if ANVIL_PRIVATE_KEY else skale
-    logger.info('Granting SYNC_MANAGER_ROLE to %s with %s', address, granter.wallet.address)
-    granter.sync_manager.grant_sync_manager_role(address)
+    logger.info('Granting SYNC_MANAGER_ROLE to %s', address)
+    sync_manager.grant_sync_manager_role(address)
 
 
 def whitelist(skale: SkaleManager, node_ips: dict[str, str]) -> None:

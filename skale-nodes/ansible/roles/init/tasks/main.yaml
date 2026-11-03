@@ -4,7 +4,7 @@
     passive_node_id: "{{ lookup('file', 'files/passive-id.txt') }}"
   when:
     - node_type == 'fair'
-    - passive_node is defined and passive_node
+    - passive_node | default(false) | bool
 
 - name: Set sync_flags based on passive_node status
   set_fact:
@@ -14,22 +14,22 @@
   set_fact:
     sync_flags: "{{ sync_flags }} --indexer"
   when:
-    - passive_node is defined and passive_node
-    - indexer is defined and indexer
+    - passive_node | default(false) | bool
+    - indexer | default(false) | bool
 
 - name: Add --archive if needed
   set_fact:
     sync_flags: "{{ sync_flags }} --archive"
   when:
-    - passive_node is defined and passive_node
-    - archive is defined and archive
+    - passive_node | default(false) | bool
+    - archive | default(false) | bool
 
 - name: Add --snapshot if needed
   set_fact:
     sync_flags: "{{ sync_flags }} --snapshot {{ snapshot }}"
   when:
     - node_type == 'fair'
-    - passive_node is defined and passive_node
+    - passive_node | default(false) | bool
     - snapshot is defined
     - snapshot == 'any' or 'http' in snapshot
 
@@ -51,4 +51,4 @@
 - name: Pause to make sure skale-admin exchange certs with sgx server
   pause:
     seconds: 120
-  when: passive_node is not defined or not passive_node
+  when: not (passive_node | default(false) | bool)

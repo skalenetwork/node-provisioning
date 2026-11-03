@@ -44,16 +44,13 @@ NOTE: This is for QA and testing purposes only.
 1) Set `node_type=fair_boot`
 2) Set `build_type=git` (to use Docker image versions specified in the corresponding branch of the 
 `skale-node` repository on GitHub), or `build_type=source` (to build from source). In the second 
-case, set the appropriate local paths to the required cloned repositories and set  
-`container_configs_dir` variable (usually it's `/root/skale-node`).
+case, set the appropriate local paths to the required cloned repositories.
 3) Don't forget to set all other necessary variables like `eth_private_key`, `endpoint`, etc.
 
 ### 2. Setup Fair boot nodes
-```bash
-ansible-playbook -i inventory main.yaml
-```
-The following playbooks are processed here: _deploy_contracts.yaml, sgx_sim.yaml, setup.yaml, 
-validator.yaml, signature.yaml, link_addresses.yaml, register.yaml_
+Run these playbooks in order: _run_anvil.yaml, deploy_contracts.yaml, sgx_sim.yaml, setup.yaml,
+validator.yaml, signature.yaml, link_addresses.yaml, register.yaml_. `fair_pipeline.yaml` runs
+steps 2-5 in one go (see [Pipelines](#pipelines)).
 
 ### 3. Create schain
 1) Set the schain name (it must match the name specified in the `fair_static_params.yaml` file for 
@@ -81,15 +78,21 @@ ansible-playbook -i inventory fair_migrate.yaml
 1) Set `node_type=fair`
 2) Run the following playbook:
 ```bash
-ansible-playbook -i inventory main_fair.yaml
+ansible-playbook -i inventory fair_node.yaml
 ```
 
 # SKALE Node Provisioning
 
 ## Host requirements
 
-- Terraform >= 0.12
-- Python >= 3.6
+- Python 3.14 (`.python-version`) with `skale-nodes/ansible/requirements.txt` installed:
+  `uv venv && uv pip install -r skale-nodes/ansible/requirements.txt`, and the DigitalOcean
+  collection that ansible no longer ships:
+  `ansible-galaxy collection install -r skale-nodes/ansible/requirements.yml`
+- Docker, jq and rsync on the machine running Ansible (contracts are deployed from Docker images;
+  `build_type=source` copies the clones with rsync)
+- Terraform >= 1.17 (only to create cloud machines)
+- The `helper-scripts` submodule: `git submodule update --init`
 
 ## Supported providers
 
@@ -99,22 +102,19 @@ ansible-playbook -i inventory main_fair.yaml
 
 ### Secrets preparation
 
-1) Copy contents of the `terraform.tfvars.template` to the `terraform.tfvars` and fill all variables
-2) Set following variables to the environment:
-
-```
-PROVIDER - Cloud provider: `do` or `aws`
-ENDPOINT - Endpoint of the ETH network with manager contract
-NODES - Number of nodes to be created
-SKALE_AMOUNT - Amount of SKALE tokens to transfer
-ETH_AMOUNT- Amount of ETH to transfer
-ETH_PRIVATE_KEY - Base ETH private key to send funds
-```
+Copy `skale-nodes/ansible/inventory-template` to `skale-nodes/ansible/inventory` and fill `dev`.
+Copy `skale-nodes/ansible/terraform/aws/terraform.tfvars.template` to `terraform.tfvars` in the
+same directory and fill all variables.
 
 ### Provision SKALE nodes in the cloud
 
+`create.sh` creates the machines, writes them to `inventory/hosts` and runs `skale_pipeline.yaml`;
+`destroy.sh` removes them:
+
 ```bash
-bash run.sh
+cd skale-nodes/ansible
+NODES_NUMBER=4 bash create.sh
+NODES_NUMBER=4 bash destroy.sh
 ```
 
 ## Setup on existent nodes from sources
@@ -124,22 +124,16 @@ Ansible directory contains ansible provision for setuping skale node system.
 Steps to run provision
 1. Firstly you should create two nodes and attach external volume to it.
 2. Install ansible on your machine.
-3. Then you should copy inventory template from inventory/dev and fill it with absent fields.
+3. Then you should copy inventory template from inventory-template/dev and fill it with absent fields.
 4. Also you should add information about host that you cerated before
-5. Run ```ansible-playbook -i path-to-your-inventory main.yaml```
+5. Run ```ansible-playbook -i path-to-your-inventory skale_pipeline.yaml```
 
 ### Other options
-
-Recreates accounts from which sgx key will be configured.
-```
-ansible-playbook -i path-to-your-inventory wallet.yaml
-```
 
 Setups node on remove server:
 1. Uploads sources.
 2. Reinstalls skale-cli.
 3. Runs skale node init.
-4. Registers node on manager.
 
 ```
 ansible-playbook -i path-to-your-inventory setup.yaml
@@ -150,21 +144,6 @@ Installs needed dependecies and setups os configs.
 ansible-playbook -i path-to-your-inventory base.yaml
 ```
 
-Destroys all containers, removes .skale, reruns setup.yaml steps.
-```
-ansible-playbook -i path-to-your-inventory restart.yaml 
-```
-
-Destroys all containers, removes .skale, reruns setup.yaml steps.
-```
-ansible-playbook -i path-to-your-inventory restart.yaml 
-```
-
-Recreates accounts and runs restart.yaml steps.
-```
-ansible-playbook -i path-to-your-inventory restart.yaml 
-```
-
 ## Tasks
 
 ### Deploy SM
@@ -173,15 +152,13 @@ Required variables in the inventory:
 
 ```
 manager_tag=''
+ima_tag=''
 eth_private_key=''
 endpoint=''
 deploy_gas_price=''
-
-aws_key='' # for S3 upload
-aws_secret='' # for S3 upload
 ```
 
-Deploy and upload ABIs to AWS S3:
+Deploy and save the contract addresses:
 
 ```bash
 ansible-playbook -i inventory deploy_contracts.yaml
@@ -190,21 +167,20 @@ ansible-playbook -i inventory deploy_contracts.yaml
 Deploy only:
 
 ```bash
-ansible-playbook -i inventory deploy_contracts.yaml --tags deploy_contracts
+ansible-playbook -i inventory deploy_contracts.yaml --tags deploy_sm,deploy_ima
 ```
 
-Upload only (from `helper-scripts/contracts_data/manager.json`):
+Save the addresses only (from `helper-scripts/contracts_data/manager.json` and `ima.json`):
 
 ```bash
-ansible-playbook -i inventory deploy_contracts.yaml --tags upload_contracts
+ansible-playbook -i inventory deploy_contracts.yaml --tags upload_sm,upload_ima
 ```
 
 
 ### Upload SSL certificates
 
-1) Copy `cert.pem` and `privkey.pem` files to the `ansible/files` directory
+1) Set `cert_mode=custom` and `ssl_src` to a directory with `fullchain.pem` and `privkey.pem`
 2) Run:
-3) 
 ```bash
 ansible-playbook -i path-to-your-inventory ssl.yaml 
 ```
@@ -214,33 +190,24 @@ ansible-playbook -i path-to-your-inventory ssl.yaml
 1) add `authorized_keys` file with all id_rsa.pub what you want to add for access on nodes to the `ansible/files` directory
 2) Run:
 ```bash
-ansible-playbook -i path-to-your-inventory upload_authorized_keys.yaml 
+ansible-playbook -i path-to-your-inventory base.yaml --tags ssh
 ```
 
 ### Run main script without IMA deployment
 
+Set `ima_tag` and `ima_contracts` to an existing IMA deployment (preflight checks `ima_tag`, the node
+config needs `ima_contracts`), then run:
+
 ```bash
-ansible-playbook -i inventory main.yaml --skip-tags deploy_ima,upload_ima
+ansible-playbook -i inventory skale_pipeline.yaml --skip-tags deploy_ima,upload_ima
 ```
 
 ### Run skaled monitor
 
-1) Create if not exists virtual env for python 3.7 or higher in root of project
-and activate she before script start
-2) Run from root of roject:
+Starts `files/node-side-monitor.sh` (skaled process and log exporters) on the nodes:
+
 ```bash
-pip install -r skale-nodes/ansible/requirements.txt
-```
-3) copy `inventory-template` like `inventory` and fill `dev` file with absent fields.
-4) Add `node_ips.json` file with all ips what you want 
-(example `{"node_name": "node_ip", ..., "node_name": "node_ip"}`) 
-to the `ansible/files` directory
-5) Go to `skale-nodes/ansible` dir and run:
-```bash
-bash utils/generate_hosts.sh
-```
-```bash
-ansible-playbook -i inventory run_monitor.yaml
+ansible-playbook -i inventory deploy_net_monitor.yaml
 ```
 
 ### Upgrade OS packages
@@ -265,9 +232,9 @@ nodes, registration, chain; Fair also deploys its contracts and migrates the boo
 `skale_node_passive.yaml` first whitelists the nodes' IPs in SyncManager
 (`whitelist_passive_skale.yaml`), so the sChain nodes let them sync. Each IP that no range covers
 yet gets a one-address range named `<host>-<ip>`. Adding ranges needs `SYNC_MANAGER_ROLE` for
-`eth_private_key`; when it doesn't have it, the script grants it with the key anvil provided
-(`anvil_private_key`, which `run_anvil.yaml` saves next to the inventory). Without anvil,
-`eth_private_key` has to be a SyncManager admin to grant it to itself.
+`eth_private_key`; the script grants it with `eth_private_key`, which is a SyncManager admin when
+`deploy_contracts.yaml` deployed the contracts with it (with existing contracts, `eth_private_key`
+has to be a SyncManager admin).
 
 They start with `preflight.yaml`, which checks the inventory values they need (keys, contract
 tags, CLI URLs or source paths, `base_domain_name`, `chain_name`, ...) before changing anything.
